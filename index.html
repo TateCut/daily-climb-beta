@@ -593,14 +593,22 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 
   /* ---- Themed dailies ---- */
   /* Climb screen: "🍝 FOOD ⚑PASTA ⚑SAUCE ⚑?" under the round line. */
-  .themestrip { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;
-    font-size: 0.74rem; font-weight: 800; letter-spacing: 0.06em; color: var(--gold); margin: -8px 0 -6px; }
+  /* Daily: today's theme is the headline of the play screen, with a flag chip
+     per climb (Climb N → the theme word once found, struck through if missed). */
+  .themestrip { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: -6px 0 -2px; }
   .themestrip[hidden] { display: none; }
-  .ts-flag { display: inline-flex; align-items: center; gap: 3px; font-size: 0.66rem; letter-spacing: 0.04em; color: var(--muted); }
+  .ts-k { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .ts-name { margin-top: -3px; font-size: 1.75rem; font-weight: 900; letter-spacing: 0.07em; line-height: 1; color: var(--gold);
+    text-shadow: 0 0 18px rgba(242, 193, 78, 0.3); text-transform: uppercase; }
+  .ts-chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .ts-flag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line);
+    background: rgba(18, 20, 31, 0.5); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; }
   .ts-flag svg { width: 9px; height: 13px; }
-  .ts-flag.got { color: var(--gold); }
+  .ts-flag.now { border-color: #5a6182; color: var(--text); }
+  .ts-flag.got { border-color: var(--gold); background: rgba(242, 193, 78, 0.12); color: var(--gold); }
   .ts-flag.miss { text-decoration: line-through; opacity: 0.7; }
   .ts-flag.fresh { animation: ts-pulse 1.6s ease-in-out 3; }
+  @media (max-height: 700px) { .ts-k { display: none; } .ts-name { font-size: 1.4rem; margin-top: 0; } .themestrip { gap: 6px; } }
   @keyframes ts-pulse { 50% { filter: drop-shadow(0 0 5px rgba(242, 193, 78, 0.9)); } }
   .wordtrail .wordtrail-theme { color: var(--gold); text-shadow: 0 0 10px rgba(242, 193, 78, 0.5); font-weight: 800; }
   /* Between climbs: the theme word, found or missed. */
@@ -1998,7 +2006,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 
     <!-- PLAY -->
     <section id="screen-play" hidden>
-      <div class="roundline"><span id="roundline-rounds">Round <b id="round-n">1</b> of <b id="round-total">3</b></span><span id="roundline-practice" hidden>Practice</span><span id="roundline-climb" hidden></span></div>
+      <div class="roundline" id="roundline"><span id="roundline-rounds">Round <b id="round-n">1</b> of <b id="round-total">3</b></span><span id="roundline-practice" hidden>Practice</span><span id="roundline-climb" hidden></span></div>
       <div class="themestrip" id="themestrip" hidden></div>
       <div class="timerbar" id="timerbar"><div class="timerbar-fill" id="bar"></div></div>
       <div class="secs" id="secline"><span id="secs">30</span>s left</div>
@@ -4044,6 +4052,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     $("#roundline-rounds").hidden = climb || !multiRound;
     $("#roundline-practice").hidden = climb || multiRound;
     $("#roundline-climb").hidden = !climb;
+    $("#roundline").hidden = climb && mode === "daily" && !!dailyTheme;
     if (climb) {
       $("#roundline-climb").textContent = mode === "collection"
         ? "Seed #" + (collectionSeed + 1) + " · word " + climbStage + " of " + climbLen()
@@ -6357,21 +6366,27 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     el.classList.add("tappable");
     el.title = "What's the theme?";
     el.replaceChildren();
-    const lab = document.createElement("span");
-    lab.className = "ts-lab";
-    lab.textContent = dailyTheme.theme.emoji + " " + dailyTheme.theme.name.toUpperCase();
-    el.appendChild(lab);
+    const k = document.createElement("span");
+    k.className = "ts-k";
+    k.textContent = "Today's theme";
+    const name = document.createElement("span");
+    name.className = "ts-name";
+    name.textContent = dailyTheme.theme.name;
+    const chips = document.createElement("div");
+    chips.className = "ts-chips";
+    el.append(k, name, chips);
     const labels = [];
     for (let j = 0; j < dailyClimbs.length; j++) {
       const f = document.createElement("span");
       const got = themeFound[j];
       const missed = !got && j < round - 1;
-      f.className = "ts-flag" + (got ? " got" + (j === round - 1 ? " fresh" : "") : missed ? " miss" : "");
+      const now = j === round - 1;
+      f.className = "ts-flag" + (got ? " got" + (now ? " fresh" : "") : missed ? " miss" : now ? " now" : "");
       f.innerHTML = TS_FLAG;
-      const w = got ? got : missed ? themeRevealFor(j, roundWords[j] || []).word : "?";
-      f.append(w.toUpperCase());
-      labels.push(got ? "found " + got : missed ? "missed" : "not found yet");
-      el.appendChild(f);
+      const w = got ? got.toUpperCase() : missed ? themeRevealFor(j, roundWords[j] || []).word.toUpperCase() : "Climb " + (j + 1);
+      f.append(w);
+      labels.push("climb " + (j + 1) + (got ? ": found " + got : missed ? ": missed" : now ? ": playing now" : ""));
+      chips.appendChild(f);
     }
     el.setAttribute("aria-label", "Today's theme: " + dailyTheme.theme.name + ". " + labels.join(", "));
   }
