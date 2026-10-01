@@ -2379,7 +2379,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
           return ladder.slice(0, Math.max(1, ladder.length - drop));
         });
         e.total = e.roundWords.reduce(function (a, w) { return a + w.length; }, 0);
-        e.themeWords = e.roundWords.filter(function (w, c) { return w.some(function (word) { return info.themeWords[c].indexOf(word) >= 0; }); }).length;
+        var list = String((window.THEME_WORDS || {})[info.theme] || "").split(" ");
+        e.themeWords = e.roundWords.reduce(function (n, w, c) { return n + w.filter(function (word) { return info.themeWords[c].indexOf(word) >= 0 || list.indexOf(word) >= 0; }).length; }, 0);
         e.max = info.max; e.theme = info.theme;
       } else {
         e.total = Math.max(3, info.max - Math.floor(r() * r() * 9));
@@ -3095,6 +3096,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
 <script src="words.js"></script>
 <script src="climbs.js"></script>
 <script src="daily-calendar.js"></script>
+<script src="theme-words.js"></script>
 <script>
 (function () {
   const RAW = window.THREE21_WORDS || [];
@@ -4740,14 +4742,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const chips = document.createElement("div");
       chips.className = "chips";
       fillChips(chips, words);
-      const tr = theme && themeRung(theme, i, words);
-      if (tr && chips.children[tr.rung]) {
+      (theme ? themeRungs(theme, i, words) : []).forEach((tr) => {
         const chip = chips.children[tr.rung];
+        if (!chip) return;
         chip.classList.add("theme-rung");
         if (tr.found) chip.classList.add("gold");
         chip.appendChild(themeFlagSvg(tr.found, "chip-flag"));
         chips.classList.add("flagged");
-      }
+      });
       row.appendChild(label);
       row.appendChild(chips);
       container.appendChild(row);
@@ -5877,12 +5879,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
       d.innerHTML = "<i></i><i></i><i></i>";
       return d;
     };
-    const tw = mode === "daily" && dailyTheme ? themeFound[round - 1] : null;
+    const themed = mode === "daily" && dailyTheme;
     words.forEach((w, i) => {
       const s = document.createElement("span");
       s.textContent = w;
       if (i === words.length - 1) s.className = "wordtrail-last";
-      if (w === tw) s.classList.add("wordtrail-theme");
+      if (themed && isThemeWord(dailyTheme, round - 1, w.toLowerCase())) s.classList.add("wordtrail-theme");
       trail.appendChild(s);
       trail.appendChild(dots());
     });
@@ -5980,6 +5982,26 @@ $1{ display: flex; gap: 8px; width: 100%; }
     } : null;
     themedCache.set(base, t);
     return t;
+  }
+  // Is w a theme word? Anything on the theme's list (theme-words.js) counts,
+  // on any rung, plus the calendar's own theme words for climb i.
+  const themeSets = {};
+  function themeSet(id) {
+    if (!themeSets[id]) themeSets[id] = new Set(String((window.THEME_WORDS || {})[id] || "").split(" ").filter(Boolean));
+    return themeSets[id];
+  }
+  function isThemeWord(t, i, w) {
+    return !!(t && w) && (themeSet(t.id).has(w) || ((t.words && t.words[i]) || []).includes(w));
+  }
+  // The theme words among a climb's words (each one is a bonus point).
+  const themeHits = (t, i, words) => (words || []).filter((w) => isThemeWord(t, i, w));
+  // Bonus points so far in today's run: every theme word, every climb.
+  function themeBonusSoFar() {
+    if (!dailyTheme || !dailyClimbs) return 0;
+    let n = 0;
+    for (let i = 0; i < dailyClimbs.length; i++)
+      n += themeHits(dailyTheme, i, i === round - 1 ? currentRoundWords : roundWords[i]).length;
+    return n;
   }
   // "a food word" / "an animal word"
   function themePhrase(t) { return (/^[aeiou]/i.test(t.theme.word) ? "An " : "A ") + t.theme.word; }
@@ -6095,15 +6117,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
     currentRoundWords.push(g);
     renderAscentMini();
     // Theme word: only that exact word counts (CAUSE doesn't find SAUCE).
-    const foundTheme = mode === "daily" && dailyTheme && !themeFound[round - 1] &&
-      dailyTheme.words[round - 1].indexOf(g) > -1;
+    const foundTheme = mode === "daily" && dailyTheme && isThemeWord(dailyTheme, round - 1, g);
     if (foundTheme) {
-      themeFound[round - 1] = g;
+      if (!themeFound[round - 1]) themeFound[round - 1] = g;   // the first one names the climb's flag
       renderThemeStrip();
       ascentToast(capFirst(dailyTheme.theme.word.replace(/ word$/, "")) + " word! " + g.toUpperCase(), true);
       if (climbStage < climbLen())   // at the top, the climb's results screen says it instead
         coachTip("theme", () => $("#themestrip .ts-flag.fresh"), "That's a " + dailyTheme.theme.word + ": 2 points!", "Its flag turns gold up here.", { below: true, gold: true, ms: 6000 });
-    } else if (mode === "daily") announcePasses(dailyWordsSoFar() + themeFound.filter(Boolean).length);
+    } else if (mode === "daily") announcePasses(dailyWordsSoFar() + themeBonusSoFar());
     climbPrev = g;
     locked = true;
     checking = false;
@@ -6169,10 +6190,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#cre-title").textContent = "Climb " + round + " of " + climbRounds();
     $("#cre-label").textContent = completed ? "Cleared" : "You cleared";
     fillChips($("#cre-words"), currentRoundWords);
-    if (themed && themeFound[round - 1]) {
-      const chip = [...$("#cre-words").children].find((c) => (c.dataset.word || c.textContent).toLowerCase() === themeFound[round - 1]);
-      if (chip) chip.classList.add("tw");
-    }
+    const hits = themed ? themeHits(dailyTheme, round - 1, currentRoundWords) : [];
+    [...$("#cre-words").children].forEach((c) => { if (hits.includes((c.dataset.word || c.textContent).toLowerCase())) c.classList.add("tw"); });
     $("#cre-count").textContent = completed ? "all " + climbLen() + " words" : got + " of " + climbLen() + " words";
     // Theme word: found, or which word it was (and what they played on that rung).
     const tr = $("#cre-theme");
@@ -6180,12 +6199,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (themed) {
       const r = themeRevealFor(round - 1, currentRoundWords);
       const kind = dailyTheme.theme.word;
-      tr.className = "theme-reveal " + (themeFound[round - 1] ? "got" : "miss");
+      tr.className = "theme-reveal " + (hits.length ? "got" : "miss");
       tr.replaceChildren();
       const b = document.createElement("b");
-      if (themeFound[round - 1]) {
-        b.textContent = themeFound[round - 1].toUpperCase();
-        tr.append(capFirst(kind) + " found: ", b, " ✓ +1 bonus point");
+      if (hits.length) {
+        b.textContent = hits.map((w) => w.toUpperCase()).join(", ");
+        tr.append(capFirst(kind) + (hits.length > 1 ? "s" : "") + " found: ", b,
+          " ✓ +" + hits.length + " bonus point" + (hits.length > 1 ? "s" : ""));
       } else if (r.played && r.played !== r.word) {
         const you = document.createElement("span");
         you.className = "you";
@@ -6238,7 +6258,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const now = j === round - 1;
       f.className = "ts-flag" + (got ? " got" + (now ? " fresh" : "") : missed ? " miss" : now ? " now" : "");
       f.innerHTML = TS_FLAG;
-      const w = got ? got.toUpperCase() : missed ? themeRevealFor(j, roundWords[j] || []).word.toUpperCase() : "Climb " + (j + 1);
+      const more = got ? themeHits(dailyTheme, j, now ? currentRoundWords : roundWords[j]).length - 1 : 0;
+      const w = got ? got.toUpperCase() + (more > 0 ? " +" + more : "") : missed ? themeRevealFor(j, roundWords[j] || []).word.toUpperCase() : "Climb " + (j + 1);
       f.append(w);
       labels.push("climb " + (j + 1) + (got ? ": found " + got : missed ? ": missed" : now ? ": playing now" : ""));
       chips.appendChild(f);
@@ -6683,7 +6704,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         name: storedName || playerName || "Player",
         total: total, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords,
         hintUsed: hintUsed,
-        ...(dailyTheme ? { themeWords: themeFound.filter(Boolean).length, max: dailyMax(), theme: dailyTheme.id } : {}),
+        ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id } : {}),
       });
       await window.MatchDB.bumpStreak(dailyDay, prevDay);
       const p = await window.MatchDB.getPlayer();
@@ -6692,7 +6713,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     } catch (e) {}
     // Profile + trophies: today counts right away (final place comes tomorrow).
     setTodayResult(Object.assign({ t: total, s: sessionStrikes, ms: solveMs, h: hintUsed, at: Date.now() },
-      dailyTheme ? { m: dailyMax(), th: themeFound.filter(Boolean).length, tf: themeFound.slice(),
+      dailyTheme ? { m: dailyMax(), th: themeBonusSoFar(), tf: themeFound.slice(),
         tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played) } : {}));
     checkTrophies();
     clearResume();
@@ -7522,15 +7543,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return row;
   }
 
-  // Which rung of climb i is the theme rung for these words, and did they find it?
-  // (Any of the climb's theme words counts.)
-  function themeRung(theme, i, words) {
+  // Climb i's theme words for these words: every rung that's a theme word
+  // (found), or, if none, the calendar's theme rung (missed).
+  function themeRungs(theme, i, words) {
+    const found = [];
+    (words || []).forEach((w, rung) => { if (isThemeWord(theme, i, w)) found.push({ rung: rung, found: true, word: w }); });
+    if (found.length) return found;
     const tws = (theme.words && theme.words[i]) || [];
-    if (!tws.length) return null;
-    const hit = words.findIndex((w) => tws.includes(w));
-    if (hit >= 0) return { rung: hit, found: true, word: words[hit] };
-    const rung = theme.climbs[i].c.indexOf(tws[0]);
-    return rung >= 0 ? { rung: rung, found: false, word: tws[0] } : null;
+    const rung = tws.length ? theme.climbs[i].c.indexOf(tws[0]) : -1;
+    return rung >= 0 ? [{ rung: rung, found: false, word: tws[0] }] : [];
   }
   function themeFlagSvg(found, cls) {
     const ns = "http://www.w3.org/2000/svg";
@@ -7550,10 +7571,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function themeFlagStrip(theme, wordsByRound) {
     const box = document.createElement("div");
     box.className = "lb-flags";
-    const marks = theme.climbs.map((_, i) => themeRung(theme, i, wordsByRound[i] || []) || { found: false, word: theme.words[i][0] });
+    const marks = [].concat(...theme.climbs.map((_, i) => {
+      const r = themeRungs(theme, i, wordsByRound[i] || []);
+      return r.length ? r : [{ found: false, word: theme.words[i][0] }];
+    }));
+    const n = marks.filter((m) => m.found).length;
     const lab = document.createElement("div");
     lab.className = "lb-flags-lab";
-    lab.textContent = theme.theme.emoji + " " + theme.theme.name + " · " + marks.filter((m) => m.found).length + " of " + marks.length + " theme words";
+    lab.textContent = theme.theme.name + " · " + n + " theme word" + (n === 1 ? "" : "s");
     const rowEl = document.createElement("div");
     rowEl.className = "lb-flags-row";
     marks.forEach((m) => {
