@@ -2281,16 +2281,27 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     if (!cal) return { max: 18, climbs: 0 };
     var i = Math.round((Date.UTC(+base.slice(0, 4), +base.slice(5, 7) - 1, +base.slice(8, 10)) - Date.UTC(+cal.start.slice(0, 4), +cal.start.slice(5, 7) - 1, +cal.start.slice(8, 10))) / 86400000);
     var d = i >= 0 ? cal.days[i] : null;
-    return d ? { max: d.c.reduce(function (a, c) { return a + c.length; }, 0), climbs: d.c.length, theme: d.t } : { max: 18, climbs: 0 };
+    return d ? { max: d.c.reduce(function (a, c) { return a + c.length; }, 0), climbs: d.c.length, theme: d.t, ladders: d.c, themeWords: d.w } : { max: 18, climbs: 0 };
   }
+  // Each pretend player climbs the day's own ladders, stopping a word or two
+  // short now and then, so their words, score and theme flags all agree.
   function fakeBoard(day) {
     if (db.noFakes) return [];
     var r = seeded(String(day)), info = dayInfo(day), now = Date.now();
     return NAMES.map(function (n, i) {
-      var total = Math.max(3, info.max - Math.floor(r() * r() * 9));
-      var e = { uid: "fake-" + i, name: n, total: total, strikes: Math.floor(r() * 3), solveMs: Math.floor(90000 + r() * 900000),
+      var e = { uid: "fake-" + i, name: n, total: 0, strikes: Math.floor(r() * 3), solveMs: Math.floor(90000 + r() * 900000),
         hintUsed: r() < 0.5, roundWords: [], finishedAt: now - Math.floor(r() * 36e6) };
-      if (info.climbs) { e.themeWords = Math.floor(r() * (info.climbs + 1)); e.max = info.max; e.theme = info.theme; }
+      if (info.ladders) {
+        e.roundWords = info.ladders.map(function (ladder) {
+          var x = r(), drop = x < 0.6 ? 0 : x < 0.85 ? 1 : 2;
+          return ladder.slice(0, Math.max(1, ladder.length - drop));
+        });
+        e.total = e.roundWords.reduce(function (a, w) { return a + w.length; }, 0);
+        e.themeWords = e.roundWords.filter(function (w, c) { return w.some(function (word) { return info.themeWords[c].indexOf(word) >= 0; }); }).length;
+        e.max = info.max; e.theme = info.theme;
+      } else {
+        e.total = Math.max(3, info.max - Math.floor(r() * r() * 9));
+      }
       return e;
     });
   }
