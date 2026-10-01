@@ -8273,6 +8273,11 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   // Lives here, inside the page, because the page is always fetched fresh
   // (sw.js caches other files cache-first, so a notes file could go stale).
   const PATCH_NOTES = [
+    { v: "0.10.0", date: "2026-10-01", title: "Bonus points",
+      notes: [
+        ["new", "Theme words are now worth a bonus point. Your score is every word you climb, plus a point for each theme word you find."],
+        ["imp", "Ties go to the fastest time. Wrong guesses no longer affect your rank."],
+      ] },
     { v: "0.9.1", date: "2026-10-01", title: "Good to know",
       notes: [
         ["imp", "Tap a player on the leaderboard to see the day's theme words as flags, gold for the ones they found and grey for the ones they missed. A little flag also marks where the theme word was in each climb."],
