@@ -6539,7 +6539,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         lead = document.createElement("div");
         lead.className = "tc-word";
         lead.setAttribute("aria-label", word);
-        word.split("").forEach((ch) => { const t = document.createElement("span"); t.className = "tc-sw" + (gold ? " gold" : ""); t.textContent = ch; lead.appendChild(t); });
+        word.split("").forEach((ch) => { const t = document.createElement("span"); t.className = "tc-sw" + (gold ? " gold" : " plain"); t.textContent = ch; lead.appendChild(t); });
       } else {   // a theme without an example: just say it
         lead = document.createElement("span");
         lead.className = "tc-plain";
