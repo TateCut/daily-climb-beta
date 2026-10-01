@@ -1046,31 +1046,23 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .tc-kick { margin: 0; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
   .tc-name { margin: -6px 0 0; font-size: 2.5rem; font-weight: 900; letter-spacing: 0.06em; line-height: 1; color: var(--gold);
     text-transform: uppercase; overflow-wrap: anywhere; }
-  .tc-stage { position: relative; width: 100%; height: 98px; border-radius: 14px; background: var(--bg, #12141f);
-    border: 1px solid var(--line); overflow: hidden; }
-  .tc-stage[hidden] { display: none; }
-  .tc-tiles { position: absolute; left: 0; right: 0; top: 16px; height: 44px; }
-  .tc-tile { position: absolute; top: 0; left: 50%; width: 36px; height: 42px; margin-left: -18px; border-radius: 7px;
-    border: 1px solid var(--line); background: var(--bg-elev, #262c40); display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 1.15rem; color: var(--text); text-transform: uppercase;
-    transition: transform .38s cubic-bezier(.3,.8,.3,1), background .25s, border-color .25s, color .25s; }
-  .tc-tile.good, .tc-sw { border-color: var(--good); color: var(--good); }
-  .tc-legend .tc-plain { font-size: 0.95rem; font-weight: 700; text-align: right; }
-  .tc-tile.gold, .tc-sw.gold { border-color: var(--gold); background: rgba(242, 193, 78, 0.16); color: var(--gold); }
-  .tc-cap { position: absolute; left: 8px; right: 8px; bottom: 9px; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
-  .tc-cap.good { color: var(--text); }
-  .tc-cap.gold { color: var(--gold); }
+  .tc-ex { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; padding: 14px 10px;
+    border-radius: 14px; background: var(--bg, #12141f); border: 1px solid var(--line); }
+  .tc-ex-lab { margin: 0; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .tc-ex-lab[hidden] { display: none; }
   .tc-legend { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 10px 14px; align-items: center; }
-  .tc-word { display: flex; gap: 3px; }
-  .tc-sw { width: 26px; height: 31px; border-radius: 6px; border: 1px solid var(--good); background: var(--bg-elev, #262c40);
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
-  .tc-pts { font-size: 0.98rem; font-weight: 800; color: var(--text); text-align: left; white-space: nowrap; }
+  .tc-word { display: flex; gap: 4px; }
+  .tc-sw { width: 30px; height: 35px; border-radius: 7px; border: 1px solid var(--good); color: var(--good); background: var(--bg-elev, #262c40);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; text-transform: uppercase; }
+  .tc-sw.gold { border-color: var(--gold); background: rgba(242, 193, 78, 0.16); color: var(--gold); }
+  .tc-legend .tc-plain { font-size: 0.95rem; font-weight: 700; text-align: right; }
+  .tc-pts { font-size: 1rem; font-weight: 800; color: var(--text); text-align: left; white-space: nowrap; }
   .tc-pts.g { color: var(--gold); }
-  @media (max-width: 360px) { .tc-sw { width: 23px; height: 28px; font-size: 0.82rem; } .tc-legend { column-gap: 10px; } }
+  @media (max-width: 360px) { .tc-ex { padding-inline: 6px; } .tc-sw { width: 23px; height: 28px; font-size: 0.82rem; } .tc-word { gap: 3px; } .tc-legend { column-gap: 9px; } }
   .tc-foot { margin: -2px 0 0; font-size: 0.86rem; line-height: 1.4; color: var(--muted); }
   .tc-card .primary { width: 100%; margin-top: 2px; }
   #themestrip.tappable { cursor: pointer; }
-  @media (prefers-reduced-motion: reduce) { .tc-veil, .tc-card { animation: none; } .tc-tile { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .tc-veil, .tc-card { animation: none; } }
   /* trophy unlocked pop */
   .tr-pop {
     position: fixed; z-index: 62; left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -2264,8 +2256,10 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     <div class="tc-card" role="dialog" aria-modal="true" aria-labelledby="tc-name">
       <p class="tc-kick">Today's theme</p>
       <h3 class="tc-name" id="tc-name"></h3>
-      <div class="tc-stage" id="tc-stage" aria-hidden="true"><div class="tc-tiles" id="tc-tiles"></div><div class="tc-cap" id="tc-cap"></div></div>
-      <div class="tc-legend" id="tc-legend"></div>
+      <div class="tc-ex">
+        <p class="tc-ex-lab" id="tc-ex-lab">Example</p>
+        <div class="tc-legend" id="tc-legend"></div>
+      </div>
       <p class="tc-foot">Every climb has at least one word related to the theme.</p>
       <button class="primary" id="btn-theme-card" type="button">Start climbing</button>
     </div>
@@ -6628,9 +6622,9 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   }
 
   // ---- Today's theme card ----
-  // A short demo per theme: an ordinary word first (1 point), then the same
-  // letters spelling a theme word, which turns gold (2 points). Neither word
-  // of any pair is ever in a daily climb, so the demo spoils nothing.
+  // An example per theme: an ordinary word (1 point) and the same letters
+  // spelling a theme word (2 points). Neither word of any pair is ever in a
+  // daily climb, so the example spoils nothing.
   const THEME_CARD_KEY = "three21.themeCardDay";
   const THEME_EXAMPLES = {
     ocean: ["reef", "free"], food: ["peach", "cheap"], sports: ["skate", "steak"], weather: ["frost", "forts"],
@@ -6643,10 +6637,10 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     numbers: ["dozen", "zoned"], family: ["aunt", "tuna"], movies: ["cast", "cats"], science: ["atom", "moat"],
     money: ["dues", "used"], tools: ["lever", "revel"], mystery: ["prints", "sprint"],
   };
-  let themeCardOpenAt = 0, themeCardTok = null;
+  let themeCardOpenAt = 0;
   function themeCardExample(t) {
     const ex = THEME_EXAMPLES[t.id];
-    return ex ? { word: ex[0], decoy: ex[1] } : null;   // a new theme without one: no demo, just the key
+    return ex ? { word: ex[0], decoy: ex[1] } : null;   // a new theme without one: plain labels instead
   }
   function themeCardShown(day) {
     try { return localStorage.getItem(THEME_CARD_KEY) === dayBase(day); } catch (e) { return false; }
@@ -6677,60 +6671,18 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     };
     keyRow(ex && ex.decoy, "Any word", "1 point", false);
     keyRow(ex && ex.word, "On-theme word", "2 points", true);
+    $("#tc-ex-lab").hidden = !ex;
     themeCardOpenAt = Date.now();
     pauseDailyTimer();            // the clock (and this word's solve time) waits for the card
     $("#theme-card").hidden = false;
-    runThemeCardDemo(ex);
     setTimeout(() => $("#btn-theme-card").focus(), 50);
   }
   function closeThemeCard() {
     if (!themeCardOpenAt) return;
     if (stageShownAt) stageShownAt += Date.now() - themeCardOpenAt;
     themeCardOpenAt = 0;
-    if (themeCardTok) themeCardTok.dead = true;
     $("#theme-card").hidden = true;
     if (dailySessionActive && !document.hidden) startDailyTimer();
-  }
-  async function runThemeCardDemo(ex) {
-    if (themeCardTok) themeCardTok.dead = true;
-    const tok = themeCardTok = { dead: false };
-    const stage = $("#tc-stage"), root = $("#tc-tiles"), cap = $("#tc-cap");
-    stage.hidden = !ex;
-    if (!ex) return;
-    const word = ex.word.toUpperCase(), decoy = ex.decoy ? ex.decoy.toUpperCase() : null;
-    const W = Math.min(42, Math.floor((stage.clientWidth - 44) / Math.max(1, word.length - 1)));
-    root.replaceChildren();
-    const els = word.split("").map((ch) => { const d = document.createElement("div"); d.className = "tc-tile"; d.textContent = ch; root.appendChild(d); return { ch, el: d }; });
-    const lay = (w) => {
-      const used = [];
-      w.split("").forEach((ch, i) => {
-        const t = els.find((x) => x.ch === ch && !used.includes(x));
-        used.push(t);
-        t.el.style.transform = "translateX(" + ((i - (w.length - 1) / 2) * W) + "px)";
-      });
-    };
-    const mark = (cls) => els.forEach((t) => { t.el.classList.remove("good", "gold"); if (cls) t.el.classList.add(cls); });
-    const scramble = () => { let s; let n = 0; do { s = shuffle(word.split("")).join(""); } while ((s === word || s === decoy) && ++n < 20); return s; };
-    const wait = (ms) => new Promise((res, rej) => setTimeout(() => tok.dead ? rej(0) : res(), ms));
-    const label = dailyTheme.theme.word;   // "tool word"
-    try {
-      for (;;) {
-        mark(""); lay(scramble()); cap.className = "tc-cap"; cap.textContent = word.length + " letters. Which word?";
-        await wait(1300);
-        if (decoy) {
-          lay(scramble()); await wait(500);
-          lay(decoy); await wait(420);
-          mark("good"); cap.className = "tc-cap good"; cap.textContent = decoy + " · any word · 1 point";
-          await wait(2000);
-          mark(""); lay(scramble()); await wait(500);
-        } else {
-          lay(scramble()); await wait(500);
-        }
-        lay(word); await wait(420);
-        mark("gold"); cap.className = "tc-cap gold"; cap.textContent = word + " · " + label + " · 2 points";
-        await wait(2800);
-      }
-    } catch (e) {}
   }
   $("#btn-theme-card").addEventListener("click", closeThemeCard);
   $("#themestrip").addEventListener("click", () => { if (mode === "daily" && dailyTheme && !screens.play.hidden) openThemeCard(); });
