@@ -2352,6 +2352,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   var player = function () { return db.player || (db.player = {}); };
   var copy = function (o) { return o ? JSON.parse(JSON.stringify(o)) : null; };
   var fail = function (code) { return Object.assign(new Error(code), { code: code }); };
+  var nameKey = function (n) { return String(n).trim().toLowerCase().replace(/ +/g, "."); };   // same as the live MatchDB
   var noop = function () {};
 
   // Pretend players: the same names every day, with scores that vary by day.
@@ -2399,26 +2400,26 @@ $1{ display: flex; gap: 8px; width: 100%; }
     pushSupported: async function () { return false; },
     enableReminders: async function () { throw new Error("Reminders are off in the beta"); },
     disableReminders: async function () {},
-    isUsernameTaken: async function (n) { var k = String(n).toLowerCase(); return k === "taken" || !!db.usernames[k]; },
+    isUsernameTaken: async function (n) { var k = nameKey(n); return k === "taken" || !!db.usernames[k]; },
     claimUsername: async function (username, secret, rec) {
-      var k = username.toLowerCase();
+      var k = nameKey(username);
       if (k === "taken" || db.usernames[k]) throw fail("taken");
       db.usernames[k] = { username: username, secret: secret, rec: rec || {} };
       Object.assign(player(), { username: username, name: username });
       db.signedIn = k; save();
     },
     restoreProfile: async function (username, secret) {
-      var k = username.toLowerCase(), u = db.usernames[k];
+      var k = nameKey(username), u = db.usernames[k];
       if (!u || u.secret !== secret) throw fail("auth/invalid-credential");
       Object.assign(player(), { username: u.username, name: u.username });
       db.signedIn = k; save();
       return copy(db.player);
     },
-    isSignedInAs: function (k) { return db.signedIn === k; },
+    isSignedInAs: function (k) { return db.signedIn === nameKey(k); },
     myEmail: function () { return null; },
-    getMyRecoveryCode: async function (k) { var u = db.usernames[k]; return u ? (u.rec.emoji ? { emoji: u.rec.emoji } : u.rec.code ? { code: u.rec.code } : { why: "none" }) : { why: "none" }; },
-    resetMySecret: async function (k, display, plain) { var u = db.usernames[k]; if (u) { u.secret = plain; u.rec = { code: display }; save(); } },
-    setMySecret: async function (k, old, secret, rec) { var u = db.usernames[k]; if (u) { u.secret = secret; u.rec = rec; save(); } },
+    getMyRecoveryCode: async function (k) { var u = db.usernames[nameKey(k)]; return u ? (u.rec.emoji ? { emoji: u.rec.emoji } : u.rec.code ? { code: u.rec.code } : { why: "none" }) : { why: "none" }; },
+    resetMySecret: async function (k, display, plain) { var u = db.usernames[nameKey(k)]; if (u) { u.secret = plain; u.rec = { code: display }; save(); } },
+    setMySecret: async function (k, old, secret, rec) { var u = db.usernames[nameKey(k)]; if (u) { u.secret = secret; u.rec = rec; save(); } },
     createTransfer: async function () { throw fail("beta"); },
     pickupTransfer: async function () { throw fail("gone"); },
     saveTrophies: async function (map) { var p = player(); p.trophies = Object.assign(p.trophies || {}, map); save(); },
@@ -2551,7 +2552,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   // Username profiles sign in with a made-up address per username; it never
   // receives mail (.invalid is a reserved domain). Firebase accepts the format.
-  const usernameEmail = (key) => key + "@players.dailyclimb.invalid";
+  // Usernames can have spaces; database keys and the sign-in email can't, so a
+  // space becomes "." there ("Tate C" -> "tate.c"). Names never contain dots
+  // otherwise, so no two names share a key. Safe to apply twice.
+  const nameKey = (name) => String(name).trim().toLowerCase().replace(/ +/g, ".");
+  const usernameEmail = (key) => nameKey(key) + "@players.dailyclimb.invalid";
 
   const cfg = window.THREE21_FIREBASE_CONFIG;
   let db = null, auth = null, analytics = null, fbApp = null;
@@ -2762,7 +2767,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // switched on yet) | "no-auth" | a Firebase auth/... code.
     async isUsernameTaken(username) {
       try {
-        const snap = await getDoc(doc(db, "usernames", username.toLowerCase()));
+        const snap = await getDoc(doc(db, "usernames", nameKey(username)));
         return snap.exists();
       } catch (e) {
         throw Object.assign(new Error("usernames unreadable"), { code: e.code === "permission-denied" ? "not-set-up" : (e.code || "network") });
@@ -2773,7 +2778,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     async claimUsername(username, codePlain, recFields) {
       const user = auth && auth.currentUser;
       if (!user || !uid) throw Object.assign(new Error("not signed in"), { code: "no-auth" });
-      const key = username.toLowerCase();
+      const key = nameKey(username);
       if (await this.isUsernameTaken(username)) throw Object.assign(new Error("taken"), { code: "taken" });
       // 1. The recovery record first (create-only, so a name someone else is
       //    mid-claiming reads as taken).
@@ -2811,7 +2816,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const nag = standIn && standIn.reminder && standIn.reminder.on;
       if (nag) { try { await updateDoc(doc(db, "players", uid), { "reminder.on": false }); } catch (e) {} }
       try {
-        await signInWithEmailAndPassword(auth, usernameEmail(username.toLowerCase()), codePlain);
+        await signInWithEmailAndPassword(auth, usernameEmail(username), codePlain);
       } catch (e) {
         if (nag) { try { await updateDoc(doc(db, "players", uid), { "reminder.on": true }); } catch (err) {} }
         throw e;
@@ -2841,7 +2846,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!uid || !who) return { why: "not signed in yet" };
       if (who.isAnonymous) return { why: "this browser isn't signed in with the username" };
       try {
-        const s = await getDoc(doc(db, "recovery", key));
+        const s = await getDoc(doc(db, "recovery", nameKey(key)));
         if (!s.exists()) return { why: "no recovery record" };
         if (s.data().uid !== uid) return { why: "record belongs to another account" };
         if (s.data().emoji) return { emoji: s.data().emoji };
@@ -2852,7 +2857,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const user = auth && auth.currentUser;
       if (!user) throw Object.assign(new Error("no auth"), { code: "no-auth" });
       await updatePassword(user, codePlain);
-      try { await updateDoc(doc(db, "recovery", key), { code: codeDisplay, emoji: deleteField(), updated: serverTimestamp() }); } catch (e) {}
+      try { await updateDoc(doc(db, "recovery", nameKey(key)), { code: codeDisplay, emoji: deleteField(), updated: serverTimestamp() }); } catch (e) {}
     },
     // Change this account's secret (e.g. a recovery code -> secret emoji).
     // Firebase wants a recent sign-in for that, so confirm the current secret
@@ -2863,7 +2868,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (oldSecret) await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, oldSecret));
       await updatePassword(user, newSecret);
       const clear = recFields.emoji ? { code: deleteField() } : { emoji: deleteField() };
-      try { await updateDoc(doc(db, "recovery", key), Object.assign({}, recFields, clear, { updated: serverTimestamp() })); } catch (e) {}
+      try { await updateDoc(doc(db, "recovery", nameKey(key)), Object.assign({}, recFields, clear, { updated: serverTimestamp() })); } catch (e) {}
     },
     async createTransfer(token, secret) {
       const user = auth && auth.currentUser;
@@ -4885,8 +4890,45 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // profile survives deleting the app or switching phones. See
   // MatchDB.claimUsername / restoreProfile. Until usernames are switched on
   // in Firebase, the username screen falls back to saving a plain name.
-  const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
-  const USERNAME_HINT = "3–16 letters, numbers or _";
+  // Letters, numbers and _, with single spaces between words (no space at
+  // either end). In the database a space becomes "." (see MatchDB nameKey).
+  const USERNAME_RE = /^(?=.{3,16}$)[A-Za-z0-9_]+(?: [A-Za-z0-9_]+)*$/;
+  const USERNAME_HINT = "3–16 letters, numbers, spaces or _";
+  const USERNAME_BAD = "Only letters, numbers, spaces and _ (3–16)";
+  // Typing: no leading space, and runs of spaces become one.
+  const tidyUsername = (v) => String(v).replace(/\s+/g, " ").replace(/^ /, "");
+
+  // ---- Name filter ----
+  // Keeps slurs and swearing out of usernames (and off the leaderboard: a
+  // name that fails shows as "Climber"). Checked after undoing look-alike
+  // characters (0→o, 1→i, $→s ...) and dropping spaces and _, so "f_u_c_k"
+  // and "sh1t" are caught. Short words that hide inside ordinary ones
+  // (ass in "class", cum in "cucumber") only count as a whole word.
+  const BLOCK_ANYWHERE = ["fuck", "fuk", "fck", "phuck", "shit", "cunt", "bitch", "biatch", "whore", "slut", "pussy",
+    "penis", "vagina", "dildo", "porn", "nigg", "niga", "faggot", "fagot", "retard", "nazi", "hitler", "twat",
+    "wank", "jizz", "asshole", "arsehole", "bastard", "motherf", "kike", "tranny", "molest", "incest", "blowjob",
+    "handjob", "boner", "orgasm", "hentai", "milf", "dickhead", "cocksuck", "kkk"];
+  const BLOCK_WORD = ["ass", "arse", "cum", "sex", "tit", "tits", "titty", "dick", "cock", "anal", "anus", "pedo",
+    "hoe", "hoes", "fag", "fags", "coon", "chink", "spic", "gook", "nig", "rape", "raped", "rapes", "rapist", "rapists", "piss", "crap",
+    "damn", "boob", "boobs", "nude", "nudes", "horny", "sexy", "puta", "puto"];
+  const LEET = { "0": "o", "1": "i", "!": "i", "3": "e", "4": "a", "@": "a", "5": "s", "$": "s", "7": "t", "8": "b", "9": "g" };
+  function nameIsBlocked(name) {
+    const lower = String(name || "").toLowerCase();
+    const plain = lower.replace(/[0-9!@$]/g, (c) => LEET[c] || c);
+    const squashed = plain.replace(/[^a-z]/g, "");
+    const deduped = squashed.replace(/(.)\1+/g, "$1");   // fuuuck -> fuck
+    if (BLOCK_ANYWHERE.some((w) => squashed.includes(w) || deduped.includes(w))) return true;
+    const words = plain.split(/[^a-z]+/).filter(Boolean);
+    return words.some((w) => BLOCK_WORD.includes(w) || BLOCK_WORD.includes(w.replace(/(.)\1+/g, "$1")));
+  }
+  // How a player's name shows to everyone else.
+  const shownName = (n, fallback) => (n && nameIsBlocked(n) ? "Climber" : (n || fallback || "?"));
+  // A new username: the format first, then the filter.
+  function usernameProblem(v) {
+    if (!USERNAME_RE.test(v)) return USERNAME_BAD;
+    if (nameIsBlocked(v)) return "That name isn't allowed. Try another.";
+    return "";
+  }
   // Recovery codes: WORD-WORD-1234 from 128 plain words (~27 bits); guessing
   // is throttled by Firebase's sign-in rate limits.
   const CODE_WORDS = ("MAPLE RIVER CEDAR STONE CLOUD EMBER FROST BLOOM CANYON SUMMIT RIDGE TRAIL " +
@@ -4937,11 +4979,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     let timer = null, seq = 0;
     const set = (cls, msg, ok) => { note.className = "ustatus" + (cls ? " " + cls : ""); note.textContent = msg; button.disabled = !ok; };
     const check = () => {
+      if (input.value !== tidyUsername(input.value)) input.value = tidyUsername(input.value);
       const v = input.value.trim();
       clearTimeout(timer);
       if (!canClaimUsername()) { set("", v ? "" : "", !!v); return; } // plain-name fallback: anything non-empty
       if (!v) { set("", USERNAME_HINT, false); return; }
-      if (!USERNAME_RE.test(v)) { set("bad", "Only letters, numbers and _ (3–16)", false); return; }
+      const problem = usernameProblem(v);
+      if (problem) { set("bad", problem, false); return; }
       set("", "Checking…", false);
       const mine = ++seq;
       timer = setTimeout(async () => {
@@ -5042,8 +5086,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     button.disabled = true;
     button.textContent = busyLabel || "Saving…";
     const done = () => { button.disabled = false; button.textContent = idle; };
-    if (!USERNAME_RE.test(username)) {
-      note.className = "ustatus bad"; note.textContent = "Only letters, numbers and _ (3–16)";
+    const problem = usernameProblem(username);
+    if (problem) {
+      note.className = "ustatus bad"; note.textContent = problem;
       done(); return null;
     }
     const legacy = emoji ? null : makeRecoveryCode();
@@ -5265,7 +5310,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!$("#signin-name").value) $("#signin-name").focus();
   }
   async function signInGo() {
-    const name = $("#signin-name").value.trim(), picked = siPicker.get();
+    const name = tidyUsername($("#signin-name").value).trim(), picked = siPicker.get();
     const note = $("#signin-note"), btn = $("#signin-go");
     note.className = "ustatus bad";
     if (!USERNAME_RE.test(name)) { note.textContent = "Enter your username."; return; }
@@ -5614,7 +5659,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   $("#btn-claim-go").addEventListener("click", () => {
     const val = $("#claim-input").value.trim();
-    if (!USERNAME_RE.test(val)) { $("#claim-note").className = "ustatus bad"; $("#claim-note").textContent = "Only letters, numbers and _ (3–16)"; return; }
+    const problem = usernameProblem(val);
+    if (problem) { $("#claim-note").className = "ustatus bad"; $("#claim-note").textContent = problem; return; }
     hideClaimSheet();
     nameScreenFirstEver = false;
     showEmojiPick({ mode: "create", name: val, from: "claim" });
@@ -5771,7 +5817,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // words, the no-hint badge, their words) is in the row's tap-to-expand.
     const nm = document.createElement("div");
     nm.className = "lb-name";
-    nm.textContent = (e.name || "?") + (isMe ? " (you)" : "");
+    nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
     const sc = document.createElement("div");
     sc.className = "lb-score";
     sc.textContent = entrantPoints(e);
@@ -6224,7 +6270,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!entrants || mode !== "daily" || dailyDay !== day) return;
       const myUid = window.MatchDB.uid;
       dailyRivals = entrants.filter((e) => e.uid !== myUid)
-        .map((e) => ({ name: (e.name || "Someone").trim() || "Someone", total: entrantPoints(e) }));
+        .map((e) => ({ name: shownName((e.name || "").trim(), "Someone"), total: entrantPoints(e) }));
     });
   }
 
@@ -6785,7 +6831,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!spots.has(t)) spots.set(t, []);
       spots.get(t).push(e);
     });
-    const initial = (e) => ([...String(e.name || "?").trim()][0] || "?").toUpperCase();
+    const initial = (e) => ([...shownName(String(e.name || "").trim())][0] || "?").toUpperCase();
     // Swallowtail pennant off a pole. `left` flies it the other way so it
     // clears a flag planted one word further up the trail.
     const pennant = (g, x, y, label, mine, w, left) => {
@@ -6849,7 +6895,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // Callout above the pole: where it is + who's there.
     const { done: all, myUid: me } = boardLastDone;
     const people = (all || []).filter((e) => Math.min(boardMax, e.total || 0) === boardFocus);
-    const names = people.map((e) => (e.uid === me ? "you" : (e.name || "?")));
+    const names = people.map((e) => (e.uid === me ? "you" : shownName(e.name)));
     const c = document.createElement("div");
     c.className = "board-callout";
     const head = document.createElement("b");
@@ -7455,7 +7501,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     nmwrap.className = "lb-namewrap";
     const nm = document.createElement("div");
     nm.className = "lb-name";
-    nm.textContent = (e.name || "?") + (isMe ? " (you)" : "") + (e.late && e.done ? " · for fun" : "");
+    nm.textContent = shownName(e.name) + (isMe ? " (you)" : "") + (e.late && e.done ? " · for fun" : "");
     nmwrap.appendChild(nm);
     if (e.done && normFormat(format) === "guesses" && typeof e.strikes === "number") {
       const meta = document.createElement("div");
