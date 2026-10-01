@@ -1055,16 +1055,18 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     font-weight: 800; font-size: 1.15rem; color: var(--text); text-transform: uppercase;
     transition: transform .38s cubic-bezier(.3,.8,.3,1), background .25s, border-color .25s, color .25s; }
   .tc-tile.good, .tc-sw { border-color: var(--good); color: var(--good); }
+  .tc-legend .tc-plain { font-size: 0.95rem; font-weight: 700; text-align: right; }
   .tc-tile.gold, .tc-sw.gold { border-color: var(--gold); background: rgba(242, 193, 78, 0.16); color: var(--gold); }
   .tc-cap { position: absolute; left: 8px; right: 8px; bottom: 9px; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
   .tc-cap.good { color: var(--text); }
   .tc-cap.gold { color: var(--gold); }
-  .tc-legend { display: grid; grid-template-columns: auto 1fr; gap: 10px 12px; align-items: center; width: 100%; text-align: left; }
-  .tc-sw { width: 30px; height: 34px; border-radius: 7px; border: 1px solid var(--good); background: var(--bg-elev, #262c40);
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; }
-  .tc-legend span { font-size: 0.92rem; line-height: 1.35; color: var(--muted); }
-  .tc-legend b { display: block; font-size: 0.98rem; color: var(--text); }
-  .tc-legend b.g { color: var(--gold); }
+  .tc-legend { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 10px 14px; align-items: center; }
+  .tc-word { display: flex; gap: 3px; }
+  .tc-sw { width: 26px; height: 31px; border-radius: 6px; border: 1px solid var(--good); background: var(--bg-elev, #262c40);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
+  .tc-pts { font-size: 0.98rem; font-weight: 800; color: var(--text); text-align: left; white-space: nowrap; }
+  .tc-pts.g { color: var(--gold); }
+  @media (max-width: 360px) { .tc-sw { width: 23px; height: 28px; font-size: 0.82rem; } .tc-legend { column-gap: 10px; } }
   .tc-foot { margin: -2px 0 0; font-size: 0.86rem; line-height: 1.4; color: var(--muted); }
   .tc-card .primary { width: 100%; margin-top: 2px; }
   #themestrip.tappable { cursor: pointer; }
@@ -2263,11 +2265,8 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       <p class="tc-kick">Today's theme</p>
       <h3 class="tc-name" id="tc-name"></h3>
       <div class="tc-stage" id="tc-stage" aria-hidden="true"><div class="tc-tiles" id="tc-tiles"></div><div class="tc-cap" id="tc-cap"></div></div>
-      <div class="tc-legend">
-        <div class="tc-sw" aria-hidden="true">A</div><span><b>Any word</b>1 point</span>
-        <div class="tc-sw gold" aria-hidden="true">A</div><span><b class="g">On-theme word</b>2 points</span>
-      </div>
-      <p class="tc-foot">Every climb has at least one on-theme word.</p>
+      <div class="tc-legend" id="tc-legend"></div>
+      <p class="tc-foot">Every climb has at least one word related to the theme.</p>
       <button class="primary" id="btn-theme-card" type="button">Start climbing</button>
     </div>
   </div>
@@ -6630,19 +6629,19 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 
   // ---- Today's theme card ----
   // A short demo per theme: an ordinary word first (1 point), then the same
-  // letters spelling a theme word, which turns gold (2 points). Each theme
-  // word here is never a theme answer on any day, so the demo spoils nothing.
+  // letters spelling a theme word, which turns gold (2 points). Neither word
+  // of any pair is ever in a daily climb, so the demo spoils nothing.
   const THEME_CARD_KEY = "three21.themeCardDay";
   const THEME_EXAMPLES = {
-    ocean: ["coral", "carol"], food: ["peach", "cheap"], sports: ["skate", "steak"], weather: ["frost", "forts"],
-    animals: ["wolf", "flow"], music: ["notes", "stone"], space: ["star", "rats"], garden: ["petal", "plate"],
-    travel: ["plane", "panel"], home: ["lamp", "palm"], clothing: ["coat", "taco"], treasure: ["coins", "icons"],
+    ocean: ["reef", "free"], food: ["peach", "cheap"], sports: ["skate", "steak"], weather: ["frost", "forts"],
+    animals: ["wolf", "flow"], music: ["verse", "sever"], space: ["mars", "arms"], garden: ["petal", "plate"],
+    travel: ["depart", "parted"], home: ["lamp", "palm"], clothing: ["robe", "bore"], treasure: ["coins", "icons"],
     colors: ["lime", "mile"], art: ["draw", "ward"], jobs: ["baker", "break"], school: ["grade", "raged"],
-    party: ["feast", "fates"], holidays: ["tinsel", "listen"], spooky: ["bats", "stab"], royalty: ["regal", "large"],
-    feelings: ["calm", "clam"], body: ["elbow", "below"], road: ["lane", "lean"], fire: ["spark", "parks"],
-    games: ["dice", "iced"], farm: ["field", "filed"], mountains: ["slope", "poles"], time: ["early", "layer"],
+    party: ["feast", "fates"], holidays: ["tinsel", "enlist"], spooky: ["bats", "stab"], royalty: ["regal", "large"],
+    feelings: ["tense", "teens"], body: ["elbow", "below"], road: ["detour", "routed"], fire: ["spark", "parks"],
+    games: ["dice", "iced"], farm: ["field", "filed"], mountains: ["slope", "poles"], time: ["dawn", "wand"],
     numbers: ["dozen", "zoned"], family: ["aunt", "tuna"], movies: ["cast", "cats"], science: ["atom", "moat"],
-    money: ["earn", "near"], tools: ["lever", "revel"], mystery: ["case", "aces"],
+    money: ["dues", "used"], tools: ["lever", "revel"], mystery: ["prints", "sprint"],
   };
   let themeCardOpenAt = 0, themeCardTok = null;
   function themeCardExample(t) {
@@ -6656,10 +6655,32 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     if (!dailyTheme || themeCardOpenAt) return;
     try { localStorage.setItem(THEME_CARD_KEY, dayBase(dailyDay)); } catch (e) {}
     $("#tc-name").textContent = dailyTheme.theme.name;
+    const ex = themeCardExample(dailyTheme);
+    const legend = $("#tc-legend");
+    legend.replaceChildren();
+    const keyRow = (word, label, pts, gold) => {
+      let lead;
+      if (word) {
+        lead = document.createElement("div");
+        lead.className = "tc-word";
+        lead.setAttribute("aria-label", word);
+        word.split("").forEach((ch) => { const t = document.createElement("span"); t.className = "tc-sw" + (gold ? " gold" : ""); t.textContent = ch; lead.appendChild(t); });
+      } else {   // a theme without an example: just say it
+        lead = document.createElement("span");
+        lead.className = "tc-plain";
+        lead.textContent = label;
+      }
+      const p = document.createElement("span");
+      p.className = "tc-pts" + (gold ? " g" : "");
+      p.textContent = pts;
+      legend.append(lead, p);
+    };
+    keyRow(ex && ex.decoy, "Any word", "1 point", false);
+    keyRow(ex && ex.word, "On-theme word", "2 points", true);
     themeCardOpenAt = Date.now();
     pauseDailyTimer();            // the clock (and this word's solve time) waits for the card
     $("#theme-card").hidden = false;
-    runThemeCardDemo(themeCardExample(dailyTheme));
+    runThemeCardDemo(ex);
     setTimeout(() => $("#btn-theme-card").focus(), 50);
   }
   function closeThemeCard() {
