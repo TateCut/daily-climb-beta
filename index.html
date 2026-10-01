@@ -1065,6 +1065,15 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .tc-foot { margin: -2px 0 0; font-size: 0.86rem; line-height: 1.4; color: var(--muted); }
   .tc-card .primary { width: 100%; margin-top: 2px; }
   #themestrip.tappable { cursor: pointer; }
+  /* Climbs: "Forfeit climb" is a real button, set lower, and asks first. */
+  #btn-endround.forfeit { margin-top: 14px; padding: 10px 22px; color: var(--muted); }
+  .ff-card { gap: 10px; }
+  .ff-card h3 { margin: 0; font-size: 1.2rem; }
+  .ff-card p { margin: 0; font-size: 0.92rem; line-height: 1.45; color: var(--muted); }
+  .ff-card p b { color: var(--text); }
+  .ff-actions { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px; }
+  .ff-actions button { width: 100%; }
+  button.ghost.ff-go { padding: 12px 16px; font-size: 0.95rem; color: var(--warn); border-color: rgba(240, 122, 106, 0.5); }
   @media (prefers-reduced-motion: reduce) { .tc-veil, .tc-card { animation: none; } }
   /* trophy unlocked pop */
   .tr-pop {
@@ -2248,6 +2257,17 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     <p class="install-sub" id="tr-sheet-how"></p>
     <p class="tr-sheet-meta" id="tr-sheet-meta"></p>
     <div class="install-actions"><button class="primary" id="btn-tr-sheet-close" type="button">Close</button></div>
+  </div>
+  <!-- Forfeit a climb? -->
+  <div class="tc-veil" id="forfeit-confirm" hidden>
+    <div class="tc-card ff-card" role="alertdialog" aria-modal="true" aria-labelledby="ff-title" aria-describedby="ff-body">
+      <h3 id="ff-title">Forfeit this climb?</h3>
+      <p id="ff-body"></p>
+      <div class="ff-actions">
+        <button class="primary" id="btn-ff-keep" type="button">Keep climbing</button>
+        <button class="ghost ff-go" id="btn-ff-go" type="button">Forfeit climb</button>
+      </div>
+    </div>
   </div>
   <!-- Today's theme (themed dailies) -->
   <div class="tc-veil" id="theme-card" hidden>
@@ -4062,7 +4082,8 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     }
     // "Quit to menu" shows in practice/collection; the daily is one attempt, versus restarts.
     $("#btn-play-home").hidden = mode !== "solo" && mode !== "climb" && mode !== "collection";
-    $("#btn-endround").textContent = climb ? "End climb" : "End round";
+    $("#btn-endround").textContent = climb ? "Forfeit climb" : "End round";
+    $("#btn-endround").className = climb ? "ghost forfeit" : "linkbtn";
   }
 
   function startRound() {
@@ -7771,7 +7792,29 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   $("#btn-return").addEventListener("click", returnAll);
   $("#btn-shuffle").addEventListener("click", doShuffle);
   $("#btn-hint").addEventListener("click", useHint);
-  $("#btn-endround").addEventListener("click", endRound);
+  $("#btn-endround").addEventListener("click", () => { if (isClimb()) openForfeit(); else endRound(); });
+  function openForfeit() {
+    if (locked || checking || screens.play.hidden) return;
+    const n = currentRoundWords.length;
+    const body = $("#ff-body");
+    body.replaceChildren();
+    const last = mode === "daily" && round >= climbRounds();
+    const which = mode === "daily" ? "climb " + round : "this climb";
+    if (n) {
+      const b = document.createElement("b");
+      b.textContent = wordsLabel(n);
+      body.append("You keep the ", b, " you've climbed, but you can't come back to " + which + ".");
+    } else {
+      body.append("You haven't climbed any words yet, and you can't come back to " + which + ".");
+    }
+    if (mode === "daily" && !last) body.append(" Then it's on to the next one.");
+    $("#forfeit-confirm").hidden = false;
+    setTimeout(() => $("#btn-ff-keep").focus(), 50);
+  }
+  function closeForfeit() { $("#forfeit-confirm").hidden = true; }
+  $("#btn-ff-keep").addEventListener("click", closeForfeit);
+  $("#btn-ff-go").addEventListener("click", () => { closeForfeit(); endRound(); });
+  $("#forfeit-confirm").addEventListener("click", (e) => { if (e.target.id === "forfeit-confirm") closeForfeit(); });
   $("#btn-start").addEventListener("click", startSession);
 
   // Quit to menu (shown during play) — two taps so a stray tap can't drop the game.
@@ -7801,6 +7844,11 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       return;
     }
     if (themeCardOpenAt && (e.key === "Enter" || e.key === "Escape")) { e.preventDefault(); closeThemeCard(); return; }
+    if (!$("#forfeit-confirm").hidden) {
+      if (e.key === "Escape" || (e.key === "Enter" && document.activeElement && document.activeElement.id !== "btn-ff-go")) { e.preventDefault(); closeForfeit(); }
+      if (e.key === "Enter" && document.activeElement && document.activeElement.id === "btn-ff-go") { e.preventDefault(); closeForfeit(); endRound(); }
+      return;
+    }
     if (e.key !== "Enter") return;
     if (!screens.play.hidden) { e.preventDefault(); submit(); }
     else if (!screens.roundend.hidden) { e.preventDefault(); roundEndContinue(); }
