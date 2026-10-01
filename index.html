@@ -1042,7 +1042,9 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   @keyframes tc-fade { from { opacity: 0; } }
   .tc-card { width: min(100%, 360px); background: var(--surface); border: 1px solid var(--line); border-radius: 22px;
     padding: 22px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); animation: tr-pop-in .35s cubic-bezier(.2,.8,.25,1.2); }
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); animation: tc-pop-in .35s cubic-bezier(.2,.8,.25,1.2); }
+  /* its own pop-in: the trophy one also carries that pop-up's translate(-50%, -50%) centering */
+  @keyframes tc-pop-in { from { opacity: 0; transform: translateY(8px) scale(.94); } to { opacity: 1; transform: none; } }
   .tc-kick { margin: 0; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
   .tc-name { margin: -6px 0 0; font-size: 2.5rem; font-weight: 900; letter-spacing: 0.06em; line-height: 1; color: var(--gold);
     text-transform: uppercase; overflow-wrap: anywhere; }
