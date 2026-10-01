@@ -680,16 +680,9 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .home-tagline { margin: 0; }
   .today-theme { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
   .today-theme[hidden] { display: none; }
-  /* Theme word floats in the sky over peaks that run edge to edge. */
+  /* Today's peaks run edge to edge. (The theme isn't named on home: the theme card shows it when you tap Play.) */
   .tt-hero { position: relative; width: calc(100% + 32px); margin: 0 -16px; display: flex; flex-direction: column; align-items: center; }
-  .tt-glow { position: absolute; left: 50%; top: -8px; width: 220px; height: 150px; transform: translateX(-50%); border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(255, 178, 102, 0.28), rgba(255, 178, 102, 0)); pointer-events: none; }
-  .tt-lab { position: relative; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
-  /* The word itself sits dead centre; the emoji hangs off its left edge. */
-  .tt-big { position: relative; margin-top: 6px; font-size: 2.6rem; font-weight: 900; letter-spacing: 0.08em; padding-left: 0.08em; line-height: 1;
-    color: var(--gold); text-shadow: 0 0 22px rgba(242, 193, 78, 0.35); }
-  .tt-em { position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 10px; font-size: 1.9rem; letter-spacing: 0; text-shadow: none; }
-  .tt-mtn { display: block; width: 100%; max-width: 420px; height: auto; max-height: 150px; margin-top: -6px; } /* tall (10-11 letter) days scale down instead of crowding */
+  .tt-mtn { display: block; width: 100%; max-width: 420px; height: auto; max-height: 150px; } /* tall (10-11 letter) days scale down instead of crowding */
   .today-theme.after .tt-mtn { width: 86%; }
   .tt-cap { margin: 0; font-size: 0.86rem; color: var(--muted); }
   .tt-cap[hidden] { display: none; }
@@ -1480,8 +1473,6 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     .brandmark { height: 44px; margin-bottom: 8px; }
     h1 { font-size: 1.75rem; margin-bottom: 12px; }
     main > section { gap: 12px; }
-    .tt-big { font-size: 2.1rem; }
-    .tt-em { font-size: 1.5rem; }
     .tt-mtn { max-height: 108px; }
     .home-play button.primary { padding: 12px 26px; font-size: 1.1rem; }
     .rb-ic { width: 40px; height: 40px; }
@@ -1686,9 +1677,6 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
            is found. Replaces the tagline. -->
       <div class="today-theme" id="today-theme" hidden>
         <div class="tt-hero">
-          <div class="tt-glow" aria-hidden="true"></div>
-          <div class="tt-lab">Today's theme</div>
-          <div class="tt-big"><span class="tt-em" id="tt-emoji" aria-hidden="true"></span><span id="tt-name"></span></div>
           <svg class="tt-mtn" id="tt-mtn" viewBox="0 0 300 140" role="img"></svg>
         </div>
         <p class="tt-cap" id="tt-cap" hidden></p>
@@ -7065,8 +7053,6 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     box.hidden = !t;
     if (!t) return;
     box.classList.toggle("after", !!playedToday);   // peaks a little smaller once played
-    $("#tt-emoji").textContent = t.theme.emoji;
-    $("#tt-name").textContent = t.theme.name.toUpperCase();
     // After playing (this device knows which theme words were found): flags + what was missed.
     const r = playedToday && result && result.base === dayBase(dailyKeyOf()) && Array.isArray(result.tf) ? result : null;
     const flags = t.climbs.map((p, i) => {
