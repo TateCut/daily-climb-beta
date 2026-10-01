@@ -337,10 +337,9 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     user-select: none;
     touch-action: none;
   }
-  /* A new climb's fresh letter: the carried letters are already sitting
-     there, then after a beat the new one drops in from above and bounces
-     once. No highlight on purpose — the motion is the only cue. */
-  .tile.pop { animation: drop-in 0.75s ease-in 0.55s backwards; }
+  /* A new climb's fresh letter drops in from above and bounces once, as soon
+     as the next word starts. No highlight on purpose — the motion is the cue. */
+  .tile.pop { animation: drop-in 0.65s ease-in backwards; }
   @keyframes drop-in {
     0%   { transform: translateY(-110px); opacity: 0; }
     45%  { opacity: 1; }
@@ -1343,9 +1342,9 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .lb-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* Daily board: # · Player · Points · Time, with a small header over the columns. */
   /* (rem widths so the header's smaller text still lines up with the rows) */
-  #daily-board-list .lb-rank, .lb-head .h-rank { min-width: 1.4rem; }
-  #daily-board-list .lb-row > .lb-name, .lb-head .h-name { flex: 1; min-width: 0; }
-  #daily-board-list .lb-score, .lb-head .h-score { min-width: 3rem; text-align: right; }
+  #daily-board-list .lb-rank, .lb-head .h-rank { min-width: 2.2rem; text-align: center; }
+  #daily-board-list .lb-row > .lb-name, .lb-head .h-name { flex: 1; min-width: 0; text-align: left; }
+  #daily-board-list .lb-score, .lb-head .h-score { min-width: 3rem; text-align: center; }
   .lb-time, .lb-head .h-time { min-width: 3.2rem; text-align: right; }
   .lb-time { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .lb-head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0 13px 2px; font-size: 0.64rem; font-weight: 700;
@@ -1852,7 +1851,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       <div class="scr-head"><button class="backpill" id="btn-daily-board-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl" id="daily-board-title">Daily Climb</h2><span class="dailycard-streak" id="daily-board-streak" hidden></span></div>
       <p class="note" id="daily-board-sub"></p>
       <div class="board-mtn" id="daily-board-mtn" hidden></div>
-      <div class="lb-head" id="daily-board-head" hidden><span class="h-rank"></span><span class="h-name">Player</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
+      <div class="lb-head" id="daily-board-head" hidden><span class="h-rank">Rank</span><span class="h-name">Player</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
       <div class="lb-list" id="daily-board-list"></div>
       <p class="note" id="daily-board-foot"></p>
       <button class="reminder-cta" id="btn-reminder" type="button" hidden></button>
@@ -6226,7 +6225,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       msg("Nice — “" + g.toUpperCase() + "”", "good");
       FX.play("accept"); buzz([8, 24, 8]);
       fxClass($("#answer"), "fx-good"); waveAnswer();
-      setTimeout(climbNext, 750);
+      setTimeout(climbNext, 450);   // short beat, then the next letter drops in
     }
   }
 
@@ -6663,7 +6662,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
         row.dataset.total = e.total || 0;
         row.dataset.uid = e.uid || "";
         row.addEventListener("click", () => {
-          setBoardFocus(boardFocus === (e.total || 0) ? null : (e.total || 0));
+          setBoardFocus(boardFocusUid === row.dataset.uid ? null : (e.total || 0), row.dataset.uid);
           if (tapTipOn) { tapTipOn = false; const tip = $("#daily-board-mtn .lb-tip"); if (tip) tip.remove(); }
         });
         list.appendChild(row);
@@ -6793,14 +6792,16 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       vis.forEach((e, i) => pennant(g, p.x, p.y - H + i * 7, initial(e), isMine(e), 9, left));
       if (extra) pennant(g, p.x, p.y - H + vis.length * 7, "+" + extra, hasMe && !vis.some(isMine), 11, left);
       svgEl("rect", { x: left ? p.x - 13 : p.x - 3, y: p.y - H - 2, width: 16, height: H + 5, fill: "transparent" }, g);
-      g.addEventListener("click", (ev) => { ev.stopPropagation(); setBoardFocus(boardFocus === t ? null : t); });
+      g.addEventListener("click", (ev) => { ev.stopPropagation(); setBoardFocus(boardFocus === t && !boardFocusUid ? null : t); });
     });
     applyBoardFocus(done, myUid);
   }
 
   let boardLastDone = {}; // {done, myUid} from the last render, for the callout's names
-  function setBoardFocus(t) {
+  let boardFocusUid = null; // set when a row was tapped: light only that player's row
+  function setBoardFocus(t, uid) {
     boardFocus = t;
+    boardFocusUid = t == null ? null : (uid || null);
     applyBoardFocus();
   }
   function applyBoardFocus(done, myUid) {
@@ -6814,7 +6815,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     wrap.querySelectorAll(".bflag").forEach((f) => f.classList.toggle("hl", +f.dataset.total === boardFocus));
     let first = null;
     document.querySelectorAll("#daily-board-list .lb-row").forEach((r) => {
-      const on = boardFocus != null && +r.dataset.total === boardFocus;
+      const on = boardFocus != null && (boardFocusUid ? r.dataset.uid === boardFocusUid : +r.dataset.total === boardFocus);
       r.classList.toggle("spot", on);
       if (on && !first) first = r;
     });
