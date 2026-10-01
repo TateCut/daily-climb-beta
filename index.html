@@ -8405,10 +8405,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Lives here, inside the page, because the page is always fetched fresh
   // (sw.js caches other files cache-first, so a notes file could go stale).
   const PATCH_NOTES = [
-    { v: "0.10.0", date: "2026-10-01", title: "Bonus points",
+    { v: "0.10.0", date: "2026-10-02", title: "Bonus points",
       notes: [
-        ["new", "Theme words are now worth a bonus point. Your score is every word you climb, plus a point for each theme word you find."],
+        ["new", "Words that fit the day's theme are worth a bonus point. Every theme word counts, and a climb can have more than one."],
+        ["new", "Today's theme pops up when you start the daily, with an example of how theme words score."],
+        ["new", "How to play is now one short card, plus quick tips during your first game."],
+        ["new", "Usernames can have spaces."],
+        ["imp", "The theme sits at the top while you play, with a flag for each climb."],
         ["imp", "Ties go to the fastest time. Wrong guesses no longer affect your rank."],
+        ["imp", "Leaderboard rows show just rank, player, points and time. Tap anyone to see their words. Your own row opens when you finish."],
+        ["imp", "New letters drop in from above, the moon moved out of the way, and \"End climb\" is now \"Forfeit climb\" and asks first."],
       ] },
     { v: "0.9.1", date: "2026-10-01", title: "Good to know",
       notes: [
