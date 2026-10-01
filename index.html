@@ -2261,6 +2261,13 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   db.usernames = db.usernames || {};
   db.dailies = db.dailies || {};
   var save = function () { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
+  // Signed in straight away as a test player, unless a sign-up test was asked for.
+  if (!db.player && !db.signupTest) {
+    db.player = { name: "Tester", username: "Tester", tutorialSeen: true };
+    db.usernames.tester = { username: "Tester", secret: "", rec: {} };
+    db.signedIn = "tester";
+    save();
+  }
   var player = function () { return db.player || (db.player = {}); };
   var copy = function (o) { return o ? JSON.parse(JSON.stringify(o)) : null; };
   var fail = function (code) { return Object.assign(new Error(code), { code: code }); };
@@ -2375,6 +2382,10 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       location.reload();
     },
     toggleFakes: function () { db.noFakes = !db.noFakes; save(); location.reload(); },
+    signupTest: function () { // a brand-new visitor: the welcome and sign-up screens
+      try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); localStorage.setItem(KEY, JSON.stringify({ signupTest: true })); } catch (e) {}
+      location.reload();
+    },
   };
   document.addEventListener("DOMContentLoaded", function () {
     var day = null;
@@ -2401,7 +2412,8 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
       "<button type='button' id='beta-today'>Back to today</button>" +
       "<button type='button' id='beta-replay'>Replay this day's daily</button>" +
       "<button type='button' id='beta-fakes'>" + (db.noFakes ? "Show" : "Hide") + " pretend players</button>" +
-      "<button type='button' id='beta-reset'>Reset everything (new player)</button>";
+      "<button type='button' id='beta-reset'>Reset (fresh test player)</button>" +
+      "<button type='button' id='beta-signup'>Try the sign-up screens</button>";
     document.body.append(pill, sheet);
     sheet.querySelector("#beta-day").value = day || today;
     pill.addEventListener("click", function () { sheet.hidden = !sheet.hidden; });
@@ -2410,6 +2422,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     sheet.querySelector("#beta-replay").addEventListener("click", window.DC_BETA_TOOLS.replayToday);
     sheet.querySelector("#beta-fakes").addEventListener("click", window.DC_BETA_TOOLS.toggleFakes);
     sheet.querySelector("#beta-reset").addEventListener("click", window.DC_BETA_TOOLS.resetAll);
+    sheet.querySelector("#beta-signup").addEventListener("click", window.DC_BETA_TOOLS.signupTest);
   });
 })();
 </script>
