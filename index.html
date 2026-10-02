@@ -1505,13 +1505,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     --rd-climb: #f0a04b; --rd-strip: #c9874a; --rd-strip-ink: #121212; --rd-sky1: #17130f; --rd-sky2: #2b211a;
     --rd-m1: #3a2d23; --rd-m2: #4c392b; --rd-m3: #271e17; --rd-slot: #5c5c60; --rd-good: #2f6f49; --rd-bad: #ff7a6b; --rd-tint: rgba(201, 135, 74, 0.24);
     --rd-ok: #6fd08c; --rd-sun: #e9dccb; --rd-sun-ring: #c9874a;
-    --rd-gold-text: #f6c90e; --rd-on-climb: #1c1005; --rd-tier-t: #6fd08c; --rd-tier-s: #9fb8ff;
+    --rd-gold-text: #f6c90e; --rd-on-climb: #1c1005; --rd-climb-inv: #c25e08; --rd-tier-t: #6fd08c; --rd-tier-s: #9fb8ff;
     --franklin: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   html.light { --rd-bg: #ffffff; --rd-sheet: #ffffff; --rd-card: #f6f4f0; --rd-ink: #121212; --rd-muted: #5a5a5a; --rd-line: #d3d6da;
     --rd-btn: #121212; --rd-btn-ink: #ffffff; --rd-tile: #efece6; --rd-tile-ink: #121212; --rd-climb: #c25e08; --rd-strip: #f4d3a6;
     --rd-sky1: #fdf6ee; --rd-sky2: #f7dfc0; --rd-m1: #efcfa9; --rd-m2: #e2b07f; --rd-m3: #c98d58; --rd-slot: #c9ccd1; --rd-good: #cfeedb; --rd-bad: #d4473a;
     --rd-tint: rgba(244, 211, 166, 0.55); --rd-ok: #1f8a4c; --rd-sun: #fffaf0; --rd-sun-ring: #f2a65a;
-    --rd-gold-text: #8a6700; --rd-on-climb: #ffffff; --rd-tier-t: #1f8a4c; --rd-tier-s: #3b5bdb; color-scheme: light; }
+    --rd-gold-text: #8a6700; --rd-on-climb: #ffffff; --rd-climb-inv: #f0a04b; --rd-tier-t: #1f8a4c; --rd-tier-s: #3b5bdb; color-scheme: light; }
   /* Every screen on the redesign palette: the original tokens point at the --rd-* ones. */
   :root { --bg: var(--rd-bg); --surface: var(--rd-card); --line: var(--rd-line); --text: var(--rd-ink); --muted: var(--rd-muted);
     --accent: var(--rd-climb); --on-accent: var(--rd-on-climb); --good: var(--rd-ok); --warn: var(--rd-bad); --gold: var(--rd-gold-text);
@@ -1519,6 +1519,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     --sun-core: var(--rd-sun); --sun-ring: var(--rd-sun-ring); --tier-t: var(--rd-tier-t); --tier-r: var(--rd-climb); --tier-s: var(--rd-tier-s); }
   button.primary, a.primary { background: var(--rd-btn); color: var(--rd-btn-ink); border-radius: 999px; }
   .clb { color: var(--rd-climb); }
+  button.primary .clb, .coach .clb, .lb-tip .clb, .tr-pts .clb, .hts-btn.go.last .clb { color: var(--rd-climb-inv); }
+  .coach.gold .clb, .ts-flag.got .clb, .theme-reveal.got .tr-words .clb { color: inherit; }
   .tgl-theme .ic-sun { display: none; }
   html:not(.light) .tgl-theme .ic-moon { display: none; }
   html:not(.light) .tgl-theme .ic-sun { display: block; }
@@ -2015,7 +2017,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
            installed (renderInstallButton), otherwise Invite a friend. -->
       <div class="hs-cards">
         <button class="hs-card" id="btn-home-install" type="button" hidden><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6M9 11h6"/></svg></span><span class="hs-card-txt"><b>Add Daily Climb to your Home Screen</b><span>Open it like an app, every morning.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
-        <button class="hs-card" id="btn-home-invite" type="button"><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6M18.5 7v6M15.5 10h6"/></svg></span><span class="hs-card-txt"><b>Invite a friend</b><span>Same puzzle, same day. Compare your <span class="clb">Climb</span>s.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
+        <button class="hs-card" id="btn-home-invite" type="button"><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6M18.5 7v6M15.5 10h6"/></svg></span><span class="hs-card-txt"><b>Invite a friend</b><span>Same puzzle, same day. Compare your Climbs.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
       </div>
       <div class="home-foot">
         <button class="vchip" id="btn-patch-notes" type="button"><span class="vchip-dot" aria-hidden="true"></span><span id="vchip-label"></span></button>
@@ -2636,7 +2638,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:11:04-07:00","n":2,"notes":[{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.2"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:21:46-07:00","n":3,"notes":[{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"},{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.3"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9579,6 +9581,36 @@ $1{ display: flex; gap: 8px; width: 100%; }
     syncThemeBtn();
   }));
   syncThemeBtn();
+
+  // "Climb" is the game's own word: always capitalized and orange (Tate's rule). Rather
+  // than hand-wrapping every string, any "climb" / "climbs" that lands in the page is
+  // wrapped in <span class="clb"> as it appears, except where it's a played word, a
+  // dictionary definition, a player's name or a drawing.
+  const CLB_RE = /\b[Cc]limbs?\b/;
+  const CLB_SKIP = ".clb, .brand-k, .chips, .tile, .wordtrail, .missed-word, .def, .chip-popover, .lb-flags, .lb-name, " +
+    ".board-callout, .ascent-toast, #pf-name, .whoami, .hts-stage, .hts-key, .tc-legend, .beta-sheet, .beta-pill, svg, script, style, textarea, input, select";
+  function clbWrapText(node) {
+    const p = node.parentElement;
+    if (!p || !CLB_RE.test(node.data) || p.closest(CLB_SKIP)) return;
+    const frag = document.createDocumentFragment();
+    node.data.split(/\b([Cc]limbs?)\b/).forEach((part, i) => {
+      if (i % 2) { const sp = document.createElement("span"); sp.className = "clb"; sp.textContent = "C" + part.slice(1); frag.appendChild(sp); }
+      else if (part) frag.appendChild(document.createTextNode(part));
+    });
+    node.replaceWith(frag);
+  }
+  function clbWrapTree(root) {
+    if (root.nodeType === 3) { clbWrapText(root); return; }
+    if (root.nodeType !== 1 || root.closest(CLB_SKIP)) return;
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), hits = [];
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) if (CLB_RE.test(n.data)) hits.push(n);
+    hits.forEach(clbWrapText);
+  }
+  clbWrapTree(document.body);
+  new MutationObserver((muts) => muts.forEach((m) => {
+    if (m.type === "characterData") clbWrapText(m.target);
+    else m.addedNodes.forEach(clbWrapTree);
+  })).observe(document.body, { childList: true, subtree: true, characterData: true });
 
   window.addEventListener("DOMContentLoaded", () => {
     setDifficulty("easy");
