@@ -8,6 +8,9 @@
 try { if (navigator.standalone || matchMedia("(display-mode: standalone)").matches) document.documentElement.classList.add("standalone"); } catch (e) {}
 </script>
 <title>Daily Climb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Zilla+Slab:wght@400;500;700&display=swap">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0c1324">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -62,7 +65,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     padding: 40px 16px;
     background: linear-gradient(var(--sky-top), var(--sky-mid) 60%, var(--sky-glow)) fixed;
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   main {
     width: min(94vw, 460px);
@@ -1492,6 +1495,75 @@ $1{ display: flex; gap: 8px; width: 100%; }
   html.standalone body { min-height: 100vh; }
   html.standalone #screen-daily-board .lb-list { max-height: max(120px, min(54vh, calc(100vh - 500px))); }
   html.standalone .pf-scroll { max-height: calc(100vh - 130px); }
+  /* ===== Home, redesigned: a calm splash (puzzle-game style) ===== */
+  :root { --hs-bg: #2b211a; --hs-ink: #f8f8f8; --hs-muted: #cdbfb2; --hs-line: rgba(248, 248, 248, 0.32);
+    --hs-btn: #f8f8f8; --hs-btn-ink: #121212; --hs-card: #1f1915; --hs-card-ink: #f8f8f8; --hs-card-muted: #b5a99e; --hs-climb: #f0a04b;
+    --slab: "Zilla Slab", Rockwell, "Roboto Slab", Georgia, serif; }
+  html.light { --hs-bg: #f4d3a6; --hs-ink: #121212; --hs-muted: #5a4a3c; --hs-line: rgba(18, 18, 18, 0.35);
+    --hs-btn: #121212; --hs-btn-ink: #ffffff; --hs-card: #ffffff; --hs-card-ink: #121212; --hs-card-muted: #5a5a5a; --hs-climb: #9a4204; }
+  body:has(#screen-home:not([hidden])) { background: var(--hs-bg); }
+  #screen-home { color: var(--hs-ink); gap: 0; min-height: calc(100vh - 80px); min-height: calc(100dvh - 80px); }
+  #screen-home .clb { color: var(--hs-climb); }
+  .hs-top { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .hs-top .icon-btn { background: none; border: 0; color: var(--hs-ink); }
+  .hs-top-r { display: flex; align-items: center; gap: 6px; }
+  .hs-ic { flex-direction: row; }
+  .hs-ic .rb-ic { width: 38px; height: 38px; border: 0; background: none; color: var(--hs-ink); }
+  .hs-ic .rb-ic svg { width: 21px; height: 21px; }
+  .hs-ic .rb-lab { display: none; }
+  .hs-ic.sound-toggle[aria-pressed="true"] .rb-ic { color: var(--hs-ink); }
+  #screen-home .avatar-btn { position: relative; top: auto; right: auto; background: none; border: 2px solid var(--hs-ink); color: var(--hs-ink); box-shadow: none; }
+  .hs-gap-top { flex: .8 1 0; }
+  .hs-logo { width: 104px; height: 80px; flex: none; }
+  .hs-title { margin: 12px 0 0; font-family: var(--slab); font-weight: 700; font-size: 2.85rem; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
+  .hs-tag { margin: 10px 0 0; font-family: var(--slab); font-weight: 400; font-size: 1.4rem; line-height: 1.25; max-width: 13.5em; text-wrap: balance; }
+  #screen-home .home-play { margin-top: 26px; width: auto; }
+  #screen-home .home-play button.primary { width: 214px; padding: 14px 20px; border-radius: 999px; font-size: 1.05rem; font-weight: 600; background: var(--hs-btn); color: var(--hs-btn-ink); box-shadow: none; }
+  .hs-adv { margin-top: 12px; width: 214px; min-height: 50px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
+    justify-content: center; padding: 6px 18px; text-align: center; }
+  .hs-adv .shelfrow-txt { align-items: center; }
+  .hs-adv .shelfrow-txt b { font-weight: 600; font-size: 1rem; }
+  .hs-adv .shelfrow-txt span { font-size: 0.72rem; color: var(--hs-muted); }
+  #screen-home .today-theme { margin-top: 24px; gap: 3px; }
+  #screen-home .tt-hero { display: none; }
+  .hs-line { margin: 0; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  .hs-theme, #hs-climbs { display: block; }
+  .hs-theme { font-size: 1rem; margin-bottom: 6px; }
+  .hs-theme b { font-weight: 800; }
+  .hs-date { margin: 0; font-size: 1.02rem; font-weight: 700; }
+  #screen-home .dchip { border: 0; padding: 0; background: none; color: inherit; font-size: 0.92rem; font-weight: 400; gap: 4px; }
+  #screen-home .dchip .dchip-peaks { display: none; }
+  #screen-home .dchip .dchip-i { border-color: currentColor; opacity: .7; }
+  #screen-home .tt-cap { margin: 6px 0 0; font-size: 0.88rem; color: var(--hs-muted); }
+  #screen-home .tt-cap b { color: var(--hs-ink); }
+  #screen-home .next-daily { margin-top: 10px; color: var(--hs-muted); }
+  #screen-home .next-daily b { color: var(--hs-ink); }
+  .hs-cards { width: 100%; }
+  .hs-card { width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 15px; border: 0; border-radius: 14px; background: var(--hs-card);
+    color: var(--hs-card-ink); font: inherit; text-align: left; cursor: pointer; }
+  .hs-card[hidden] { display: none; }
+  .hs-cards:has(#btn-home-install:not([hidden])) #btn-home-invite { display: none; }
+  .hs-card-ic { flex: none; width: 30px; height: 30px; border-radius: 8px; background: #f6c90e; display: flex; align-items: center; justify-content: center; }
+  .hs-card-ic svg { width: 18px; height: 18px; }
+  .hs-card-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .hs-card-txt b { font-size: 0.92rem; }
+  .hs-card-txt > span { font-size: 0.8rem; color: var(--hs-card-muted); }
+  .hs-card-txt .clb { color: inherit; font-weight: 700; }
+  .hs-card-chev { font-size: 1.3rem; color: var(--hs-card-muted); }
+  #screen-home .home-foot { margin-top: 10px; }
+  #screen-home .home-copy { color: var(--hs-muted); }
+  #screen-home .vchip { color: var(--hs-ink); border-color: var(--hs-line); background: none; }
+  @media (max-height: 700px) {
+    .hs-logo { width: 84px; height: 64px; }
+    .hs-title { font-size: 2.3rem; }
+    .hs-tag { font-size: 1.15rem; }
+    #screen-home .home-play { margin-top: 16px; }
+    #screen-home .today-theme { margin-top: 14px; }
+    #screen-home .today-theme { gap: 1px; }
+    #screen-home .tt-cap, #screen-home .next-daily { margin-top: 4px; }
+    .hs-card { padding: 10px 13px; }
+    #screen-home .home-foot { margin-top: 6px; }
+  }
 </style>
 </head>
 <body>
@@ -1651,47 +1723,31 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
     <!-- HOME (once signed in with a name) -->
     <section id="screen-home" hidden>
-      <!-- Top banner: theme calendar · the name · your profile (initial + streak). -->
-      <div class="home-banner">
+      <!-- Home: a calm splash. Calendar on the left; How to play, sound and your
+           profile on the right; then the logo, the name, one Play button, Adventure
+           Mode, and the day's details. Colors: --hs-* (dark by default, html.light). -->
+      <div class="hs-top">
         <button class="icon-btn" id="btn-calendar" type="button" aria-label="Theme calendar"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
-        <p class="home-title">Daily <span>Climb</span></p>
-        <button class="avatar-btn" id="btn-avatar" type="button" aria-label="Your profile"><span id="avatar-initial"></span><span class="avatar-streak" id="avatar-streak" hidden></span></button>
-      </div>
-      <div class="home-gap"></div>
-      <p class="lede home-tagline" id="home-tagline">Every solve adds a letter. Climb all the way to 8.</p>
-      <!-- Themed days: today's theme floating over today's three peaks (heights
-           = peak lengths), a flag per climb that turns gold once its theme word
-           is found. Replaces the tagline. -->
-      <div class="today-theme" id="today-theme" hidden>
-        <div class="tt-hero">
-          <svg class="tt-mtn" id="tt-mtn" viewBox="0 0 300 140" role="img"></svg>
+        <div class="hs-top-r">
+          <button class="roundbtn hs-ic" id="btn-home-howto" type="button" aria-label="How to play"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg></span><span class="rb-lab">How to play</span></button>
+          <button class="roundbtn sound-toggle hs-ic" id="btn-sound" type="button" aria-label="Sound" aria-pressed="false"><span class="rb-ic" aria-hidden="true"></span><span class="rb-lab">Sound</span></button>
+          <button class="avatar-btn" id="btn-avatar" type="button" aria-label="Your profile"><span id="avatar-initial"></span><span class="avatar-streak" id="avatar-streak" hidden></span></button>
         </div>
-        <p class="tt-cap" id="tt-cap" hidden></p>
-        <button class="dchip" id="btn-difficulty" type="button"></button>
       </div>
-      <div class="home-gap"></div>
-      <!-- After today's climb: when the next one arrives. -->
-      <p class="next-daily" id="next-daily" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 10.6A5.5 5.5 0 0 1 5.4 4.5a5.5 5.5 0 1 0 6.1 6.1z" fill="currentColor"/></svg>New daily in <b id="next-daily-t"></b></p>
-      <div class="home-gap" id="next-daily-gap" hidden></div>
-
-      <!-- Adventure Mode's compass: one definition, used by its row below. -->
-      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <symbol id="compass-mark" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
-          <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".55">
-            <line x1="12" y1="3.6" x2="12" y2="5.2"/><line x1="12" y1="18.8" x2="12" y2="20.4"/>
-            <line x1="3.6" y1="12" x2="5.2" y2="12"/><line x1="18.8" y1="12" x2="20.4" y2="12"/>
-          </g>
-          <g transform="rotate(35 12 12)">
-            <polygon points="12,5.2 14.6,12 9.4,12" fill="currentColor"/>
-            <polygon points="12,18.8 14.6,12 9.4,12" fill="currentColor" fill-opacity=".4"/>
-          </g>
-          <circle cx="12" cy="12" r="1.3" fill="var(--surface)"/>
-        </symbol>
+      <div class="home-gap hs-gap-top"></div>
+      <svg class="hs-logo" viewBox="0 0 120 92" aria-hidden="true">
+        <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M6 84 L34 42 L52 66 L74 26 L98 60 L114 84 Z" fill="#f6b46a"/>
+          <path d="M52 66 L74 26 L98 60 L114 84 L40 84 Z" fill="#e8871e"/>
+          <path d="M66 40 L74 26 L83 39 L78 36 L74 42 L70 37 Z" fill="#ffffff"/>
+          <path d="M28 51 L34 42 L40 50 L36 48 L33 53 Z" fill="#ffffff"/>
+          <path d="M74 26 L74 6" fill="none"/><path d="M74 6 L92 11 L74 17 Z" fill="#f6c90e"/>
+        </g>
+        <path d="M18 80 C30 74 44 70 56 60" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
+        <circle cx="56" cy="60" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
       </svg>
-      <!-- Before today's climb: the big Play, then Adventure Mode as a row.
-           After it: Adventure Mode leads (highlighted), then today's result
-           row. setHomeHero() swaps them. -->
+      <p class="hs-title">Daily <span class="clb">Climb</span></p>
+      <p class="hs-tag" id="home-tagline"><span class="clb">Climb</span> one word at a time and find the day's theme.</p>
       <div class="home-play" id="dailycard-hero">
         <button class="primary" id="btn-daily-play" type="button">Play</button>
         <p class="note" id="daily-meta" hidden></p>
@@ -1709,27 +1765,47 @@ $1{ display: flex; gap: 8px; width: 100%; }
         </span>
         <span class="shelfrow-chev" aria-hidden="true">&rsaquo;</span>
       </button>
-      <button class="shelfrow" id="btn-adventure-play" type="button">
-        <span class="shelfrow-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><use href="#compass-mark"/></svg>
-        </span>
+      <button class="shelfrow hs-adv" id="btn-adventure-play" type="button">
         <span class="shelfrow-txt">
           <b>Adventure Mode</b>
-          <span id="adventure-progress">Can you beat all 746 climbs?</span>
+          <span id="adventure-progress">Can you beat all 746 Climbs?</span>
         </span>
-        <span class="shelfrow-chev" aria-hidden="true">&rsaquo;</span>
       </button>
-      <div class="home-gap"></div>
-      <!-- The extras: round buttons with small labels. Add app hides once the
-           game is installed (renderInstallButton). -->
-      <div class="home-icons">
-        <button class="roundbtn" id="btn-home-howto" type="button"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg></span><span class="rb-lab">How to play</span></button>
-        <button class="roundbtn" id="btn-home-invite" type="button"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 13.5a4.5 4.5 0 0 1 9 0M12.5 5v5M10 7.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Invite</span></button>
-        <button class="roundbtn" id="btn-home-install" type="button" hidden><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Add app</span></button>
-        <button class="roundbtn sound-toggle" id="btn-sound" type="button" aria-label="Sound" aria-pressed="false"><span class="rb-ic" aria-hidden="true"></span><span class="rb-lab">Sound</span></button>
+      <!-- The day's details: today's theme, the date and number, the day's
+           difficulty (tap for what it means) and the three Climbs. After playing,
+           how the theme words went and when the next daily arrives. -->
+      <div class="today-theme" id="today-theme" hidden>
+        <div class="tt-hero"><svg class="tt-mtn" id="tt-mtn" viewBox="0 0 300 140" role="img"></svg></div>
+        <p class="hs-line hs-theme" id="hs-theme"></p>
+        <p class="hs-date" id="hs-date"></p>
+        <p class="hs-line"><span id="hs-no"></span><button class="dchip" id="btn-difficulty" type="button"></button></p>
+        <p class="hs-line" id="hs-climbs"></p>
+        <p class="tt-cap" id="tt-cap" hidden></p>
       </div>
-      <!-- The version chip opens the patch notes (an amber dot = an update
-           this player hasn't seen). -->
+      <p class="next-daily" id="next-daily" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 10.6A5.5 5.5 0 0 1 5.4 4.5a5.5 5.5 0 1 0 6.1 6.1z" fill="currentColor"/></svg>New daily in <b id="next-daily-t"></b></p>
+      <div class="home-gap" id="next-daily-gap" hidden></div>
+      <!-- Adventure Mode's compass: one definition, used by its row below. -->
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="compass-mark" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity=".55">
+            <line x1="12" y1="3.6" x2="12" y2="5.2"/><line x1="12" y1="18.8" x2="12" y2="20.4"/>
+            <line x1="3.6" y1="12" x2="5.2" y2="12"/><line x1="18.8" y1="12" x2="20.4" y2="12"/>
+          </g>
+          <g transform="rotate(35 12 12)">
+            <polygon points="12,5.2 14.6,12 9.4,12" fill="currentColor"/>
+            <polygon points="12,18.8 14.6,12 9.4,12" fill="currentColor" fill-opacity=".4"/>
+          </g>
+          <circle cx="12" cy="12" r="1.3" fill="var(--surface)"/>
+        </symbol>
+      </svg>
+      <div class="home-gap"></div>
+      <!-- One card at the bottom: Add to Home Screen while the game isn't
+           installed (renderInstallButton), otherwise Invite a friend. -->
+      <div class="hs-cards">
+        <button class="hs-card" id="btn-home-install" type="button" hidden><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6M9 11h6"/></svg></span><span class="hs-card-txt"><b>Add Daily Climb to your Home Screen</b><span>Open it like an app, every morning.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
+        <button class="hs-card" id="btn-home-invite" type="button"><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6M18.5 7v6M15.5 10h6"/></svg></span><span class="hs-card-txt"><b>Invite a friend</b><span>Same puzzle, same day. Compare your <span class="clb">Climb</span>s.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
+      </div>
       <div class="home-foot">
         <button class="vchip" id="btn-patch-notes" type="button"><span class="vchip-dot" aria-hidden="true"></span><span id="vchip-label"></span></button>
         <span class="home-copy">&copy; 2026 Tate Cutcliffe</span>
@@ -2352,6 +2428,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   var player = function () { return db.player || (db.player = {}); };
   var copy = function (o) { return o ? JSON.parse(JSON.stringify(o)) : null; };
   var fail = function (code) { return Object.assign(new Error(code), { code: code }); };
+  var lightPreview = false;
+  try { lightPreview = localStorage.getItem("beta.light") === "1"; } catch (e) {}
+  if (lightPreview) document.documentElement.classList.add("light");
   var nameKey = function (n) { return String(n).trim().toLowerCase().replace(/ +/g, "."); };   // same as the live MatchDB
   var noop = function () {};
 
@@ -2480,6 +2559,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       try { ["three21.tut", "three21.tips", "three21.tipsOn", "three21.tapTipShown"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
       window.DC_BETA_TOOLS.replayToday();
     },
+    toggleLight: function () { try { localStorage.setItem("beta.light", localStorage.getItem("beta.light") === "1" ? "0" : "1"); } catch (e) {} location.reload(); },
     toggleFakes: function () { db.noFakes = !db.noFakes; save(); location.reload(); },
     signupTest: function () { // a brand-new visitor: the welcome and sign-up screens
       try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); localStorage.setItem(KEY, JSON.stringify({ signupTest: true })); } catch (e) {}
@@ -2511,6 +2591,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       "<button type='button' id='beta-today'>Back to today</button>" +
       "<button type='button' id='beta-replay'>Replay this day's daily</button>" +
       "<button type='button' id='beta-newplayer'>Play it as a new player</button>" +
+      "<button type='button' id='beta-light'>" + (lightPreview ? "Back to dark mode" : "Preview light mode (home only so far)") + "</button>" +
       "<button type='button' id='beta-fakes'>" + (db.noFakes ? "Show" : "Hide") + " pretend players</button>" +
       "<button type='button' id='beta-reset'>Reset (fresh test player)</button>" +
       "<button type='button' id='beta-signup'>Try the sign-up screens</button>";
@@ -2521,6 +2602,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     sheet.querySelector("#beta-today").addEventListener("click", function () { window.DC_BETA_TOOLS.goToDay(null); });
     sheet.querySelector("#beta-replay").addEventListener("click", window.DC_BETA_TOOLS.replayToday);
     sheet.querySelector("#beta-newplayer").addEventListener("click", window.DC_BETA_TOOLS.newPlayer);
+    sheet.querySelector("#beta-light").addEventListener("click", window.DC_BETA_TOOLS.toggleLight);
     sheet.querySelector("#beta-fakes").addEventListener("click", window.DC_BETA_TOOLS.toggleFakes);
     sheet.querySelector("#beta-reset").addEventListener("click", window.DC_BETA_TOOLS.resetAll);
     sheet.querySelector("#beta-signup").addEventListener("click", window.DC_BETA_TOOLS.signupTest);
@@ -7005,20 +7087,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // The single home Play button: label + one-line status for today's puzzle.
   function renderAdventureProgress() {
     const n = myBeatenSeeds.length;
-    const text = n > 0 ? (n + " / " + (CLIMBS.length || 746) + " beaten") : "Can you beat all 746 climbs?";
+    const text = n > 0 ? (n + " / " + (CLIMBS.length || 746) + " beaten") : "Can you beat all " + (CLIMBS.length || 746) + " Climbs?";
     const el = $("#adventure-progress");
     if (el) el.textContent = text;
   }
 
-  // Before today's daily: the big Play, then Adventure Mode as a row. Once it's
-  // done, Adventure Mode leads (highlighted, with a "Play") above today's
-  // result row — the results are for glancing at, not the next thing to do.
-  function setHomeHero(adventureIsHero) {
-    const adv = $("#btn-adventure-play"), done = $("#btn-daily-compact");
-    $("#dailycard-hero").hidden = adventureIsHero;
-    done.hidden = !adventureIsHero;
-    adv.classList.toggle("lead", adventureIsHero);   // highlighted, with a "Play"
-    if (adventureIsHero) done.before(adv); else done.after(adv);
+  // The splash keeps Play as the main button in every state (its label says
+  // Play / Resume / See today's results), with Adventure Mode under it.
+  function setHomeHero() {
+    $("#dailycard-hero").hidden = false;
+    $("#btn-daily-compact").hidden = true;
   }
 
   // ---- Home: today's theme (themed days) ----
@@ -7059,9 +7137,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function renderTodayTheme(playedToday, result) {
     const t = themedDay(dailyKeyOf());
     const box = $("#today-theme");
-    $("#home-tagline").hidden = !!t;
     box.hidden = !t;
     if (!t) return;
+    const base = dayBase(dailyKeyOf()), [yy, mm, dd] = base.split("-").map(Number);
+    const theme = $("#hs-theme"), tb = document.createElement("b");
+    tb.textContent = t.theme.name;
+    theme.replaceChildren("Today's theme: ", tb);
+    $("#hs-date").textContent = new Date(yy, mm - 1, dd).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    $("#hs-no").textContent = "No. " + (t.index + 1) + " ·";
+    const lens = t.climbs.map((p) => p.c[p.c.length - 1].length);
+    const climbs = $("#hs-climbs"), cw = document.createElement("span");
+    cw.className = "clb"; cw.textContent = "Climbs";
+    climbs.replaceChildren(lens.length + " ", cw, " · " + lens.slice(0, -1).join(", ") + " and " + lens[lens.length - 1] + " letters");
     box.classList.toggle("after", !!playedToday);   // peaks a little smaller once played
     // After playing (this device knows which theme words were found): flags + what was missed.
     const r = playedToday && result && result.base === dayBase(dailyKeyOf()) && Array.isArray(result.tf) ? result : null;
@@ -7074,7 +7161,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     cap.hidden = !r;   // only after playing: how the theme words went
     if (r) {
       const n = r.tf.filter(Boolean).length;
-      cap.append(n + " of " + t.climbs.length + " found");
+      cap.append(n + " of " + t.climbs.length + " theme words found");
       const missed = t.climbs.map((_, i) => i).filter((i) => !r.tf[i]);
       if (missed.length === 1) {
         const i = missed[0], b = document.createElement("b");
@@ -7088,7 +7175,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const chip = $("#btn-difficulty");
     chip.className = "dchip " + t.tier;
     chip.innerHTML = '<span class="dchip-peaks" aria-hidden="true"><i></i><i></i><i></i></span>';
-    chip.append(DAY_TIER[t.tier] + " day" + (t.star ? " ★" : ""));
+    chip.append(DAY_TIER[t.tier] + " day" + (t.star ? " ★" : ""));   // (the peaks icon is hidden on home)
     const info = document.createElement("span");
     info.className = "dchip-i"; info.setAttribute("aria-hidden", "true"); info.textContent = "i";
     chip.appendChild(info);
@@ -7263,7 +7350,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const today = dailyKeyOf();
     const playedToday = myDailyLastDay === today;
     const canResume = resumeState && resumeState.mode === "daily" && resumeState.dailyDay === today;
-    if (playedToday) btn.textContent = "See today's standings";
+    if (playedToday) btn.textContent = "See today's results";
     else if (canResume) btn.textContent = "Resume today's game";
     else btn.textContent = "Play";
     meta.textContent = capFirst(dailyResetText()) + ".";
