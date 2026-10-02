@@ -1820,8 +1820,21 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .brandmark { height: 76px; margin-bottom: 10px; }
   h1 { font-family: var(--slab); font-weight: 700; font-size: 2.6rem; letter-spacing: -0.02em; line-height: 1; }
   h1 .brand-k { color: var(--rd-climb); }
-  body:has(#screen-loading:not([hidden])), body:has(#screen-welcome:not([hidden])) { background: var(--hs-bg); color: var(--hs-ink); }
-  body:has(#screen-welcome:not([hidden])) h1 .brand-k, #screen-welcome .clb { color: var(--hs-climb); }
+  /* The whole sign-up flow (welcome → username → emoji, or sign in / restore) stays on the splash colors. */
+  body:has(#screen-loading:not([hidden])), body:has(#screen-welcome:not([hidden])), body:has(#screen-name:not([hidden])),
+  body:has(#screen-emoji:not([hidden])), body:has(#screen-signin:not([hidden])), body:has(#screen-restore:not([hidden])) { background: var(--hs-bg); color: var(--hs-ink); }
+  body:has(#screen-welcome:not([hidden])) h1 .brand-k, body:has(#screen-name:not([hidden])) h1 .brand-k,
+  body:has(#screen-emoji:not([hidden])) h1 .brand-k, body:has(#screen-restore:not([hidden])) h1 .brand-k { color: var(--hs-climb); }
+  #screen-welcome, #screen-name, #screen-emoji, #screen-signin, #screen-restore {
+    --bg: var(--hs-bg); --surface: var(--hs-card); --line: var(--hs-line); --text: var(--hs-ink); --muted: var(--hs-muted); --accent: var(--hs-climb);
+    --rd-ink: var(--hs-ink); --rd-muted: var(--hs-muted); --rd-card: var(--hs-card); --rd-line: var(--hs-line); --rd-climb: var(--hs-climb);
+    --rd-btn: var(--hs-btn); --rd-btn-ink: var(--hs-btn-ink); color: var(--hs-ink); }
+  #screen-welcome .clb, #screen-name .clb, #screen-emoji .clb, #screen-signin .clb, #screen-restore .clb { color: var(--hs-climb); }
+  #screen-name .nameinput, #screen-signin .nameinput, #screen-restore .nameinput { border: 0; background: var(--hs-card); color: var(--hs-card-ink); }
+  #screen-emoji .em-slot, #screen-signin .em-slot { background: transparent; }
+  #screen-emoji .em-cell, #screen-signin .em-cell, #screen-restore .restore-stats div { border: 0; background: var(--hs-card); }
+  #screen-emoji .em-cell.on, #screen-signin .em-cell.on { box-shadow: inset 0 0 0 2px var(--hs-ink); background: var(--hs-card); }
+  #screen-emoji .em-tag { color: var(--hs-climb); }
   #screen-welcome .lede { color: var(--hs-ink); font-family: var(--slab); font-size: 1.25rem; }
   #screen-welcome .wl-choice { background: var(--hs-card); color: var(--hs-card-ink); border: 0; }
   #screen-welcome .wl-choice.lead { box-shadow: inset 0 0 0 1.5px var(--hs-ink); }
@@ -2698,7 +2711,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:30:27-07:00","n":4,"notes":[{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"},{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"},{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.4"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:35:11-07:00","n":5,"notes":[{"note":"Whole sign-up flow on the apricot splash colors (username, emoji, sign in, restore)","v":"0.11.0-beta.5"},{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"},{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"},{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.5"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
