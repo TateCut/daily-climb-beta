@@ -12,17 +12,21 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Zilla+Slab:wght@400;500;700&display=swap">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0c1324">
+<meta name="theme-color" content="#f4d3a6">
+<script>
+  // Light mode unless the player picked dark (the moon on the home screen). Set before paint.
+  try { if (localStorage.getItem("dc.theme") !== "dark") document.documentElement.classList.add("light"); }
+  catch (e) { document.documentElement.classList.add("light"); }
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Daily Climb">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <style>
-  /* "Daily Ascent" theme, app-wide: a navy night sky warming toward dawn, with
-     the trail amber as the accent. Deliberately one committed dark palette
-     (no light variant) — every screen sits on the same sky the daily run's
-     mountain scene rises out of, so the look never changes between screens. */
+  /* The original "Daily Ascent" tokens. Every one of them is now pointed at the
+     redesign's --rd-* palette further down (light by default, dark on request);
+     these values only matter as fallbacks. */
   :root {
     --bg: #12141f;
     --surface: #1d2233;
@@ -188,7 +192,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   button.primary, a.primary {
     border: none;
     background: var(--accent);
-    color: #1c1005;
+    color: var(--on-accent);
     font: inherit;
     font-weight: 650;
     font-size: 1rem;
@@ -604,9 +608,9 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
     text-shadow: 0 0 18px rgba(242, 193, 78, 0.3); text-transform: uppercase; }
   .ts-chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
   .ts-flag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line);
-    background: rgba(18, 20, 31, 0.5); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; }
+    background: color-mix(in srgb, var(--bg) 55%, transparent); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; }
   .ts-flag svg { width: 9px; height: 13px; }
-  .ts-flag.now { border-color: #5a6182; color: var(--text); }
+  .ts-flag.now { border-color: var(--text); color: var(--text); }
   .ts-flag.got { border-color: var(--gold); background: rgba(242, 193, 78, 0.12); color: var(--gold); }
   .ts-flag.miss { text-decoration: line-through; opacity: 0.7; }
   .ts-flag.fresh { animation: ts-pulse 1.6s ease-in-out 3; }
@@ -768,7 +772,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .dsheet-peaks { display: flex; align-items: flex-end; justify-content: center; gap: 16px; padding: 10px 0 12px; }
   .dsheet-peaks div { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.7rem; color: var(--muted); }
   .dsheet-levels { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-  .dsheet-lvl { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; padding: 7px 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.03); }
+  .dsheet-lvl { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; padding: 7px 10px; border-radius: 10px; background: color-mix(in srgb, var(--text) 3%, transparent); }
   .dsheet-lvl b { min-width: 58px; }
   .dsheet-lvl span { color: var(--muted); }
   .dsheet-lvl.cur { outline: 1px solid currentColor; }
@@ -939,7 +943,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   }
   .avatar-streak {
     position: absolute; right: -7px; bottom: -6px; font-size: 0.62rem; font-weight: 800; line-height: 1.3;
-    background: var(--accent); color: #1c1005; border-radius: 999px; padding: 1px 5px; white-space: nowrap;
+    background: var(--accent); color: var(--on-accent); border-radius: 999px; padding: 1px 5px; white-space: nowrap;
   }
   .avatar-streak[hidden] { display: none; }
   .namebtn { font: inherit; color: var(--text); font-weight: 700; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
@@ -979,8 +983,8 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .pf-podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 100px; }
   .pf-step { flex: 1; max-width: 84px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .pf-step b { font-size: 1.2rem; }
-  .pf-medal { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.78rem; color: #1c1005; }
-  .pf-block { width: 100%; border-radius: 8px 8px 0 0; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); border-bottom: 0; }
+  .pf-medal { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.78rem; color: var(--on-accent); }
+  .pf-block { width: 100%; border-radius: 8px 8px 0 0; background: color-mix(in srgb, var(--text) 5%, transparent); border: 1px solid var(--line); border-bottom: 0; }
   .pf-step.g .pf-medal { background: #f2c14e; } .pf-step.s .pf-medal { background: #c9d1dc; } .pf-step.b .pf-medal { background: #d08a54; }
   .pf-step.g .pf-block { height: 40px; border-color: rgba(242, 193, 78, 0.5); } .pf-step.s .pf-block { height: 28px; } .pf-step.b .pf-block { height: 18px; }
   .pf-note { margin: 6px 0 0; font-size: 0.74rem; color: var(--muted); text-align: center; }
@@ -991,18 +995,18 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .pf-stat small { display: block; margin-top: 2px; font-size: 0.64rem; color: var(--muted); line-height: 1.25; }
   .pf-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
   .pf-dow { font-size: 0.58rem; color: var(--muted); text-align: center; }
-  .pf-cell { aspect-ratio: 1; border-radius: 5px; background: rgba(255, 255, 255, 0.04); border: 1px solid transparent; padding: 0; cursor: pointer; }
+  .pf-cell { aspect-ratio: 1; border-radius: 5px; background: color-mix(in srgb, var(--text) 4%, transparent); border: 1px solid transparent; padding: 0; cursor: pointer; }
   .pf-cell.l1, .pf-legend .l1 { background: rgba(232, 135, 30, 0.22); } .pf-cell.l2, .pf-legend .l2 { background: rgba(232, 135, 30, 0.45); }
   .pf-cell.l3, .pf-legend .l3 { background: rgba(232, 135, 30, 0.72); } .pf-cell.l4, .pf-legend .l4 { background: var(--accent); }
   .pf-cell.today { border-color: var(--text); }
   .pf-cell.sel { outline: 2px solid var(--text); outline-offset: 1px; }
   .pf-legend { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 6px; font-size: 0.6rem; color: var(--muted); }
   .pf-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-  .pf-dayinfo { margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); font-size: 0.8rem; color: var(--muted); min-height: 2.6em; }
+  .pf-dayinfo { margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--text) 4%, transparent); font-size: 0.8rem; color: var(--muted); min-height: 2.6em; }
   .pf-dayinfo b { color: var(--text); }
   .pf-recent { display: flex; flex-direction: column; gap: 6px; }
   .pf-recent:empty::before { content: "Your daily results will show up here."; font-size: 0.8rem; color: var(--muted); }
-  .pf-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; padding: 7px 9px; border-radius: 9px; background: rgba(255, 255, 255, 0.03); }
+  .pf-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; padding: 7px 9px; border-radius: 9px; background: color-mix(in srgb, var(--text) 3%, transparent); }
   .pf-row .d { width: 50px; flex: none; color: var(--muted); }
   .pf-row .sc small { color: var(--muted); }
   .pf-row .rk { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
@@ -1057,7 +1061,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .tc-ex-lab[hidden] { display: none; }
   .tc-legend { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 10px 14px; align-items: center; }
   .tc-word { display: flex; gap: 4px; }
-  .tc-sw { width: 30px; height: 35px; border-radius: 7px; border: 1px solid var(--good); color: var(--good); background: var(--bg-elev, #262c40);
+  .tc-sw { width: 30px; height: 35px; border-radius: 7px; border: 1px solid var(--good); color: var(--good); background: var(--surface);
     display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; text-transform: uppercase; }
   .tc-sw.gold { border-color: var(--gold); background: rgba(242, 193, 78, 0.16); color: var(--gold); }
   .tc-legend .tc-plain { font-size: 0.95rem; font-weight: 700; text-align: right; }
@@ -1088,7 +1092,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .rs-ex p b.w { color: var(--warn); }
   .tc-sw.plain { border-color: var(--line); color: var(--text); }
   .tc-sw.bad { border-color: var(--warn); color: var(--warn); text-decoration: line-through; }
-  .coach { position: fixed; z-index: 55; max-width: min(300px, calc(100vw - 24px)); background: var(--accent); color: #1c1005;
+  .coach { position: fixed; z-index: 55; max-width: min(300px, calc(100vw - 24px)); background: var(--accent); color: var(--on-accent);
     font-weight: 800; font-size: 0.92rem; line-height: 1.35; padding: 10px 14px; border-radius: 12px; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
     pointer-events: none; }
   .coach[hidden] { display: none; }
@@ -1289,15 +1293,15 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .install-steps { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
   .install-steps li { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; line-height: 1.35; }
   .install-steps .n {
-    width: 22px; height: 22px; flex: none; border-radius: 50%; background: var(--accent); color: #1c1005;
+    width: 22px; height: 22px; flex: none; border-radius: 50%; background: var(--accent); color: var(--on-accent);
     font-weight: 800; font-size: 0.74rem; display: flex; align-items: center; justify-content: center;
   }
   .install-glyph {
     display: inline-flex; align-items: center; justify-content: center; vertical-align: -5px;
-    width: 24px; height: 22px; margin: 0 2px; border-radius: 6px; background: rgba(255, 255, 255, 0.08);
+    width: 24px; height: 22px; margin: 0 2px; border-radius: 6px; background: color-mix(in srgb, var(--text) 8%, transparent);
   }
   .install-glyph svg { width: 15px; height: 15px; }
-  .install-pill { display: inline-block; padding: 1px 7px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); font-weight: 600; }
+  .install-pill { display: inline-block; padding: 1px 7px; border-radius: 6px; background: color-mix(in srgb, var(--text) 8%, transparent); font-weight: 600; }
   .install-actions { display: flex; gap: 8px; }
   /* Daily reminder sheet: pick a time (reuses the install sheet's frame). */
   .reminder-times { display: flex; gap: 8px; margin: 0 0 14px; }
@@ -1387,7 +1391,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .collection-tile.beaten {
     background: var(--accent);
     border-color: var(--accent);
-    color: #1c1005;
+    color: var(--on-accent);
     font-size: 0.85rem;
   }
 
@@ -1430,13 +1434,13 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .lb-row.pending .lb-score { font-weight: 400; font-size: 0.8rem; color: var(--muted); }
   .lb-detail { width: 100%; padding: 2px 4px 8px; }
   .lb-tip { position: absolute; left: 0; right: 0; bottom: 2px; width: max-content; margin: 0 auto; padding: 7px 12px; border-radius: 12px;
-    background: var(--accent); color: #1c1005; font-weight: 800; font-size: 0.8rem;
+    background: var(--accent); color: var(--on-accent); font-weight: 800; font-size: 0.8rem;
     box-shadow: 0 6px 18px rgba(0,0,0,.3); }
   .lb-tip::after { content: ""; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
     border: 7px solid transparent; border-bottom: 0; border-top-color: var(--accent); }
   .lb-detail-badge { color: var(--accent); margin: 0 0 6px; }
   /* Themed days: the day's theme words as flags, and a flag on each theme rung. */
-  .lb-flags { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; margin: 0 0 10px; border: 1px solid var(--line); border-radius: 10px; background: rgba(18, 20, 31, 0.55); text-align: left; }
+  .lb-flags { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; margin: 0 0 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--bg) 55%, transparent); text-align: left; }
   .lb-flags-lab { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .lb-flags-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .lb-flag { display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.04em; color: var(--muted); }
@@ -1467,7 +1471,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .diffbtn.active {
     border-color: var(--accent);
     background: var(--accent);
-    color: #1c1005;
+    color: var(--on-accent);
   }
 
   [hidden] { display: none !important; }
@@ -1495,17 +1499,41 @@ $1{ display: flex; gap: 8px; width: 100%; }
   html.standalone body { min-height: 100vh; }
   html.standalone #screen-daily-board .lb-list { max-height: max(120px, min(54vh, calc(100vh - 500px))); }
   html.standalone .pf-scroll { max-height: calc(100vh - 130px); }
-  /* ===== Redesign tokens (puzzle-game style): dark by default, html.light for light ===== */
+  /* ===== Redesign tokens (puzzle-game style): dark here, html.light (the default, set in <head>) for light ===== */
   :root { --rd-bg: #121212; --rd-sheet: #2a2a2b; --rd-card: #1e1e1f; --rd-ink: #f8f8f8; --rd-muted: #a8a8a8; --rd-line: #3a3a3c;
     --rd-btn: #f8f8f8; --rd-btn-ink: #121212; --rd-tile: #3a3a3c; --rd-tile-ink: #f8f8f8; --rd-gold: #f6c90e; --rd-gold-ink: #121212;
     --rd-climb: #f0a04b; --rd-strip: #c9874a; --rd-strip-ink: #121212; --rd-sky1: #17130f; --rd-sky2: #2b211a;
     --rd-m1: #3a2d23; --rd-m2: #4c392b; --rd-m3: #271e17; --rd-slot: #5c5c60; --rd-good: #2f6f49; --rd-bad: #ff7a6b; --rd-tint: rgba(201, 135, 74, 0.24);
     --rd-ok: #6fd08c; --rd-sun: #e9dccb; --rd-sun-ring: #c9874a;
+    --rd-gold-text: #f6c90e; --rd-on-climb: #1c1005; --rd-tier-t: #6fd08c; --rd-tier-s: #9fb8ff;
     --franklin: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   html.light { --rd-bg: #ffffff; --rd-sheet: #ffffff; --rd-card: #f6f4f0; --rd-ink: #121212; --rd-muted: #5a5a5a; --rd-line: #d3d6da;
     --rd-btn: #121212; --rd-btn-ink: #ffffff; --rd-tile: #efece6; --rd-tile-ink: #121212; --rd-climb: #c25e08; --rd-strip: #f4d3a6;
     --rd-sky1: #fdf6ee; --rd-sky2: #f7dfc0; --rd-m1: #efcfa9; --rd-m2: #e2b07f; --rd-m3: #c98d58; --rd-slot: #c9ccd1; --rd-good: #cfeedb; --rd-bad: #d4473a;
-    --rd-tint: rgba(244, 211, 166, 0.55); --rd-ok: #1f8a4c; --rd-sun: #fffaf0; --rd-sun-ring: #f2a65a; color-scheme: light; }
+    --rd-tint: rgba(244, 211, 166, 0.55); --rd-ok: #1f8a4c; --rd-sun: #fffaf0; --rd-sun-ring: #f2a65a;
+    --rd-gold-text: #8a6700; --rd-on-climb: #ffffff; --rd-tier-t: #1f8a4c; --rd-tier-s: #3b5bdb; color-scheme: light; }
+  /* Every screen on the redesign palette: the original tokens point at the --rd-* ones. */
+  :root { --bg: var(--rd-bg); --surface: var(--rd-card); --line: var(--rd-line); --text: var(--rd-ink); --muted: var(--rd-muted);
+    --accent: var(--rd-climb); --on-accent: var(--rd-on-climb); --good: var(--rd-ok); --warn: var(--rd-bad); --gold: var(--rd-gold-text);
+    --sky-top: var(--rd-bg); --sky-mid: var(--rd-bg); --sky-glow: var(--rd-bg); --mtn-far: var(--rd-m2); --mtn-near: var(--rd-m3);
+    --sun-core: var(--rd-sun); --sun-ring: var(--rd-sun-ring); --tier-t: var(--rd-tier-t); --tier-r: var(--rd-climb); --tier-s: var(--rd-tier-s); }
+  button.primary, a.primary { background: var(--rd-btn); color: var(--rd-btn-ink); border-radius: 999px; }
+  .clb { color: var(--rd-climb); }
+  #btn-theme .ic-sun { display: none; }
+  html:not(.light) #btn-theme .ic-moon { display: none; }
+  html:not(.light) #btn-theme .ic-sun { display: block; }
+  /* Between Climbs. */
+  #screen-climb-roundend h2 { font-family: var(--slab); font-weight: 700; font-size: 1.5rem !important; }
+  #cre-words .tw { background: var(--rd-gold); border-color: var(--rd-gold); color: var(--rd-gold-ink); box-shadow: none; }
+  .theme-reveal.got { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 14px; text-align: center; border: 0; border-radius: 14px;
+    background: color-mix(in srgb, var(--rd-gold) 22%, var(--rd-bg)); animation: tr-cheer .5s cubic-bezier(.2,.8,.25,1.4) both; }
+  .tr-nice { font-family: var(--slab); font-size: 1.7rem; font-weight: 700; line-height: 1; color: var(--rd-ink); }
+  .tr-line { font-size: 0.95rem; color: var(--rd-ink); }
+  .tr-words { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .theme-reveal.got .tr-words b { padding: 4px 12px; border-radius: 999px; background: var(--rd-gold); color: var(--rd-gold-ink); font-size: 0.95rem; letter-spacing: 0.04em; }
+  .tr-pts { margin-top: 2px; padding: 3px 12px; border-radius: 999px; background: var(--rd-ink); color: var(--rd-bg); font-weight: 800; font-size: 0.9rem; }
+  @keyframes tr-cheer { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .theme-reveal.got { animation: none; } }
   /* ===== How to Play: the bottom sheet ===== */
   .hts-veil { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.45); display: flex; align-items: flex-end; justify-content: center; animation: tc-fade .25s ease-out; }
   .hts-veil[hidden] { display: none; }
@@ -1908,6 +1936,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="icon-btn" id="btn-calendar" type="button" aria-label="Theme calendar"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
         <div class="hs-top-r">
           <button class="roundbtn hs-ic" id="btn-home-howto" type="button" aria-label="How to play"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg></span><span class="rb-lab">How to play</span></button>
+          <button class="roundbtn hs-ic" id="btn-theme" type="button" aria-label="Dark mode" aria-pressed="false"><span class="rb-ic" aria-hidden="true"><svg class="ic-moon" viewBox="0 0 16 16"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><svg class="ic-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Dark mode</span></button>
           <button class="roundbtn sound-toggle hs-ic" id="btn-sound" type="button" aria-label="Sound" aria-pressed="false"><span class="rb-ic" aria-hidden="true"></span><span class="rb-lab">Sound</span></button>
           <button class="avatar-btn" id="btn-avatar" type="button" aria-label="Your profile"><span id="avatar-initial"></span><span class="avatar-streak" id="avatar-streak" hidden></span></button>
         </div>
@@ -1993,7 +2022,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <!-- INVITE: share the game link -->
     <section id="screen-invite" hidden>
       <div class="scr-head"><button class="backpill" id="btn-invite-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl">Invite friends</h2><span></span></div>
-      <p class="lede">Send this link. Everyone who opens it plays today's climb, then you can compare scores on the leaderboard.</p>
+      <p class="lede">Send this link. Everyone who opens it plays today's Climb, then you can compare scores on the leaderboard.</p>
       <div class="linkrow">
         <input class="nameinput" id="invite-link" type="text" readonly>
         <button class="ghost" id="btn-invite-copy" type="button">Copy</button>
@@ -2384,7 +2413,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <div class="scr-head"><button class="backpill" id="btn-collection-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl">Adventure Mode</h2><span></span></div>
       <p class="lede" id="collection-progress"></p>
       <div class="collection-grid" id="collection-grid"></div>
-      <p class="note">Tap any climb to play it &mdash; beaten ones are filled in. The goal: beat them all.</p>
+      <p class="note">Tap any <span class="clb">Climb</span> to play it &mdash; beaten ones are filled in. The goal: beat them all.</p>
     </section>
 
     <!-- COLLECTION: after one attempt at a chosen seed -->
@@ -2501,27 +2530,24 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <div class="hts-illus"><div class="hts-stage" data-scene="climb"></div></div>
         <p class="hts-lead"><span class="clb">Climb</span> one word at a time.</p>
         <ul class="hts-bul">
-          <li>Rearrange the letters into a real word.</li>
-          <li>Solve it and a new letter drops in. Use every letter to make a longer word.</li>
-          <li>Each <span class="clb">Climb</span> goes up to 7–11 letters.</li>
+          <li>Unscramble the letters into a word.</li>
+          <li>Each new word adds one letter.</li>
         </ul>
       </div>
       <div class="hts-slide" data-i="1" hidden>
         <div class="hts-illus"><div class="hts-key" id="hts-key"></div></div>
         <p class="hts-lead">Find the theme words.</p>
         <ul class="hts-bul">
-          <li>Every day has a theme. Each <span class="clb">Climb</span> hides at least one word that fits it.</li>
-          <li>Theme words light up <b class="hts-gold">yellow</b> and are worth 2 points.</li>
-          <li>Any real word still keeps your <span class="clb">Climb</span> going.</li>
+          <li>Each <span class="clb">Climb</span> hides a word that fits today's theme.</li>
+          <li>Theme words turn <b class="hts-gold">yellow</b> and are worth 2 points.</li>
         </ul>
       </div>
       <div class="hts-slide" data-i="2" hidden>
         <div class="hts-illus"><div class="hts-stage" data-scene="cheap"></div></div>
         <p class="hts-lead">No cheap steps.</p>
         <ul class="hts-bul">
-          <li>A new word can't just be the last word plus -s, -d, -r or -n. It doesn't cost a strike, just find another word.</li>
-          <li>Three words that aren't real words end the <span class="clb">Climb</span>.</li>
-          <li>One hint a day. Three <span class="clb">Climbs</span>, the same for everyone. Ties go to the fastest time.</li>
+          <li>Adding just -s, -d, -r or -n doesn't count.</li>
+          <li>3 wrong words end the <span class="clb">Climb</span>. 1 hint a day.</li>
         </ul>
       </div>
       <div class="hts-dots" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -2620,9 +2646,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   var player = function () { return db.player || (db.player = {}); };
   var copy = function (o) { return o ? JSON.parse(JSON.stringify(o)) : null; };
   var fail = function (code) { return Object.assign(new Error(code), { code: code }); };
-  var lightPreview = false;
-  try { lightPreview = localStorage.getItem("beta.light") === "1"; } catch (e) {}
-  if (lightPreview) document.documentElement.classList.add("light");
   var nameKey = function (n) { return String(n).trim().toLowerCase().replace(/ +/g, "."); };   // same as the live MatchDB
   var noop = function () {};
 
@@ -2751,7 +2774,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       try { ["three21.tut", "three21.tips", "three21.tipsOn", "three21.tapTipShown"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
       window.DC_BETA_TOOLS.replayToday();
     },
-    toggleLight: function () { try { localStorage.setItem("beta.light", localStorage.getItem("beta.light") === "1" ? "0" : "1"); } catch (e) {} location.reload(); },
+    toggleLight: function () { var b = document.getElementById("btn-theme"); if (b) b.click(); },
     toggleFakes: function () { db.noFakes = !db.noFakes; save(); location.reload(); },
     signupTest: function () { // a brand-new visitor: the welcome and sign-up screens
       try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); localStorage.setItem(KEY, JSON.stringify({ signupTest: true })); } catch (e) {}
@@ -2783,7 +2806,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       "<button type='button' id='beta-today'>Back to today</button>" +
       "<button type='button' id='beta-replay'>Replay this day's daily</button>" +
       "<button type='button' id='beta-newplayer'>Play it as a new player</button>" +
-      "<button type='button' id='beta-light'>" + (lightPreview ? "Back to dark mode" : "Preview light mode (home only so far)") + "</button>" +
+      "<button type='button' id='beta-light'>Switch light / dark mode</button>" +
       "<button type='button' id='beta-fakes'>" + (db.noFakes ? "Show" : "Hide") + " pretend players</button>" +
       "<button type='button' id='beta-reset'>Reset (fresh test player)</button>" +
       "<button type='button' id='beta-signup'>Try the sign-up screens</button>";
@@ -6485,7 +6508,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // next climb to advance to, but the "word that would have worked" hint
     // shouldn't be skipped just because of that).
     const got = currentRoundWords.length;
-    $("#cre-title").textContent = "Climb " + round + " of " + climbRounds();
+    $("#cre-title").innerHTML = '<span class="clb">Climb</span> ' + round + " of " + climbRounds();
     $("#cre-label").textContent = completed ? "Cleared" : "You cleared";
     fillChips($("#cre-words"), currentRoundWords);
     const hits = themed ? themeHits(dailyTheme, round - 1, currentRoundWords) : [];
@@ -6501,9 +6524,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
       tr.replaceChildren();
       const b = document.createElement("b");
       if (hits.length) {
-        b.textContent = hits.map((w) => w.toUpperCase()).join(", ");
-        tr.append(capFirst(kind) + (hits.length > 1 ? "s" : "") + " found: ", b,
-          newRules(dailyTheme) ? " ✓ +" + hits.length + " bonus point" + (hits.length > 1 ? "s" : "") : " ✓");
+        const nice = document.createElement("span");
+        nice.className = "tr-nice";
+        nice.textContent = "Nice!";
+        const line = document.createElement("span");
+        line.className = "tr-line";
+        line.textContent = hits.length > 1 ? "You found " + hits.length + " theme words" : "You found the theme word";
+        const words = document.createElement("span");
+        words.className = "tr-words";
+        hits.forEach((w) => { const p = document.createElement("b"); p.textContent = w.toUpperCase(); words.appendChild(p); });
+        tr.append(nice, line, words);
+        if (newRules(dailyTheme)) {
+          const pts = document.createElement("span");
+          pts.className = "tr-pts";
+          pts.textContent = "+" + hits.length + (hits.length > 1 ? " points" : " point");
+          tr.append(pts);
+        }
       } else if (r.played && r.played !== r.word) {
         const you = document.createElement("span");
         you.className = "you";
@@ -7583,7 +7619,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
     const go = el("button", "primary cal-go");
     go.type = "button";
-    if (calSel === today && !played) { go.textContent = "Play today's climb"; go.onclick = dailyPlayClick; }
+    if (calSel === today && !played) { go.textContent = "Play today's Climb"; go.onclick = dailyPlayClick; }
     else {
       go.textContent = calSel === today ? "See today's standings" : "See the leaderboard";
       go.onclick = () => showDailyBoard(calSel + DAILY_SALT, { live: calSel === today });
@@ -8698,7 +8734,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#btn-reminder-secondary").hidden = !secondary;
     };
     const showTimes = mode === "ask" || mode === "manage";
-    if (mode === "ask") set("Want a daily reminder?", "We'll let you know when today's climb is waiting, only on days you haven't played yet.", "Remind me", "Not now");
+    if (mode === "ask") set("Want a daily reminder?", "We'll let you know when today's Climb is waiting, only on days you haven't played yet.", "Remind me", "Not now");
     else if (mode === "manage") set("Daily reminder", "You'll get a nudge at this time on days you haven't played yet.", "Save", "Turn off");
     else if (mode === "install") set("Get a daily reminder", "iPhone only sends reminders to games on your Home Screen. Add Daily Climb there, open it from its icon, then turn reminders on here.", "Show me how", "Not now");
     else if (mode === "blocked") set("Notifications are off", IS_IOS
@@ -9500,6 +9536,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (FX.isOn()) setTimeout(() => FX.play("accept"), 60); // let the iOS audio session settle
   });
   syncSoundBtn();
+
+  // Light by default (set in <head>); the moon / sun on the home screen switches it.
+  function syncThemeBtn() {
+    const dark = !document.documentElement.classList.contains("light");
+    const b = $("#btn-theme");
+    b.setAttribute("aria-pressed", String(dark));
+    b.setAttribute("aria-label", dark ? "Light mode" : "Dark mode");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = dark ? "#2b211a" : "#f4d3a6";
+  }
+  $("#btn-theme").addEventListener("click", () => {
+    const light = document.documentElement.classList.toggle("light");
+    try { localStorage.setItem("dc.theme", light ? "light" : "dark"); } catch (e) {}
+    syncThemeBtn();
+  });
+  syncThemeBtn();
 
   window.addEventListener("DOMContentLoaded", () => {
     setDifficulty("easy");
