@@ -2720,7 +2720,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:58:38-07:00","n":10,"notes":[{"note":"Home shows both cards: Add to Home Screen and Invite a friend","v":"0.11.0-beta.10"},{"note":"Home after playing: removed the 'N of 3 theme words found' line","v":"0.11.0-beta.9"},{"note":"Trail / Ridge / Summit pop-up: a tap-to-compare switch with one short sentence","v":"0.11.0-beta.8"},{"note":"All menu pages on the apricot: profile, trophy case, patch notes, invite, Adventure picker","v":"0.11.0-beta.7"},{"note":"Calendar on the home screen's apricot background; past days no longer list theme words or 'You didn't play this one'","v":"0.11.0-beta.6"}],"v":"0.11.0-beta.10"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T13:02:42-07:00","n":11,"notes":[{"note":"Add to Home Screen: right steps for Samsung Internet, Firefox on Android and Mac Safari (Add to Dock)","v":"0.11.0-beta.11"},{"note":"Home shows both cards: Add to Home Screen and Invite a friend","v":"0.11.0-beta.10"},{"note":"Home after playing: removed the 'N of 3 theme words found' line","v":"0.11.0-beta.9"},{"note":"Trail / Ridge / Summit pop-up: a tap-to-compare switch with one short sentence","v":"0.11.0-beta.8"},{"note":"All menu pages on the apricot: profile, trophy case, patch notes, invite, Adventure picker","v":"0.11.0-beta.7"}],"v":"0.11.0-beta.11"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -8569,6 +8569,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const IS_ANDROID = /Android/i.test(UA);
   const IN_APP = /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|BytedanceWebview|Snapchat|LinkedInApp|Line\//i.test(UA);
   const IOS_OTHER_BROWSER = IS_IOS && /CriOS|FxiOS|EdgiOS|OPiOS/.test(UA);
+  const IS_SAMSUNG = IS_ANDROID && /SamsungBrowser/.test(UA);
+  const IS_FIREFOX_ANDROID = IS_ANDROID && /Firefox\//.test(UA);
+  // Safari on a Mac (17+ can "Add to Dock"); an iPad asking for the desktop site is IS_IPAD instead.
+  const IS_MAC_SAFARI = !IS_IOS && /Macintosh/.test(UA) && /Version\/(\d+).*Safari/.test(UA) &&
+    !/Chrome|Chromium|CriOS|Edg|Firefox|OPR/.test(UA) && +(UA.match(/Version\/(\d+)/) || [0, 0])[1] >= 17;
   const INSTALL_NUDGE_KEY = "three21.installNudged";
   let deferredInstall = null;   // Chrome's saved beforeinstallprompt event
   let installOpenedFrom = null; // element to return focus to when the sheet closes
@@ -8585,7 +8590,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   function canOfferInstall() {
     if (isStandalone()) return false;
-    return IS_IOS || IS_ANDROID || !!deferredInstall;
+    return IS_IOS || IS_ANDROID || IS_MAC_SAFARI || !!deferredInstall;
   }
   function renderInstallButton() {
     const btn = $("#btn-home-install");
@@ -8662,6 +8667,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
           "Scroll down, tap " + glyph("plus") + " <b>Add to Home Screen</b>", "Tap " + pill("Add")],
         arrow: { edge: "down", x: 50 } };
     }
+    if (IS_MAC_SAFARI) {
+      return { title: "Add Daily Climb to your Dock", sub: "It opens in its own window, like an app, one click from your Dock.",
+        steps: ["Click " + glyph("share") + " <b>Share</b> in Safari's toolbar (or open the <b>File</b> menu)",
+          "Choose <b>Add to Dock</b>", "Click " + pill("Add")] };
+    }
+    if (IS_SAMSUNG) {   // Samsung Internet: the menu sits in the bottom bar unless the player moved it
+      return { title: "Add Daily Climb to your Home Screen", sub: sub,
+        steps: ["Tap " + glyph("menu") + " Samsung Internet's menu (bottom right)",
+          "Tap " + glyph("plus") + " <b>Add page to</b>, then <b>Home screen</b>", "Tap " + pill("Add")],
+        arrow: { edge: "down", x: 90 } };
+    }
+    if (IS_FIREFOX_ANDROID) {   // the menu sits next to the address bar, top or bottom by the player's choice
+      return { title: "Add Daily Climb to your Home Screen", sub: sub,
+        steps: ["Tap " + glyph("vdots") + " Firefox's menu, next to the address bar",
+          "Tap " + glyph("plus") + " <b>Add app to Home screen</b> (or <b>Install</b>)", "Tap " + pill("Add")] };
+    }
     // Android (or desktop) when Chrome hasn't offered its install prompt yet.
     return { title: "Add Daily Climb to your Home Screen", sub: sub,
       steps: ["Tap " + glyph("vdots") + " at the top right of Chrome",
@@ -8680,7 +8701,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#ih-code").textContent = code;
   }
   function openInstall() {
-    const kind = IN_APP ? "in_app" : IS_IOS ? "ios" : deferredInstall ? "prompt" : "android_steps";
+    const kind = IN_APP ? "in_app" : IS_IOS ? "ios" : deferredInstall ? "prompt" : IS_MAC_SAFARI ? "mac_safari" :
+      IS_SAMSUNG ? "samsung_steps" : IS_FIREFOX_ANDROID ? "firefox_steps" : "android_steps";
     trackEv("install_tap", { kind: kind });
     // Chrome can install directly — use its real dialog.
     if (deferredInstall && !IN_APP) {
