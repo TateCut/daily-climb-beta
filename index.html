@@ -769,14 +769,13 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   #difficulty-sheet h3 { margin-bottom: 4px; }
   .tier-T { color: var(--tier-t); } .tier-R { color: var(--tier-r); } .tier-S { color: var(--tier-s); }
   .tier-fill-T { fill: var(--tier-t); } .tier-fill-R { fill: var(--tier-r); } .tier-fill-S { fill: var(--tier-s); }
-  .dsheet-peaks { display: flex; align-items: flex-end; justify-content: center; gap: 16px; padding: 10px 0 12px; }
-  .dsheet-peaks div { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.7rem; color: var(--muted); }
-  .dsheet-levels { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-  .dsheet-lvl { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; padding: 7px 10px; border-radius: 10px; background: color-mix(in srgb, var(--text) 3%, transparent); }
-  .dsheet-lvl b { min-width: 58px; }
-  .dsheet-lvl span { color: var(--muted); }
-  .dsheet-lvl.cur { outline: 1px solid currentColor; }
-  .dsheet-note { margin: 0 0 14px; }
+  #difficulty-sheet h3 { font-size: 1.45rem; margin-bottom: 14px; }
+  .dsheet-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; border: 1.5px solid var(--rd-ink); border-radius: 999px; }
+  .dsheet-seg button { height: 38px; border: 0; border-radius: 999px; background: none; color: var(--rd-ink); font: inherit; font-size: 0.92rem; font-weight: 700; cursor: pointer; }
+  .dsheet-seg button.on { background: var(--rd-ink); color: var(--rd-sheet); }
+  .dsheet-seg button:focus-visible { outline: 2px solid var(--rd-climb); outline-offset: 2px; }
+  .dsheet-say { margin: 14px 2px 16px; min-height: 2.9em; font-size: 1rem; line-height: 1.45; color: var(--rd-ink); }
+  .dsheet-say b { font-weight: 800; }
 
   /* Daily board: everyone's flag on the mountain. One pole per spot, one
      pennant per person stacked in finishing order (top pennant won the
@@ -2572,10 +2571,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
        day's home screen). Same sheet frame as Add to Home Screen. -->
   <div class="install-sheet" id="difficulty-sheet" role="dialog" aria-modal="true" aria-labelledby="difficulty-title" hidden>
     <h3 id="difficulty-title"></h3>
-    <p class="install-sub">Three climbs, each ending on a longer word. Today's peaks:</p>
-    <div class="dsheet-peaks" id="dsheet-peaks"></div>
-    <div class="dsheet-levels" id="dsheet-levels"></div>
-    <p class="install-sub dsheet-note">Difficulty is set by how tall the peaks are and how tricky each step is: rare words, few answers, no easy endings. It mixes up from day to day, so any day can be a Summit. Each theme word you find helps you on the leaderboard.</p>
+    <div class="dsheet-seg" id="dsheet-seg" role="tablist" aria-label="Day types">
+      <button type="button" role="tab" data-k="T">Trail</button><button type="button" role="tab" data-k="R">Ridge</button><button type="button" role="tab" data-k="S">Summit</button>
+    </div>
+    <p class="dsheet-say" id="dsheet-say" aria-live="polite"></p>
     <div class="install-actions"><button class="primary" id="btn-difficulty-done" type="button">Got it</button></div>
   </div>
   <!-- Claim a username (existing players; offered once a day after a finished
@@ -2720,7 +2719,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:42:39-07:00","n":7,"notes":[{"note":"All menu pages on the apricot: profile, trophy case, patch notes, invite, Adventure picker","v":"0.11.0-beta.7"},{"note":"Calendar on the home screen's apricot background; past days no longer list theme words or 'You didn't play this one'","v":"0.11.0-beta.6"},{"note":"Whole sign-up flow on the apricot splash colors (username, emoji, sign in, restore)","v":"0.11.0-beta.5"},{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"},{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"}],"v":"0.11.0-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:51:21-07:00","n":8,"notes":[{"note":"Trail / Ridge / Summit pop-up: a tap-to-compare switch with one short sentence","v":"0.11.0-beta.8"},{"note":"All menu pages on the apricot: profile, trophy case, patch notes, invite, Adventure picker","v":"0.11.0-beta.7"},{"note":"Calendar on the home screen's apricot background; past days no longer list theme words or 'You didn't play this one'","v":"0.11.0-beta.6"},{"note":"Whole sign-up flow on the apricot splash colors (username, emoji, sign in, restore)","v":"0.11.0-beta.5"},{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"}],"v":"0.11.0-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7513,9 +7512,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   // ---- Home: today's theme (themed days) ----
   const TIER_INFO = [
-    ["T", "Trail", "Peaks around 7–8 letters · about 14 words"],
-    ["R", "Ridge", "A 9-letter peak or trickier climbs · 15–17 words"],
-    ["S", "Summit", "A 10- or 11-letter peak · 18–22 words"],
+    ["T", "Trail", "A gentle Climb. The longest word is up to 8 letters."],
+    ["R", "Ridge", "A steeper Climb. The longest word is up to 9 letters."],
+    ["S", "Summit", "The tallest Climb. The longest word is up to 11 letters."],
   ];
   // Today's three peaks, heights = peak lengths; each flag "?", or gold with
   // the found word, or grey + struck with the missed one.
@@ -7601,27 +7600,25 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const tn = document.createElement("span");
     tn.className = "tier-" + t.tier; tn.textContent = DAY_TIER[t.tier] + (t.star ? " ★" : "");
     title.append(tn, " day");
-    const peaks = $("#dsheet-peaks");
-    peaks.replaceChildren();
-    t.climbs.forEach((p) => {
-      const n = p.c[p.c.length - 1].length, hgt = 12 + (n - 7) * 9;
-      const d = document.createElement("div");
-      const svg = svgEl("svg", { width: 30, height: hgt, viewBox: "0 0 30 " + hgt, "aria-hidden": "true" }, d);
-      svgEl("polygon", { points: "0," + hgt + " 15,0 30," + hgt, class: "tier-fill-" + t.tier }, svg);
-      d.append(n + " letters");
-      peaks.appendChild(d);
-    });
-    $("#dsheet-levels").replaceChildren(...TIER_INFO.map(([k, name, what]) => {
-      const row = document.createElement("div");
-      row.className = "dsheet-lvl tier-" + k + (k === t.tier ? " cur" : "");
-      const b = document.createElement("b"); b.textContent = name;
-      const s = document.createElement("span"); s.textContent = what;
-      row.append(b, s);
-      return row;
-    }));
+    pickDayType(t.tier);
     $("#install-scrim").hidden = false;
     $("#difficulty-sheet").hidden = false;
   }
+  // The sheet's Trail | Ridge | Summit switch: one sentence for the picked type.
+  function pickDayType(k) {
+    $("#dsheet-seg").querySelectorAll("button").forEach((b) => {
+      const on = b.dataset.k === k;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", String(on));
+    });
+    const info = TIER_INFO.find((x) => x[0] === k);
+    const say = $("#dsheet-say");
+    const name = document.createElement("b");
+    name.className = "tier-" + k;
+    name.textContent = info[1] + ":";
+    say.replaceChildren(name, " " + info[2]);
+  }
+  $("#dsheet-seg").addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) pickDayType(b.dataset.k); });
   function hideDifficultySheet() {
     $("#difficulty-sheet").hidden = true;
     $("#install-scrim").hidden = true;
