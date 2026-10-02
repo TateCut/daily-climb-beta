@@ -5808,6 +5808,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
       ((a.solveMs || 0) - (b.solveMs || 0)) ||
       ((a.finishedAt || 0) - (b.finishedAt || 0));
   }
+  // Days before NEW_RULES_DAY: most words, then theme words, fewest strikes, time.
+  function oldDailyCmp(a, b) {
+    return ((b.total || 0) - (a.total || 0)) ||
+      ((b.themeWords || 0) - (a.themeWords || 0)) ||
+      ((a.strikes || 0) - (b.strikes || 0)) ||
+      ((a.solveMs || 0) - (b.solveMs || 0)) ||
+      ((a.finishedAt || 0) - (b.finishedAt || 0));
+  }
+  const cmpForDay = (key) => (newRulesOn(dayBase(key)) ? dailyCmp : oldDailyCmp);
+  const scoreForDay = (key, e) => (newRulesOn(dayBase(key)) ? entrantPoints(e) : (e.total || 0));
 
   function dailyRow(rank, e, isMe) {
     const row = document.createElement("div");
@@ -5822,7 +5832,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
     const sc = document.createElement("div");
     sc.className = "lb-score";
-    sc.textContent = entrantPoints(e);
+    sc.textContent = newRules(boardTheme) ? entrantPoints(e) : (e.total || 0);
     const tm = document.createElement("div");
     tm.className = "lb-time";
     tm.textContent = fmtDuration(e.solveMs);
@@ -5977,12 +5987,20 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const i = dayNumber(base) - dayNumber(CAL.start);
     const d = i >= 0 ? CAL.days[i] : null;
     const t = d ? {
-      index: i, id: d.t, theme: CAL.themes[d.t], tier: d.k, star: !!d.s,
+      index: i, base: base, id: d.t, theme: CAL.themes[d.t], tier: d.k, star: !!d.s,
       climbs: d.c.map((c) => ({ c: c, a: addedLetters(c) })), words: d.w,
     } : null;
     themedCache.set(base, t);
     return t;
   }
+  // v0.10.0 scoring starts with the Oct 2 daily, for every player in every time
+  // zone: from then on every theme word on the theme's list is a bonus point and
+  // the board ranks by points. Earlier days keep their old rules (the calendar's
+  // theme word, at most one per climb, ranked by words first) so a day's board
+  // never mixes the two.
+  const NEW_RULES_DAY = "2026-10-02";
+  const newRulesOn = (base) => !!base && base >= NEW_RULES_DAY;
+  const newRules = (t) => !!t && newRulesOn(t.base);
   // Is w a theme word? Anything on the theme's list (theme-words.js) counts,
   // on any rung, plus the calendar's own theme words for climb i.
   const themeSets = {};
@@ -5991,10 +6009,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return themeSets[id];
   }
   function isThemeWord(t, i, w) {
-    return !!(t && w) && (themeSet(t.id).has(w) || ((t.words && t.words[i]) || []).includes(w));
+    return !!(t && w) && ((newRules(t) && themeSet(t.id).has(w)) || ((t.words && t.words[i]) || []).includes(w));
   }
-  // The theme words among a climb's words (each one is a bonus point).
-  const themeHits = (t, i, words) => (words || []).filter((w) => isThemeWord(t, i, w));
+  // The theme words among a climb's words (each one is a bonus point; old days: the first only).
+  const themeHits = (t, i, words) => {
+    const hits = (words || []).filter((w) => isThemeWord(t, i, w));
+    return newRules(t) ? hits : hits.slice(0, 1);
+  };
   // Bonus points so far in today's run: every theme word, every climb.
   function themeBonusSoFar() {
     if (!dailyTheme || !dailyClimbs) return 0;
@@ -6117,14 +6138,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
     currentRoundWords.push(g);
     renderAscentMini();
     // Theme word: only that exact word counts (CAUSE doesn't find SAUCE).
-    const foundTheme = mode === "daily" && dailyTheme && isThemeWord(dailyTheme, round - 1, g);
+    const foundTheme = mode === "daily" && dailyTheme && isThemeWord(dailyTheme, round - 1, g) &&
+      (newRules(dailyTheme) || !themeFound[round - 1]);
     if (foundTheme) {
       if (!themeFound[round - 1]) themeFound[round - 1] = g;   // the first one names the climb's flag
       renderThemeStrip();
       ascentToast(capFirst(dailyTheme.theme.word.replace(/ word$/, "")) + " word! " + g.toUpperCase(), true);
-      if (climbStage < climbLen())   // at the top, the climb's results screen says it instead
+      if (climbStage < climbLen() && newRules(dailyTheme))   // at the top, the climb's results screen says it instead
         coachTip("theme", () => $("#themestrip .ts-flag.fresh"), "That's a " + dailyTheme.theme.word + ": 2 points!", "Its flag turns gold up here.", { below: true, gold: true, ms: 6000 });
-    } else if (mode === "daily") announcePasses(dailyWordsSoFar() + themeBonusSoFar());
+    } else if (mode === "daily") announcePasses(dailyWordsSoFar() + (newRules(dailyTheme) ? themeBonusSoFar() : 0));
     climbPrev = g;
     locked = true;
     checking = false;
@@ -6205,7 +6227,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (hits.length) {
         b.textContent = hits.map((w) => w.toUpperCase()).join(", ");
         tr.append(capFirst(kind) + (hits.length > 1 ? "s" : "") + " found: ", b,
-          " ✓ +" + hits.length + " bonus point" + (hits.length > 1 ? "s" : ""));
+          newRules(dailyTheme) ? " ✓ +" + hits.length + " bonus point" + (hits.length > 1 ? "s" : "") : " ✓");
       } else if (r.played && r.played !== r.word) {
         const you = document.createElement("span");
         you.className = "you";
@@ -6291,7 +6313,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!entrants || mode !== "daily" || dailyDay !== day) return;
       const myUid = window.MatchDB.uid;
       dailyRivals = entrants.filter((e) => e.uid !== myUid)
-        .map((e) => ({ name: shownName((e.name || "").trim(), "Someone"), total: entrantPoints(e) }));
+        .map((e) => ({ name: shownName((e.name || "").trim(), "Someone"), total: scoreForDay(day, e) }));
     });
   }
 
@@ -6595,14 +6617,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (stageShownAt && howtoOpenAt) stageShownAt += Date.now() - howtoOpenAt;
     howtoOpenAt = 0;
     if (dailySessionActive && !document.hidden) startDailyTimer();
-    if (mode === "daily" && dailyTheme && !themeCardShown(dailyDay)) openThemeCard();
+    if (mode === "daily" && newRules(dailyTheme) && !themeCardShown(dailyDay)) openThemeCard();
     else stageTips();
   }
   // Before the first word of a session: the How to play card for a new player,
   // otherwise today's theme card (once a day).
   function startIntro() {
     if (!tutorialSeen) { openHowto(true); return; }
-    if (mode === "daily" && dailyTheme && !themeCardShown(dailyDay)) openThemeCard();
+    if (mode === "daily" && newRules(dailyTheme) && !themeCardShown(dailyDay)) openThemeCard();
   }
   $("#btn-howto-go").addEventListener("click", closeHowto);
   $("#btn-howto-rules").addEventListener("click", () => { $("#rules-sheet").hidden = false; setTimeout(() => $("#btn-rules-close").focus(), 50); });
@@ -6728,7 +6750,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function renderDailyBoard(entrants, dayKey, opts) {
     opts = opts || {};
     const myUid = window.MatchDB && window.MatchDB.uid;
-    const done = entrants.slice().sort(dailyCmp);
+    const done = entrants.slice().sort(cmpForDay(dayKey));
+    $("#daily-board-head .h-score").textContent = newRulesOn(dayBase(dayKey)) ? "Points" : "Words";
     const list = $("#daily-board-list");
     // A live board re-renders as people finish: keep whichever row was open.
     const openDetail = list.querySelector(".lb-detail");
@@ -6950,7 +6973,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     boardMax = dayMaxFor(dayKey);
     $("#daily-board-title").textContent = isToday ? "Today's climb" : dateLabel(dayKey);
     $("#daily-board-sub").textContent = (boardTheme
-      ? boardTheme.theme.emoji + " " + boardTheme.theme.name + " · " + DAY_TIER[boardTheme.tier] + " · " + boardMax + " words + " + boardTheme.climbs.length + " bonus"
+      ? boardTheme.theme.name + " · " + DAY_TIER[boardTheme.tier] + " · " + boardMax + " words" + (newRules(boardTheme) ? " + theme bonus" : "")
       : "3 climbs · a point per word") + (isToday ? " · " + dailyResetText() : "");
 
     const pill = $("#daily-board-streak");
