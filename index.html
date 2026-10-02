@@ -1823,14 +1823,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
   /* The whole sign-up flow (welcome → username → emoji, or sign in / restore) stays on the splash colors. */
   body:has(#screen-loading:not([hidden])), body:has(#screen-welcome:not([hidden])), body:has(#screen-name:not([hidden])),
   body:has(#screen-emoji:not([hidden])), body:has(#screen-signin:not([hidden])), body:has(#screen-restore:not([hidden])),
-  body:has(#screen-calendar:not([hidden])) { background: var(--hs-bg); color: var(--hs-ink); }
+  body:has(#screen-calendar:not([hidden])), body:has(#screen-profile:not([hidden])), body:has(#screen-trophies:not([hidden])),
+  body:has(#screen-patch-notes:not([hidden])), body:has(#screen-invite:not([hidden])), body:has(#screen-collection:not([hidden])) { background: var(--hs-bg); color: var(--hs-ink); }
   body:has(#screen-welcome:not([hidden])) h1 .brand-k, body:has(#screen-name:not([hidden])) h1 .brand-k,
   body:has(#screen-emoji:not([hidden])) h1 .brand-k, body:has(#screen-restore:not([hidden])) h1 .brand-k { color: var(--hs-climb); }
-  #screen-welcome, #screen-name, #screen-emoji, #screen-signin, #screen-restore, #screen-calendar {
+  #screen-welcome, #screen-name, #screen-emoji, #screen-signin, #screen-restore, #screen-calendar, #screen-profile, #screen-trophies, #screen-patch-notes, #screen-invite, #screen-collection {
     --bg: var(--hs-bg); --surface: var(--hs-card); --line: var(--hs-line); --text: var(--hs-ink); --muted: var(--hs-muted); --accent: var(--hs-climb);
     --rd-ink: var(--hs-ink); --rd-muted: var(--hs-muted); --rd-card: var(--hs-card); --rd-line: var(--hs-line); --rd-climb: var(--hs-climb);
     --rd-btn: var(--hs-btn); --rd-btn-ink: var(--hs-btn-ink); color: var(--hs-ink); }
-  #screen-welcome .clb, #screen-name .clb, #screen-emoji .clb, #screen-signin .clb, #screen-restore .clb, #screen-calendar .clb { color: var(--hs-climb); }
+  :is(#screen-welcome, #screen-name, #screen-emoji, #screen-signin, #screen-restore, #screen-calendar, #screen-profile, #screen-trophies, #screen-patch-notes, #screen-invite, #screen-collection) .clb { color: var(--hs-climb); }
+  /* Menu pages: white cards on the apricot, no outlines (like the home screen's cards). */
+  :is(#screen-profile, #screen-trophies, #screen-patch-notes, #screen-collection) :is(.pf-card, .pf-stat, .tr-fam, .patch-ver:not(.latest), .collection-tile:not(.beaten)) { border-color: transparent; }
+  #screen-invite .nameinput, #screen-invite input { border: 0; background: var(--hs-card); color: var(--hs-card-ink); }
+  #screen-profile .pf-dayinfo { background: color-mix(in srgb, var(--hs-ink) 5%, transparent); }
   #screen-calendar .cal-day:not(.none) { background: var(--hs-card); color: var(--hs-card-ink); }
   #screen-calendar .cal-n { color: var(--hs-card-muted); }
   #screen-calendar .cal-go .clb { color: var(--rd-climb-inv); }
@@ -2715,7 +2720,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:38:58-07:00","n":6,"notes":[{"note":"Calendar on the home screen's apricot background; past days no longer list theme words or 'You didn't play this one'","v":"0.11.0-beta.6"},{"note":"Whole sign-up flow on the apricot splash colors (username, emoji, sign in, restore)","v":"0.11.0-beta.5"},{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"},{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"},{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"}],"v":"0.11.0-beta.6"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:42:39-07:00","n":7,"notes":[{"note":"All menu pages on the apricot: profile, trophy case, patch notes, invite, Adventure picker","v":"0.11.0-beta.7"},{"note":"Calendar on the home screen's apricot background; past days no longer list theme words or 'You didn't play this one'","v":"0.11.0-beta.6"},{"note":"Whole sign-up flow on the apricot splash colors (username, emoji, sign in, restore)","v":"0.11.0-beta.5"},{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"},{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"}],"v":"0.11.0-beta.7"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
