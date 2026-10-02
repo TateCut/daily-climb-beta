@@ -2627,6 +2627,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   if (!beta) return;
   window.DC_BETA = true;
+  // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
+  // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:04:21-07:00","n":1,"notes":[{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.1"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -2791,17 +2794,25 @@ $1{ display: flex; gap: 8px; width: 100%; }
       ".beta-pill{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:9000;font:800 11px/1 -apple-system,system-ui,sans-serif;letter-spacing:.12em;" +
       "color:#1c1005;background:#f2c14e;border:0;border-radius:999px;padding:7px 10px;box-shadow:0 4px 14px rgba(0,0,0,.4);cursor:pointer}" +
       ".beta-sheet{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 48px);z-index:9001;max-width:360px;background:#1d2233;border:1px solid #f2c14e;border-radius:16px;" +
-      "padding:14px;display:flex;flex-direction:column;gap:9px;font:14px -apple-system,system-ui,sans-serif;color:#f3ece1;box-shadow:0 12px 40px rgba(0,0,0,.5)}" +
+      "padding:14px;display:flex;flex-direction:column;gap:9px;font:14px -apple-system,system-ui,sans-serif;color:#f3ece1;box-shadow:0 12px 40px rgba(0,0,0,.5);max-height:calc(100dvh - 70px);overflow-y:auto}" +
       ".beta-sheet[hidden]{display:none}.beta-sheet b{font-size:13px;letter-spacing:.08em;color:#f2c14e}.beta-sheet p{margin:0;font-size:12px;color:#a29cb2;line-height:1.4}" +
       ".beta-sheet button,.beta-sheet input{font:inherit;font-size:14px;border-radius:10px;padding:9px 10px;border:1px solid #313852;background:#12141f;color:#f3ece1}" +
-      ".beta-sheet .r{display:flex;gap:8px}.beta-sheet .r input{flex:1;min-width:0}";
+      ".beta-sheet .r{display:flex;gap:8px}.beta-sheet .r input{flex:1;min-width:0}" +
+      ".beta-sheet .bb{color:#f3ece1;font-size:13px}.beta-sheet .bb b{font-size:13px;letter-spacing:0}.beta-sheet .bn{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:11px}" +
+      ".beta-sheet .bl{margin:-4px 0 2px;padding-left:16px;font-size:12px;line-height:1.45;color:#c9c3d6}.beta-sheet .bl b{font-size:12px;letter-spacing:0;color:#f2c14e}";
     document.head.appendChild(css);
     var pill = document.createElement("button");
     pill.className = "beta-pill"; pill.type = "button";
-    pill.textContent = "BETA" + (day ? " · " + day.slice(5) : "");
+    var build = window.DC_BETA_BUILD;
+    pill.textContent = "BETA" + (build ? " " + build.n : "") + (day ? " · " + day.slice(5) : "");
+    var esc = function (t) { return String(t).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
+    var buildHtml = build
+      ? "<p class='bb'>Build <b>" + esc(build.v) + "</b> · " + esc(new Date(build.at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })) + "</p>" +
+        "<p class='bn'>New on the beta</p><ul class='bl'>" + (build.notes || []).map(function (x) { return "<li><b>" + esc(x.v.replace(/^.*-/, "")) + "</b> " + esc(x.note) + "</li>"; }).join("") + "</ul>"
+      : "<p class='bb'>Local copy (no build number)</p>";
     var sheet = document.createElement("div");
     sheet.className = "beta-sheet"; sheet.hidden = true;
-    sheet.innerHTML = "<b>BETA TOOLS</b><p>Nothing here reaches the real game. Your test profile, scores and streak live only on this device.</p>" +
+    sheet.innerHTML = "<b>BETA TOOLS</b>" + buildHtml + "<p>Nothing here reaches the real game. Your test profile, scores and streak live only on this device.</p>" +
       "<div class='r'><input type='date' id='beta-day' aria-label='Play as this date'><button type='button' id='beta-go'>Go</button></div>" +
       "<button type='button' id='beta-today'>Back to today</button>" +
       "<button type='button' id='beta-replay'>Replay this day's daily</button>" +
@@ -8917,7 +8928,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function renderPatchChip() {
     const btn = $("#btn-patch-notes");
     const unread = patchSeen() !== APP_VERSION;
-    $("#vchip-label").textContent = "v" + APP_VERSION;
+    $("#vchip-label").textContent = "v" + (window.DC_BETA_BUILD ? window.DC_BETA_BUILD.v : APP_VERSION);
     btn.classList.toggle("unread", unread);
     btn.setAttribute("aria-label", "Patch notes, version " + APP_VERSION + (unread ? ", new update" : ""));
   }
