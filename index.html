@@ -1776,6 +1776,56 @@ $1{ display: flex; gap: 8px; width: 100%; }
     .hs-card { padding: 10px 13px; }
     #screen-home .home-foot { margin-top: 6px; }
   }
+  /* ===== Format pass: every screen in the puzzle style, both themes ===== */
+  /* Titles in the slab; the top bar is a back arrow, a title and a hairline. */
+  main h2, .install-sheet h3, .tr-pop h3 { font-family: var(--slab); font-weight: 700; letter-spacing: 0; }
+  .scr-head { padding-bottom: 8px; border-bottom: 1px solid var(--rd-line); }
+  .scr-ttl { font-family: var(--slab); font-weight: 500; font-size: 1.4rem; }
+  .backpill { border: 0; background: none; padding: 0 8px 0 0; color: var(--rd-ink); }
+  .backpill .bp-ch { color: var(--rd-ink); font-size: 1.5rem; }
+  /* Buttons: solid pill (primary) or outlined pill (secondary). */
+  button.ghost { border-radius: 999px; border: 1.5px solid var(--rd-ink); background: none; color: var(--rd-ink); font-weight: 600; }
+  @media (hover: hover) { button.ghost:hover { background: var(--rd-card); } }
+  /* Cards and sheets: flat paper with a hairline. */
+  .pf-card, .pf-stat, .patch-ver, .wl-choice { background: var(--rd-card); border: 1px solid var(--rd-line); }
+  .patch-ver.latest, .wl-choice.lead { border-color: var(--rd-ink); }
+  .wl-choice.lead { background: var(--rd-card); }
+  .wl-ic { background: var(--rd-bg); }
+  .patch-tag.new { background: color-mix(in srgb, var(--rd-climb) 16%, transparent); color: var(--rd-climb); }
+  .patch-tag.imp { background: color-mix(in srgb, var(--rd-tier-s) 16%, transparent); color: var(--rd-tier-s); }
+  .patch-tag.fix { background: color-mix(in srgb, var(--rd-ok) 16%, transparent); color: var(--rd-ok); }
+  .patch-new { box-shadow: none; }
+  .install-sheet { background: var(--rd-sheet); border: 1px solid var(--rd-line); border-radius: 16px; box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18); }
+  .install-scrim { background: rgba(0, 0, 0, 0.45); }
+  .tr-pop { background: var(--rd-sheet); border-color: var(--rd-line); }
+  .tr-pop-kick { color: var(--rd-climb); }
+  /* Calendar. */
+  .cal-mhead b { font-family: var(--slab); font-size: 1.25rem; font-weight: 700; }
+  .cal-nav { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--rd-ink); background: none; color: var(--rd-ink); }
+  .cal-day { background: var(--rd-card); border: 0; overflow: hidden; }
+  .cal-day.none { background: transparent; }
+  .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--rd-climb); }
+  .cal-day.sel { box-shadow: inset 0 0 0 2px var(--rd-ink); border-color: transparent; }
+  .cal-theme { font-family: var(--slab); font-weight: 700; font-size: 1.7rem; letter-spacing: 0; color: var(--rd-ink); }
+  .cal-note b { padding: 0 5px; border-radius: 4px; background: var(--rd-gold); color: var(--rd-gold-ink); letter-spacing: 0.03em; }
+  /* Between Climbs / results boxes. */
+  .totalbox { border: 1px solid var(--rd-line); background: var(--rd-card); }
+  .totalbox-label { color: var(--rd-muted); }
+  .totalbox .chips span, .rounds .chips span { border: 0; background: var(--rd-tile); color: var(--rd-tile-ink); }
+  .chips span.theme-rung.gold { background: var(--rd-gold); color: var(--rd-gold-ink); }
+  .missed-word { color: var(--rd-ink); }
+  .collection-tile { background: var(--rd-card); border: 0; color: var(--rd-muted); }
+  .collection-tile.beaten { background: var(--rd-climb); color: var(--rd-on-climb); }
+  /* The wordmark screens (loading, welcome, sign-up) wear the home splash: sticker logo, slab title. */
+  .brandmark { height: 76px; margin-bottom: 10px; }
+  h1 { font-family: var(--slab); font-weight: 700; font-size: 2.6rem; letter-spacing: -0.02em; line-height: 1; }
+  h1 .brand-k { color: var(--rd-climb); }
+  body:has(#screen-loading:not([hidden])), body:has(#screen-welcome:not([hidden])) { background: var(--hs-bg); color: var(--hs-ink); }
+  body:has(#screen-welcome:not([hidden])) h1 .brand-k, #screen-welcome .clb { color: var(--hs-climb); }
+  #screen-welcome .lede { color: var(--hs-ink); font-family: var(--slab); font-size: 1.25rem; }
+  #screen-welcome .wl-choice { background: var(--hs-card); color: var(--hs-card-ink); border: 0; }
+  #screen-welcome .wl-choice.lead { box-shadow: inset 0 0 0 1.5px var(--hs-ink); }
+  #screen-welcome .wl-txt small, #screen-welcome .wl-chev { color: var(--hs-card-muted); }
 </style>
 </head>
 <body>
@@ -1802,7 +1852,17 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <path d="M26 3.5 h10 l-2.6 3.2 l2.6 3.2 h-10 Z" fill="currentColor"/>
       </symbol>
     </svg>
-    <svg class="brandmark" viewBox="0 0 64 56" aria-hidden="true"><use href="#summit-mark"/></svg>
+    <svg class="brandmark" viewBox="0 0 120 92" aria-hidden="true">
+      <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M6 84 L34 42 L52 66 L74 26 L98 60 L114 84 Z" fill="#f6b46a"/>
+        <path d="M52 66 L74 26 L98 60 L114 84 L40 84 Z" fill="#e8871e"/>
+        <path d="M66 40 L74 26 L83 39 L78 36 L74 42 L70 37 Z" fill="#ffffff"/>
+        <path d="M28 51 L34 42 L40 50 L36 48 L33 53 Z" fill="#ffffff"/>
+        <path d="M74 26 L74 6" fill="none"/><path d="M74 6 L92 11 L74 17 Z" fill="#f6c90e"/>
+      </g>
+      <path d="M18 80 C30 74 44 70 56 60" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
+      <circle cx="56" cy="60" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
+    </svg>
     <h1>Daily <span class="brand-k">Climb</span></h1>
     <div class="daily-timer" id="daily-timer" hidden><span id="daily-timer-val">0:00</span></div>
 
@@ -2638,7 +2698,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:21:46-07:00","n":3,"notes":[{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"},{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.3"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:30:27-07:00","n":4,"notes":[{"note":"Every screen in the new format: slab titles, back arrow + hairline top bar, pill buttons, flat cards","v":"0.11.0-beta.4"},{"note":"Every Climb / Climbs is capitalized and fully orange, everywhere","v":"0.11.0-beta.3"},{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.4"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7616,7 +7676,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; box.appendChild(e); return e; };
     el("div", "cal-date", new Date(p[0], p[1] - 1, p[2], 12).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) +
       (calSel === today ? " · today" : ""));
-    el("div", "cal-theme", t.theme.emoji + " " + t.theme.name.toUpperCase());
+    el("div", "cal-theme", t.theme.name);
     const peaks = t.climbs.map((c) => c.c[c.c.length - 1].length);
     const words = t.climbs.reduce((a, c) => a + c.c.length, 0);
     const row = el("div", "cal-meta");
@@ -9045,8 +9105,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const shape = "20,1.5 37.5,11.5 37.5,32.5 20,42.5 2.5,32.5 2.5,11.5";
     const g = TROPHY_GLYPH[glyph] || "";
     if (locked) {
-      return '<svg viewBox="0 0 40 44" aria-hidden="true"><polygon points="' + shape + '" fill="#191d2c" stroke="#3a4260" stroke-width="1.5"/>' +
-        '<g transform="translate(10 12) scale(.83)" style="color:#4a5270">' + g + "</g></svg>";
+      return '<svg viewBox="0 0 40 44" aria-hidden="true"><polygon points="' + shape + '" fill="var(--rd-tile)" stroke="var(--rd-line)" stroke-width="1.5"/>' +
+        '<g transform="translate(10 12) scale(.83)" style="color:var(--rd-muted)">' + g + "</g></svg>";
     }
     return '<svg viewBox="0 0 40 44" aria-hidden="true"><polygon points="' + shape + '" fill="url(#tg-' + tier + ')"/>' +
       '<polygon points="20,5 34.4,13.3 34.4,30.7 20,39 5.6,30.7 5.6,13.3" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1"/>' +
@@ -9597,7 +9657,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (i % 2) { const sp = document.createElement("span"); sp.className = "clb"; sp.textContent = "C" + part.slice(1); frag.appendChild(sp); }
       else if (part) frag.appendChild(document.createTextNode(part));
     });
-    node.replaceWith(frag);
+    // In a flex/grid box each piece would become its own item ("RECENT ··· CLIMBS"): keep them in one span.
+    if (/flex|grid/.test(getComputedStyle(p).display)) { const one = document.createElement("span"); one.appendChild(frag); node.replaceWith(one); }
+    else node.replaceWith(frag);
   }
   function clbWrapTree(root) {
     if (root.nodeType === 3) { clbWrapText(root); return; }
