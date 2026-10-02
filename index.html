@@ -1519,9 +1519,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     --sun-core: var(--rd-sun); --sun-ring: var(--rd-sun-ring); --tier-t: var(--rd-tier-t); --tier-r: var(--rd-climb); --tier-s: var(--rd-tier-s); }
   button.primary, a.primary { background: var(--rd-btn); color: var(--rd-btn-ink); border-radius: 999px; }
   .clb { color: var(--rd-climb); }
-  #btn-theme .ic-sun { display: none; }
-  html:not(.light) #btn-theme .ic-moon { display: none; }
-  html:not(.light) #btn-theme .ic-sun { display: block; }
+  .tgl-theme .ic-sun { display: none; }
+  html:not(.light) .tgl-theme .ic-moon { display: none; }
+  html:not(.light) .tgl-theme .ic-sun { display: block; }
+  .pnav-ic > span { display: inline-flex; }
+  .pnav-ic > span svg { width: 23px; height: 23px; }
   /* Between Climbs. */
   #screen-climb-roundend h2 { font-family: var(--slab); font-weight: 700; font-size: 1.5rem !important; }
   #cre-words .tw { background: var(--rd-gold); border-color: var(--rd-gold); color: var(--rd-gold-ink); box-shadow: none; }
@@ -1638,6 +1640,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #theme-card .tc-sw { border: 0; background: var(--rd-tile); color: var(--rd-tile-ink); font-weight: 600; }
   #theme-card .tc-sw.gold { background: var(--rd-gold); color: var(--rd-gold-ink); }
   #theme-card .tc-pts, #theme-card .tc-pts.g { color: var(--rd-ink); }
+  .tc-opt { display: flex; align-items: center; gap: 9px; align-self: center; font-size: 0.9rem; color: var(--rd-ink); cursor: pointer; user-select: none; }
+  .tc-opt input { width: 20px; height: 20px; margin: 0; accent-color: var(--rd-ink); cursor: pointer; }
   #theme-card .primary, #forfeit-confirm .primary { height: 48px; padding: 0 20px; border-radius: 999px; background: var(--rd-btn); color: var(--rd-btn-ink); font-weight: 600; }
   #forfeit-confirm .ff-card h3 { font-family: var(--slab); font-weight: 700; font-size: 1.4rem; }
   #forfeit-confirm button.ghost.ff-go { height: 48px; border-radius: 999px; background: none; border: 1.5px solid var(--rd-bad); color: var(--rd-bad); font-weight: 600; }
@@ -1936,7 +1940,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="icon-btn" id="btn-calendar" type="button" aria-label="Theme calendar"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
         <div class="hs-top-r">
           <button class="roundbtn hs-ic" id="btn-home-howto" type="button" aria-label="How to play"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg></span><span class="rb-lab">How to play</span></button>
-          <button class="roundbtn hs-ic" id="btn-theme" type="button" aria-label="Dark mode" aria-pressed="false"><span class="rb-ic" aria-hidden="true"><svg class="ic-moon" viewBox="0 0 16 16"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><svg class="ic-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Dark mode</span></button>
+          <button id="btn-theme" class="roundbtn hs-ic tgl-theme" type="button" aria-label="Dark mode" aria-pressed="false"><span class="rb-ic" aria-hidden="true"><svg class="ic-moon" viewBox="0 0 16 16"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><svg class="ic-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Dark mode</span></button>
           <button class="roundbtn sound-toggle hs-ic" id="btn-sound" type="button" aria-label="Sound" aria-pressed="false"><span class="rb-ic" aria-hidden="true"></span><span class="rb-lab">Sound</span></button>
           <button class="avatar-btn" id="btn-avatar" type="button" aria-label="Your profile"><span id="avatar-initial"></span><span class="avatar-streak" id="avatar-streak" hidden></span></button>
         </div>
@@ -2272,6 +2276,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <div class="pnav">
         <span class="pnav-time" id="pnav-time" hidden>0:00</span>
         <span class="pnav-sp"></span>
+        <button class="pnav-ic" id="btn-play-sound" type="button" aria-label="Sound" aria-pressed="false"><span class="pnav-snd" aria-hidden="true"></span></button>
+        <button class="pnav-ic tgl-theme" id="btn-play-theme" type="button" aria-label="Dark mode" aria-pressed="false"><span aria-hidden="true"><svg class="ic-moon" viewBox="0 0 16 16"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><svg class="ic-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span></button>
         <button class="pnav-ic" id="btn-play-help" type="button" aria-label="How to play">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.4 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.3-2.6 3.9"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>
         </button>
@@ -2580,6 +2586,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <div class="tc-legend" id="tc-legend"></div>
       </div>
       <p class="tc-foot">Every <span class="clb">Climb</span> has at least one word related to the theme.</p>
+      <label class="tc-opt"><input type="checkbox" id="tc-off"> I understand, don't show again</label>
       <button class="primary" id="btn-theme-card" type="button">Start climbing</button>
     </div>
   </div>
@@ -2629,7 +2636,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-02T12:04:21-07:00","n":1,"notes":[{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.1"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-02T12:11:04-07:00","n":2,"notes":[{"note":"Sound + light/dark buttons on the play screen; theme pop-up has 'I understand, don't show again'","v":"0.11.0-beta.2"},{"note":"Build numbers: shown here, on the BETA badge and the home version chip","v":"0.11.0-beta.1"}],"v":"0.11.0-beta.2"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -6852,6 +6859,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // spelling a theme word (2 points). Neither word of any pair is ever in a
   // daily climb, so the example spoils nothing.
   const THEME_CARD_KEY = "three21.themeCardDay";
+  const THEME_CARD_OFF_KEY = "three21.themeCardOff";   // "1" = the player ticked "don't show again"
+  function themeCardOff() { try { return localStorage.getItem(THEME_CARD_OFF_KEY) === "1"; } catch (e) { return false; } }
   const THEME_EXAMPLES = {
     ocean: ["reef", "free"], food: ["peach", "cheap"], sports: ["skate", "steak"], weather: ["frost", "forts"],
     animals: ["wolf", "flow"], music: ["verse", "sever"], space: ["mars", "arms"], garden: ["petal", "plate"],
@@ -6869,6 +6878,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return ex ? { word: ex[0], decoy: ex[1] } : null;   // a new theme without one: plain labels instead
   }
   function themeCardShown(day) {
+    if (themeCardOff()) return true;   // opted out: it still opens from the theme box, just never on its own
     try { return localStorage.getItem(THEME_CARD_KEY) === dayBase(day); } catch (e) { return false; }
   }
   function openThemeCard() {
@@ -6898,6 +6908,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     keyRow(ex && ex.decoy, "Any word", "1 point", false);
     keyRow(ex && ex.word, "On-theme word", "2 points", true);
     $("#tc-ex-lab").hidden = !ex;
+    $("#tc-off").checked = themeCardOff();
     themeCardOpenAt = Date.now();
     pauseDailyTimer();            // the clock (and this word's solve time) waits for the card
     $("#theme-card").hidden = false;
@@ -6907,6 +6918,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!themeCardOpenAt) return;
     if (stageShownAt) stageShownAt += Date.now() - themeCardOpenAt;
     themeCardOpenAt = 0;
+    try { if ($("#tc-off").checked) localStorage.setItem(THEME_CARD_OFF_KEY, "1"); else localStorage.removeItem(THEME_CARD_OFF_KEY); } catch (e) {}
     $("#theme-card").hidden = true;
     if (dailySessionActive && !document.hidden) startDailyTimer();
     stageTips();
@@ -9535,32 +9547,37 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const SOUND_ON_SVG = '<svg viewBox="0 0 16 16"><path d="M2.5 6h2.5l3.5-3v10L5 10H2.5Z" fill="currentColor"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.8a6 6 0 0 1 0 8.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
   const SOUND_OFF_SVG = '<svg viewBox="0 0 16 16"><path d="M2.5 6h2.5l3.5-3v10L5 10H2.5Z" fill="currentColor"/><path d="M11 6l4 4M15 6l-4 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
   function syncSoundBtn() {
-    const b = $("#btn-sound");
-    if (!b) return;
-    b.querySelector(".rb-ic").innerHTML = FX.isOn() ? SOUND_ON_SVG : SOUND_OFF_SVG;
-    b.setAttribute("aria-pressed", String(FX.isOn()));
+    [["#btn-sound", ".rb-ic"], ["#btn-play-sound", ".pnav-snd"]].forEach(([id, ic]) => {
+      const b = $(id);
+      if (!b) return;
+      b.querySelector(ic).innerHTML = FX.isOn() ? SOUND_ON_SVG : SOUND_OFF_SVG;
+      b.setAttribute("aria-pressed", String(FX.isOn()));
+    });
   }
-  $("#btn-sound").addEventListener("click", () => {
+  const toggleSound = () => {
     FX.set(!FX.isOn());
     syncSoundBtn();
     if (FX.isOn()) setTimeout(() => FX.play("accept"), 60); // let the iOS audio session settle
-  });
+  };
+  $("#btn-sound").addEventListener("click", toggleSound);
+  $("#btn-play-sound").addEventListener("click", toggleSound);
   syncSoundBtn();
 
   // Light by default (set in <head>); the moon / sun on the home screen switches it.
   function syncThemeBtn() {
     const dark = !document.documentElement.classList.contains("light");
-    const b = $("#btn-theme");
-    b.setAttribute("aria-pressed", String(dark));
-    b.setAttribute("aria-label", dark ? "Light mode" : "Dark mode");
+    document.querySelectorAll(".tgl-theme").forEach((b) => {
+      b.setAttribute("aria-pressed", String(dark));
+      b.setAttribute("aria-label", dark ? "Light mode" : "Dark mode");
+    });
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = dark ? "#2b211a" : "#f4d3a6";
   }
-  $("#btn-theme").addEventListener("click", () => {
+  document.querySelectorAll(".tgl-theme").forEach((b) => b.addEventListener("click", () => {
     const light = document.documentElement.classList.toggle("light");
     try { localStorage.setItem("dc.theme", light ? "light" : "dark"); } catch (e) {}
     syncThemeBtn();
-  });
+  }));
   syncThemeBtn();
 
   window.addEventListener("DOMContentLoaded", () => {
