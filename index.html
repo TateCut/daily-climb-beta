@@ -6380,7 +6380,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     show("play");
     beginStage();
     if (round === 2 && mode === "daily" && dailyTheme)
-      coachTip("nextclimb", () => $("#themestrip .ts-chips"), "Climb 2 of " + climbRounds() + ". Each climb has its own " + dailyTheme.theme.word + ".", "", { below: true, ms: 6000 });
+      coachTip("nextclimb", () => $("#themestrip .ts-chips"), "Climb 2 of " + climbRounds() + ". Each Climb has its own theme word.", "", { below: true, ms: 6000 });
   }
 
   function startClimbSession() {
@@ -6442,9 +6442,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (foundTheme) {
       if (!themeFound[round - 1]) themeFound[round - 1] = g;   // the first one names the climb's flag
       renderThemeStrip();
-      ascentToast(capFirst(dailyTheme.theme.word.replace(/ word$/, "")) + " word! " + g.toUpperCase(), true);
+      ascentToast("Theme word! " + g.toUpperCase(), true);
       if (climbStage < climbLen() && newRules(dailyTheme))   // at the top, the climb's results screen says it instead
-        coachTip("theme", () => $("#themestrip .ts-flag.fresh"), "That's a " + dailyTheme.theme.word + ": 2 points!", "Its flag turns gold up here.", { below: true, gold: true, ms: 6000 });
+        coachTip("theme", () => $("#themestrip .ts-flag.fresh"), "Congrats, you found a theme word! 2 points.", "Its chip turns yellow up here.", { below: true, gold: true, ms: 6000 });
     } else if (mode === "daily") announcePasses(dailyWordsSoFar() + (newRules(dailyTheme) ? themeBonusSoFar() : 0));
     climbPrev = g;
     locked = true;
@@ -6519,7 +6519,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     tr.hidden = !themed;
     if (themed) {
       const r = themeRevealFor(round - 1, currentRoundWords);
-      const kind = dailyTheme.theme.word;
       tr.className = "theme-reveal " + (hits.length ? "got" : "miss");
       tr.replaceChildren();
       const b = document.createElement("b");
@@ -6545,10 +6544,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
         you.className = "you";
         you.textContent = r.played.toUpperCase();
         b.textContent = r.word.toUpperCase();
-        tr.append("You played ", you, ". The " + kind + " was ", b, ".");
+        tr.append("You played ", you, ". The theme word was ", b, ".");
       } else {
         b.textContent = r.word.toUpperCase();
-        tr.append("The " + kind + " was ", b, ".");
+        tr.append("The theme word was ", b, ".");
       }
     }
     const showEx = !completed;
@@ -7606,7 +7605,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (calSel < today || played) {
       // Safe to show once the day is over or played.
       const tw = el("p", "cal-note");
-      tw.append("The " + t.theme.word + "s: ");
+      tw.append("Theme words: ");
       t.words.forEach((ws, i) => { const b = document.createElement("b"); b.textContent = ws[0].toUpperCase(); tw.append(i ? ", " : "", b); });
     }
     if (r) {
