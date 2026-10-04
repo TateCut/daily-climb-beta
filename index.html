@@ -134,7 +134,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
      list that can overflow (the leaderboard) scrolls inside itself instead. */
   html, body { overflow: hidden; overscroll-behavior: none; }
   /* The few inner scrollers draw their bar in the theme's line color. */
-  .lb-list, .collection-grid, .def, .patch-list, .pf-scroll { scrollbar-color: var(--line) transparent; scrollbar-width: thin; }
+  .lb-list, .lb-routes, .rt-pop, .collection-grid, .def, .patch-list, .pf-scroll { scrollbar-color: var(--line) transparent; scrollbar-width: thin; }
   /* Tutorial is a fixed card — kill touch-panning so a swipe is never stolen. */
   h1 {
     margin: 0 0 22px;
@@ -2774,7 +2774,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:07:42-07:00","n":13,"notes":[{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"},{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"},{"note":"Leaderboard theme card: every theme word, one row per Climb","v":"0.12.0-beta.9"}],"v":"0.12.0-beta.13"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:10:29-07:00","n":14,"notes":[{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"},{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"}],"v":"0.12.0-beta.14"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -8843,10 +8843,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   (function () {
     // No screen scrolls the page (iOS ignores touch-action / overscroll-behavior
     // in older Safari and the PWA shell) — block every touch-drag except inside
-    // the one element that scrolls itself, the leaderboard list.
+    // the few elements that scroll themselves (leaderboard list, Routes and its pop-up, ...).
     document.addEventListener("touchmove", (e) => {
       const t = e.target;
-      if (t && t.closest && (t.closest(".lb-list") || t.closest(".collection-grid") || t.closest(".def") || t.closest(".patch-list") || t.closest(".pf-scroll"))) return;
+      if (t && t.closest && t.closest(".lb-list, .lb-routes, .rt-pop, .collection-grid, .def, .patch-list, .pf-scroll")) return;
       if (e.cancelable) e.preventDefault();
     }, { passive: false });
   })();
