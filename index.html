@@ -1952,11 +1952,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="linkbtn" id="btn-have-profile" type="button">I already play</button>
       </div>
       <div class="uname-done" id="uname-done" hidden>
-        <div class="ucheck" aria-hidden="true">✓</div>
         <h2 class="uname-done-title" id="uname-done-title"></h2>
         <p class="lede">Your streak and progress are saved to your username. To sign in on another phone, or in the Home Screen app, use this recovery code (it's also in your Profile):</p>
         <p class="ucodebig" id="uname-done-code"></p>
-        <button class="primary" id="uname-done-go" type="button">Play</button>
+        <button class="primary" id="uname-done-go" type="button">Start <span class="clb">Climbing</span></button>
       </div>
     </section>
 
@@ -1983,11 +1982,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="linkbtn" id="em-back" type="button">&lsaquo; Back</button>
       </div>
       <div class="uname-done" id="emoji-done" hidden>
-        <div class="ucheck" aria-hidden="true">✓</div>
         <h2 class="uname-done-title" id="em-done-title"></h2>
         <p class="em-secret" id="em-done-emoji"></p>
         <p class="lede">Remember these. With your username, they get you back in on any phone, browser or the Home Screen app. They're also in your Profile.</p>
-        <button class="primary" id="em-done-go" type="button">Play</button>
+        <button class="primary" id="em-done-go" type="button">Start <span class="clb">Climbing</span></button>
       </div>
     </section>
 
@@ -2644,10 +2642,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       </div>
     </div>
     <div class="claim-done" id="claim-done" hidden>
-      <div class="ucheck" aria-hidden="true">✓</div>
       <h3 id="claim-done-title"></h3>
       <p class="install-sub">Your streak is safe. Lost the app? Email your username to <span class="uemail">tate.cutcliffe@gmail.com</span> for your recovery code.</p>
-      <div class="install-actions"><button class="primary" id="btn-claim-done" type="button">Done</button></div>
+      <div class="install-actions"><button class="primary" id="btn-claim-done" type="button">Back to <span class="clb">Climbing</span></button></div>
     </div>
   </div>
   <!-- Trophy details (tap a trophy) — same sheet frame as the others. -->
@@ -2771,7 +2768,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:20:33-07:00","n":17,"notes":[{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"},{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"},{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"}],"v":"0.12.0-beta.17"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:43:27-07:00","n":18,"notes":[{"note":"No more green check marks: username, secret emoji and username-claimed screens say Start / Back to Climbing","v":"0.12.0-beta.18"},{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"},{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"},{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"}],"v":"0.12.0-beta.18"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -5825,7 +5822,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function emojiDone(title, picked) {
     $("#em-done-title").textContent = title;
     $("#em-done-emoji").textContent = picked.join(" ");
-    $("#em-done-go").textContent = emojiFlow.mode === "create" ? "Play" : "Done";
+    $("#em-done-go").innerHTML = emojiFlow.mode === "create" ? 'Start <span class="clb">Climbing</span>' : "Done";   // "Done" when changing them from the Profile
     $("#emoji-pick").hidden = true;
     $("#emoji-done").hidden = false;
     $("#em-done-go").focus();
