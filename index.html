@@ -1711,9 +1711,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .rt-w.tw.zero { opacity: 0.7; }
   .rt-flag { display: inline-flex; margin-right: 5px; vertical-align: -1px; }
   .rt-flag svg { width: 8px; height: 11px; }
-  .rt-key { display: flex; justify-content: center; align-items: center; gap: 6px 8px; flex-wrap: wrap; font-size: 0.74rem; color: var(--rd-muted); margin-top: -4px; }
-  .rt-key-tw { padding: 2px 7px; border-radius: 6px; background: var(--rd-gold); color: var(--rd-gold-ink); font-size: 0.64rem; font-weight: 800; letter-spacing: 0.06em; }
-  .rt-key-you { width: 16px; height: 13px; margin-left: 6px; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--rd-ink); }
   .lb-theme { width: 100%; border: 1px solid var(--rd-line); border-radius: 10px; overflow: hidden; text-align: center; }
   .lb-theme[hidden] { display: none; }
   .lb-theme-k { padding: 5px 0; background: var(--rd-strip); color: var(--rd-strip-ink); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
@@ -2285,7 +2282,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <div class="lb-list" id="daily-board-list"></div>
       <div class="lb-routes" id="daily-board-routes" hidden>
         <div class="lb-routes-climbs" id="routes-climbs"></div>
-        <div class="rt-key" aria-hidden="true"><span class="rt-key-tw">THEME</span> theme word <span class="rt-key-you"></span> your word</div>
         <div class="lb-routes-steps" id="routes-steps"></div>
       </div>
       <p class="note" id="daily-board-foot"></p>
@@ -2778,7 +2774,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:46:07-07:00","n":19,"notes":[{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"},{"note":"No more green check marks: username, secret emoji and username-claimed screens say Start / Back to Climbing","v":"0.12.0-beta.18"},{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"},{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"},{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"}],"v":"0.12.0-beta.19"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:48:55-07:00","n":20,"notes":[{"note":"Routes: removed the key under the Climb buttons","v":"0.12.0-beta.20"},{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"},{"note":"No more green check marks: username, secret emoji and username-claimed screens say Start / Back to Climbing","v":"0.12.0-beta.18"},{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"},{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"}],"v":"0.12.0-beta.20"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
