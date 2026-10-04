@@ -1871,6 +1871,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     --rd-ink: var(--hs-ink); --rd-muted: var(--hs-muted); --rd-card: var(--hs-card); --rd-line: var(--hs-line); --rd-climb: var(--hs-climb);
     --rd-btn: var(--hs-btn); --rd-btn-ink: var(--hs-btn-ink); color: var(--hs-ink); }
   :is(#screen-welcome, #screen-name, #screen-emoji, #screen-signin, #screen-restore, #screen-calendar, #screen-profile, #screen-trophies, #screen-patch-notes, #screen-invite, #screen-collection) .clb { color: var(--hs-climb); }
+  :is(#screen-welcome, #screen-name, #screen-emoji, #screen-signin, #screen-restore, #screen-calendar, #screen-profile, #screen-trophies, #screen-patch-notes, #screen-invite, #screen-collection) button.primary .clb { color: var(--rd-climb-inv); }
   /* Menu pages: white cards on the apricot, no outlines (like the home screen's cards). */
   :is(#screen-profile, #screen-trophies, #screen-patch-notes, #screen-collection) :is(.pf-card, .pf-stat, .tr-fam, .patch-ver:not(.latest), .collection-tile:not(.beaten)) { border-color: transparent; }
   #screen-invite .nameinput, #screen-invite input { border: 0; background: var(--hs-card); color: var(--hs-card-ink); }
@@ -2048,11 +2049,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="linkbtn" id="restore-back" type="button">&lsaquo; Back</button>
       </div>
       <div class="uname-done" id="restore-done" hidden>
-        <div class="ucheck" aria-hidden="true">✓</div>
         <h2 class="uname-done-title" id="restore-done-title"></h2>
         <div class="restore-stats" id="restore-stats"></div>
         <p class="lede">Everything's right where you left it.</p>
-        <button class="primary" id="restore-done-go" type="button">Play</button>
+        <button class="primary" id="restore-done-go" type="button">Back to <span class="clb">Climbing</span></button>
       </div>
     </section>
 
@@ -2771,7 +2771,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:15:47-07:00","n":16,"notes":[{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"},{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"}],"v":"0.12.0-beta.16"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:20:33-07:00","n":17,"notes":[{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"},{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"},{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"}],"v":"0.12.0-beta.17"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
