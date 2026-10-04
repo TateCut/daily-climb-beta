@@ -1528,6 +1528,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .theme-reveal.got .tr-words b { padding: 4px 12px; border-radius: 999px; background: var(--rd-gold); color: var(--rd-gold-ink); font-size: 0.95rem; letter-spacing: 0.04em; }
   .tr-pts { margin-top: 2px; padding: 3px 12px; border-radius: 999px; background: var(--rd-ink); color: var(--rd-bg); font-weight: 800; font-size: 0.9rem; }
   @keyframes tr-cheer { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+  .theme-reveal.miss { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px; text-align: center; border: 0; border-radius: 14px; background: var(--rd-card); }
+  .theme-reveal.miss .you { color: var(--rd-ink); }
+  .tr-cheer { font-family: var(--slab); font-size: 1.35rem; font-weight: 700; line-height: 1.1; color: var(--rd-ink); }
   @media (prefers-reduced-motion: reduce) { .theme-reveal.got { animation: none; } }
   /* ===== How to Play: the bottom sheet ===== */
   .hts-veil { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.45); display: flex; align-items: flex-end; justify-content: center; animation: tc-fade .25s ease-out; }
@@ -2717,7 +2720,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-03T07:30:45-07:00","n":5,"notes":[{"note":"Word definitions explain the word, not just point at another spelling","v":"0.12.0-beta.5"},{"note":"Theme pop-up example never spoils the day's puzzle","v":"0.12.0-beta.4"},{"note":"Behind the scenes: Adventure Mode is now tracked (started / beaten)","v":"0.12.0-beta.3"},{"note":"Leaderboard: no more pop-up over the mountain when you tap a player or flag","v":"0.12.0-beta.2"},{"note":"Leaderboard fits the screen: the bottom button no longer falls off","v":"0.12.0-beta.1"}],"v":"0.12.0-beta.5"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T09:40:59-07:00","n":6,"notes":[{"note":"Missed theme word ends on 'Get the next one!'; 'Keep climbing!' button; timer stops between Climbs and ignores phone freezes","v":"0.12.0-beta.6"},{"note":"Word definitions explain the word, not just point at another spelling","v":"0.12.0-beta.5"},{"note":"Theme pop-up example never spoils the day's puzzle","v":"0.12.0-beta.4"},{"note":"Behind the scenes: Adventure Mode is now tracked (started / beaten)","v":"0.12.0-beta.3"},{"note":"Leaderboard: no more pop-up over the mountain when you tap a player or flag","v":"0.12.0-beta.2"}],"v":"0.12.0-beta.6"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4527,8 +4530,26 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
     if (hiddenAt && stageShownAt && !themeCardOpenAt && !howtoOpenAt) stageShownAt += Date.now() - hiddenAt;
     hiddenAt = 0;
-    if (dailySessionActive && !themeCardOpenAt && !howtoOpenAt) startDailyTimer();
+    lastBeat = Date.now();
+    if (dailySessionActive && !themeCardOpenAt && !howtoOpenAt && !screens.play.hidden) startDailyTimer();
   });
+  // Some phones pause the page without ever saying it went away: a call answered from
+  // the banner, a screen that locks in the Home Screen app. Nothing runs while it's
+  // paused, so a once-a-second heartbeat notices the gap afterwards and takes it off
+  // both clocks, the same as time spent hidden.
+  let lastBeat = Date.now();
+  function heartbeat() {
+    const now = Date.now(), gap = now - lastBeat;
+    lastBeat = now;
+    if (gap < 4000 || document.hidden || hiddenAt) return;   // normal tick, or the hidden path handles it
+    const away = gap - 1000;
+    if (stageShownAt && !themeCardOpenAt && !howtoOpenAt) stageShownAt += away;
+    if (dailyTimerRunning) { dailyTimerStartedAt += away; renderDailyTimer(); }
+  }
+  setInterval(heartbeat, 1000);
+  window.addEventListener("focus", heartbeat);
+  window.addEventListener("pageshow", heartbeat);
+  document.addEventListener("resume", heartbeat);
   // One word's share of the leaderboard time. Capped as a backstop in case a
   // phone ever suspends the game without saying it went away.
   const MAX_WORD_MS = 15 * 60 * 1000;
@@ -6640,6 +6661,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     clearDropTarget();
     defToken++;
     roundWords[round - 1] = currentRoundWords.slice();
+    pauseDailyTimer();   // the clock waits on the between-Climbs screen
     if (!completed) FX.play("over");
 
     // A climb beaten during the Daily counts in Adventure Mode too — same seed.
@@ -6691,15 +6713,20 @@ $1{ display: flex; gap: 8px; width: 100%; }
           pts.textContent = "+" + hits.length + (hits.length > 1 ? " points" : " point");
           tr.append(pts);
         }
-      } else if (r.played && r.played !== r.word) {
-        const you = document.createElement("span");
-        you.className = "you";
-        you.textContent = r.played.toUpperCase();
-        b.textContent = r.word.toUpperCase();
-        tr.append("You played ", you, ". The theme word was ", b, ".");
       } else {
+        const line = document.createElement("span");
+        line.className = "tr-line";
         b.textContent = r.word.toUpperCase();
-        tr.append("The theme word was ", b, ".");
+        if (r.played && r.played !== r.word) {
+          const you = document.createElement("span");
+          you.className = "you";
+          you.textContent = r.played.toUpperCase();
+          line.append("You played ", you, ". The theme word was ", b, ".");
+        } else line.append("The theme word was ", b, ".");
+        const cheer = document.createElement("span");
+        cheer.className = "tr-cheer";
+        cheer.textContent = isLastRound ? "Get it tomorrow!" : "Get the next one!";
+        tr.append(line, cheer);
       }
     }
     const showEx = !completed;
@@ -6711,7 +6738,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#cre-word").textContent = ex ? ex.toUpperCase() : "";
       if (ex) showDefinition(ex, $("#cre-def"));
     }
-    $("#btn-cre-next").textContent = isLastRound ? "See results" : "Climb " + (round + 1) + " of " + climbRounds();
+    $("#btn-cre-next").textContent = isLastRound ? "See results" : "Keep climbing!";
     saveRoundBreak(round + 1);
     show("climbroundend");
   }
@@ -6856,6 +6883,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     round++;
     climbPuzzle = dailyClimbs[round - 1];
     beginClimbRound();
+    if (dailySessionActive && !document.hidden) startDailyTimer();
   }
 
   function climbSessionDone() {
