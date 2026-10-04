@@ -2774,7 +2774,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:48:55-07:00","n":20,"notes":[{"note":"Routes: removed the key under the Climb buttons","v":"0.12.0-beta.20"},{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"},{"note":"No more green check marks: username, secret emoji and username-claimed screens say Start / Back to Climbing","v":"0.12.0-beta.18"},{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"},{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"}],"v":"0.12.0-beta.20"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:53:01-07:00","n":21,"notes":[{"note":"No back door to today's leaderboard before you've played","v":"0.12.0-beta.21"},{"note":"Routes: removed the key under the Climb buttons","v":"0.12.0-beta.20"},{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"},{"note":"No more green check marks: username, secret emoji and username-claimed screens say Start / Back to Climbing","v":"0.12.0-beta.18"},{"note":"Welcome back screen: no check mark; the button says 'Back to Climbing'","v":"0.12.0-beta.17"}],"v":"0.12.0-beta.21"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4504,7 +4504,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       matchSeed = seedForDay(dailyDay);
       let mine = null;
       if (dbReady()) { try { mine = await window.MatchDB.getDailyEntrant(dailyDay); } catch (e) {} }
-      if (mine) { clearResume(); showDailyBoard(dailyDay, { live: true }); return; }
+      if (mine) { clearResume(); showDailyBoard(dailyDay, { live: true, finished: true }); return; }
       loadDailyPuzzles(dailyDay);
       themeFound = Array.isArray(s.themeFound) ? s.themeFound.slice() : [null, null, null];
       climbPuzzle = dailyClimbs[round - 1];
@@ -7747,6 +7747,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   function showDailyBoard(dayKey, opts) {
     opts = opts || {};
+    // No back door to today's board (the calendar, yesterday's board): until you've finished
+    // today's daily, it sends you to play it instead. dailyPlayClick shows the board after all
+    // if you finished on another device.
+    if (dayKey === dailyKeyOf() && !isDev() && myDailyLastDay !== dailyKeyOf() && !opts.justFinished && !opts.finished) { dailyPlayClick(); return; }
     teardownDailyWatch();
     boardFocus = null;
     routesData = null; boardRouteClimb = 0;
@@ -7778,8 +7782,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const flip = $("#btn-daily-board-flip");
     if (flip) {
       flip.hidden = false;
-      flip.textContent = isToday ? "See yesterday's board" : "See today's board";
-      flip.onclick = isToday ? () => showDailyBoard(yst) : () => showDailyBoard(today, { live: true });
+      const todayDone = isDev() || myDailyLastDay === today;
+      if (isToday) { flip.textContent = "See yesterday's board"; flip.onclick = () => showDailyBoard(yst); }
+      else if (todayDone) { flip.textContent = "See today's board"; flip.onclick = () => showDailyBoard(today, { live: true }); }
+      else { flip.innerHTML = 'Play today\x27s <span class="clb">Climb</span>'; flip.onclick = dailyPlayClick; }
     }
     $("#daily-board-list").innerHTML = "<p class='note'>Loading…</p>";
     $("#daily-board-foot").textContent = "";
@@ -8064,7 +8070,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     try {
       if (dbReady()) { try { mine = await window.MatchDB.getDailyEntrant(today); } catch (e) {} }
     } finally { dailyPlayBusy = false; }
-    if (mine) { showDailyBoard(today, { live: true }); return; }
+    if (mine) { showDailyBoard(today, { live: true, finished: true }); return; }
     startDailySession();
   }
   $("#btn-daily-play").addEventListener("click", dailyPlayClick);
