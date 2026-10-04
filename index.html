@@ -2495,7 +2495,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <p class="lede" id="cre-sub" hidden>A word that would have worked:</p>
       <p class="missed-word" id="cre-word" hidden></p>
       <p class="def" id="cre-def" hidden></p>
-      <button class="primary" id="btn-cre-next" type="button">Next climb</button>
+      <button class="primary" id="btn-cre-next" type="button">Keep <span class="clb">Climbing</span>!</button>
     </section>
 
     <!-- ADVENTURE MODE: every climb, pick one you haven't beaten -->
@@ -2655,7 +2655,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <h3 id="ff-title">Forfeit this <span class="clb">Climb</span>?</h3>
       <p id="ff-body"></p>
       <div class="ff-actions">
-        <button class="primary" id="btn-ff-keep" type="button">Keep climbing</button>
+        <button class="primary" id="btn-ff-keep" type="button">Keep <span class="clb">Climbing</span></button>
         <button class="ghost ff-go" id="btn-ff-go" type="button">Forfeit <span class="clb">Climb</span></button>
       </div>
     </div>
@@ -2671,7 +2671,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       </div>
       <p class="tc-foot">Every <span class="clb">Climb</span> has at least one word related to the theme.</p>
       <label class="tc-opt"><input type="checkbox" id="tc-off"> I understand, don't show again</label>
-      <button class="primary" id="btn-theme-card" type="button">Start climbing</button>
+      <button class="primary" id="btn-theme-card" type="button">Start <span class="clb">Climbing</span></button>
     </div>
   </div>
   <!-- Trophy unlocked! (queued; shown on home / board / profile screens) -->
@@ -2720,7 +2720,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T09:40:59-07:00","n":6,"notes":[{"note":"Missed theme word ends on 'Get the next one!'; 'Keep climbing!' button; timer stops between Climbs and ignores phone freezes","v":"0.12.0-beta.6"},{"note":"Word definitions explain the word, not just point at another spelling","v":"0.12.0-beta.5"},{"note":"Theme pop-up example never spoils the day's puzzle","v":"0.12.0-beta.4"},{"note":"Behind the scenes: Adventure Mode is now tracked (started / beaten)","v":"0.12.0-beta.3"},{"note":"Leaderboard: no more pop-up over the mountain when you tap a player or flag","v":"0.12.0-beta.2"}],"v":"0.12.0-beta.6"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T09:45:25-07:00","n":7,"notes":[{"note":"Buttons say 'Keep Climbing!', 'Start Climbing', 'Keep Climbing' (capital C, orange)","v":"0.12.0-beta.7"},{"note":"Missed theme word ends on 'Get the next one!'; 'Keep climbing!' button; timer stops between Climbs and ignores phone freezes","v":"0.12.0-beta.6"},{"note":"Word definitions explain the word, not just point at another spelling","v":"0.12.0-beta.5"},{"note":"Theme pop-up example never spoils the day's puzzle","v":"0.12.0-beta.4"},{"note":"Behind the scenes: Adventure Mode is now tracked (started / beaten)","v":"0.12.0-beta.3"}],"v":"0.12.0-beta.7"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -6738,7 +6738,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#cre-word").textContent = ex ? ex.toUpperCase() : "";
       if (ex) showDefinition(ex, $("#cre-def"));
     }
-    $("#btn-cre-next").textContent = isLastRound ? "See results" : "Keep climbing!";
+    $("#btn-cre-next").innerHTML = isLastRound ? "See results" : 'Keep <span class="clb">Climbing</span>!';
     saveRoundBreak(round + 1);
     show("climbroundend");
   }
