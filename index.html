@@ -1786,7 +1786,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .wn-beats { display: flex; gap: 6px; }
   .wn-beats i { width: 22px; height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--hs-ink) 22%, transparent); transition: background .3s; }
   .wn-beats i.on { background: var(--hs-ink); }
-  .wn-cap { min-height: 2.9em; margin: 0; display: flex; align-items: center; justify-content: center; max-width: 25ch; font-size: 1rem; font-weight: 600; line-height: 1.35; transition: opacity .25s; }
+  .wn-cap { min-height: 2.9em; margin: 0; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 25ch; text-wrap: balance; will-change: opacity; transform: translateZ(0); font-size: 1rem; font-weight: 600; line-height: 1.35; transition: opacity .25s; }
   .wn-cap.fade { opacity: 0; }
   .wn button.primary { width: min(100%, 320px); }
   @media (prefers-reduced-motion: reduce) { .wn *, .wn *::before { transition-duration: .01s !important; } .wn.in { animation: none; } }
@@ -2861,7 +2861,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T12:24:20-07:00","n":22,"notes":[{"note":"One-time \"Meet Routes\" intro for returning players","v":"0.12.0-beta.22"},{"note":"No back door to today's leaderboard before you've played","v":"0.12.0-beta.21"},{"note":"Routes: removed the key under the Climb buttons","v":"0.12.0-beta.20"},{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"},{"note":"No more green check marks: username, secret emoji and username-claimed screens say Start / Back to Climbing","v":"0.12.0-beta.18"}],"v":"0.12.0-beta.22"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T12:28:20-07:00","n":23,"notes":[{"note":"Meet Routes: no leftover letters when the caption changes","v":"0.12.0-beta.23"},{"note":"One-time \"Meet Routes\" intro for returning players","v":"0.12.0-beta.22"},{"note":"No back door to today's leaderboard before you've played","v":"0.12.0-beta.21"},{"note":"Routes: removed the key under the Climb buttons","v":"0.12.0-beta.20"},{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"}],"v":"0.12.0-beta.23"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
