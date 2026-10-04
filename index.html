@@ -1696,7 +1696,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .rt-pop[hidden] { display: none; }
   .rt-pop b { display: block; margin-bottom: 4px; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--rd-muted); }
   .rt-pop ul { margin: 0; padding: 0; list-style: none; }
-  .rt-pop li { padding: 6px 0; font-size: 0.92rem; font-weight: 600; border-top: 1px solid var(--rd-line); }
+  .rt-pop li { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; font-size: 0.92rem; font-weight: 600; border-top: 1px solid var(--rd-line); }
+  .rt-pop .rk { width: 1.6rem; flex: none; text-align: right; font-size: 0.8rem; font-weight: 700; color: var(--rd-muted); font-variant-numeric: tabular-nums; }
+  .rt-pop li.you .rk { color: var(--rd-climb); }
   .rt-pop li:first-child { border-top: 0; }
   .rt-pop li.you { color: var(--rd-climb); }
   .rt-w.tw { box-shadow: inset 0 0 0 2px var(--rd-gold); }
@@ -2774,7 +2776,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:10:29-07:00","n":14,"notes":[{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"},{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"}],"v":"0.12.0-beta.14"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:12:41-07:00","n":15,"notes":[{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"}],"v":"0.12.0-beta.15"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7564,12 +7566,17 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (tab === "routes") renderRoutes();
   }
   $("#daily-board-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) setBoardTab(b.dataset.tab); });
-  // Tap a word: a small scrollable pop-up next to it lists who played it; tap anywhere else to close.
+  // Tap a word: a small scrollable pop-up next to it lists who played it, in leaderboard
+  // order with each player's place; tap anywhere else to close.
   function showRoutePop(chip, word, names) {
     const pop = $("#rt-pop");
     $("#rt-pop-title").textContent = word.toUpperCase() + " · " + (names.length ? names.length + (names.length === 1 ? " player" : " players") : "nobody played it");
-    $("#rt-pop-list").replaceChildren(...names.slice().sort((a, z) => (a === "You" ? -1 : z === "You" ? 1 : a.localeCompare(z))).map((n) => {
-      const li = document.createElement("li"); li.textContent = n; if (n === "You") li.className = "you"; return li;
+    $("#rt-pop-list").replaceChildren(...names.map((p) => {
+      const li = document.createElement("li");
+      if (p.you) li.className = "you";
+      const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = p.rank;
+      li.append(rk, p.name);
+      return li;
     }));
     pop.hidden = false;
     pop.scrollTop = 0;
@@ -7610,7 +7617,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       runs.forEach((r, n) => {
         if (!r[k]) return;
         reached++; counts[r[k]] = (counts[r[k]] || 0) + 1;
-        (who[r[k]] = who[r[k]] || []).push(done[n].uid === myUid ? "You" : shownName(done[n].name));
+        // done is in leaderboard order, so each word's players come out leader first
+        (who[r[k]] = who[r[k]] || []).push({ rank: n + 1, name: done[n].uid === myUid ? "You" : shownName(done[n].name), you: done[n].uid === myUid });
       });
       const words = (ANA.get(sortStr(rung)) || [rung]).filter((w) => FREQ.has(w) || counts[w] || isThemeWord(boardTheme, i, w))
         .sort((a, b) => (counts[b] || 0) - (counts[a] || 0) || a.localeCompare(b));
