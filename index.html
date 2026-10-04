@@ -1667,7 +1667,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .lbsum { display: flex; flex-direction: column; align-items: center; gap: 1px; margin-top: -2px; }
   .lbsum[hidden] { display: none; }
   .lbsum-you { font-family: var(--slab); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
-  .lbsum-sub { font-size: 0.85rem; color: var(--rd-muted); }
+  .lb-theme { width: 100%; border: 1px solid var(--rd-line); border-radius: 10px; overflow: hidden; text-align: center; }
+  .lb-theme[hidden] { display: none; }
+  .lb-theme-k { padding: 5px 0; background: var(--rd-strip); color: var(--rd-strip-ink); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .lb-theme-n { padding: 7px 0 8px; font-family: var(--slab); font-weight: 700; font-size: 1.75rem; line-height: 1.1; }
+  .lb-theme-w { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 0 10px 11px; margin-top: -2px; }
+  .lb-theme-w[hidden] { display: none; }
+  .lb-theme-chip { padding: 3px 10px; border-radius: 999px; background: var(--rd-gold); color: var(--rd-gold-ink); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; }
+  .lb-theme-chip.miss { background: none; box-shadow: inset 0 0 0 1.5px var(--rd-line); color: var(--rd-muted); text-decoration: line-through; }
   /* The mountain: a band of sky, edge to edge on a phone. */
   #screen-daily-board .board-mtn svg { max-height: none; -webkit-mask-image: none; mask-image: none; background: linear-gradient(var(--rd-sky1), var(--rd-sky2)); }
   @media (max-width: 491px) { #screen-daily-board .board-mtn { width: calc(100% + 32px); margin: 0 -16px; } }
@@ -2227,7 +2234,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <section id="screen-daily-board" hidden>
       <div class="scr-head"><button class="backpill" id="btn-daily-board-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl" id="daily-board-title">Daily Climb</h2><span class="dailycard-streak" id="daily-board-streak" hidden></span></div>
       <p class="note" id="daily-board-sub"></p>
-      <div class="lbsum" id="daily-board-sum" hidden><div class="lbsum-you" id="daily-board-you"></div><div class="lbsum-sub" id="daily-board-you-sub"></div></div>
+      <div class="lb-theme" id="daily-board-theme" hidden><div class="lb-theme-k">Theme</div><div class="lb-theme-n" id="daily-board-theme-name"></div><div class="lb-theme-w" id="daily-board-theme-words" hidden></div></div>
+      <div class="lbsum" id="daily-board-sum" hidden><div class="lbsum-you" id="daily-board-you"></div></div>
       <div class="board-mtn" id="daily-board-mtn" hidden></div>
       <div class="lb-head" id="daily-board-head" hidden><span class="h-rank">Rank</span><span class="h-name">Player</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
       <div class="lb-list" id="daily-board-list"></div>
@@ -2720,7 +2728,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T09:45:25-07:00","n":7,"notes":[{"note":"Buttons say 'Keep Climbing!', 'Start Climbing', 'Keep Climbing' (capital C, orange)","v":"0.12.0-beta.7"},{"note":"Missed theme word ends on 'Get the next one!'; 'Keep climbing!' button; timer stops between Climbs and ignores phone freezes","v":"0.12.0-beta.6"},{"note":"Word definitions explain the word, not just point at another spelling","v":"0.12.0-beta.5"},{"note":"Theme pop-up example never spoils the day's puzzle","v":"0.12.0-beta.4"},{"note":"Behind the scenes: Adventure Mode is now tracked (started / beaten)","v":"0.12.0-beta.3"}],"v":"0.12.0-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T09:51:00-07:00","n":8,"notes":[{"note":"Leaderboard: a Theme card up top with your theme words; no grey line under 'You finished'","v":"0.12.0-beta.8"},{"note":"Buttons say 'Keep Climbing!', 'Start Climbing', 'Keep Climbing' (capital C, orange)","v":"0.12.0-beta.7"},{"note":"Missed theme word ends on 'Get the next one!'; 'Keep climbing!' button; timer stops between Climbs and ignores phone freezes","v":"0.12.0-beta.6"},{"note":"Word definitions explain the word, not just point at another spelling","v":"0.12.0-beta.5"},{"note":"Theme pop-up example never spoils the day's puzzle","v":"0.12.0-beta.4"}],"v":"0.12.0-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7416,9 +7424,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const me = done[mine];
       const pts = newRules(boardTheme) ? entrantPoints(me) : (me.total || 0);
       $("#daily-board-you").textContent = "You finished " + ordinal(mine + 1);
-      $("#daily-board-you-sub").textContent = "of " + done.length + (done.length === 1 ? " player" : " players") + " · " +
-        pts + (newRules(boardTheme) ? (pts === 1 ? " point" : " points") : (pts === 1 ? " word" : " words")) + " · " + fmtDuration(me.solveMs);
       $("#daily-board-foot").textContent = "";
+    }
+    const tw = $("#daily-board-theme-words");
+    tw.replaceChildren();
+    tw.hidden = !(mine >= 0 && boardTheme);
+    if (mine >= 0 && boardTheme) {
+      const words = done[mine].roundWords || [];
+      boardTheme.climbs.forEach((_, i) => {
+        const marks = themeRungs(boardTheme, i, words[i] || []);
+        (marks.length ? marks : [{ found: false, word: boardTheme.words[i][0] }]).forEach((m) => {
+          const c = document.createElement("span");
+          c.className = "lb-theme-chip" + (m.found ? "" : " miss");
+          c.textContent = m.word.toUpperCase();
+          tw.appendChild(c);
+        });
+      });
     }
 
     if (opts.justFinished && !opts._juiced) {
@@ -7571,8 +7592,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     sub.replaceChildren();
     const dayLine = document.createElement("b");
     dayLine.textContent = dateLabel(dayKey) + (boardTheme ? " · " + DAY_TIER[boardTheme.tier] + " day" : "");
-    sub.append(dayLine, document.createElement("br"),
-      (boardTheme ? "Theme: " + boardTheme.theme.name : "3 Climbs · a point per word") + (isToday ? " · " + dailyResetText() : ""));
+    sub.append(dayLine);
+    if (!boardTheme) sub.append(document.createElement("br"), "3 Climbs · a point per word");
+    $("#daily-board-theme").hidden = !boardTheme;
+    if (boardTheme) $("#daily-board-theme-name").textContent = boardTheme.theme.name;
+    $("#daily-board-theme-words").hidden = true;
     $("#daily-board-sum").hidden = true;
 
     const pill = $("#daily-board-streak");
