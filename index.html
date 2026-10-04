@@ -1667,6 +1667,29 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .lbsum { display: flex; flex-direction: column; align-items: center; gap: 1px; margin-top: -2px; }
   .lbsum[hidden] { display: none; }
   .lbsum-you { font-family: var(--slab); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+  .lb-tabs { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; border: 1.5px solid var(--rd-ink); border-radius: 999px; }
+  .lb-tabs[hidden] { display: none; }
+  .lb-tabs button { height: 34px; border: 0; border-radius: 999px; background: none; color: var(--rd-ink); font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+  .lb-tabs button.on { background: var(--rd-ink); color: var(--rd-bg); }
+  .lb-tabs button:focus-visible, .lb-routes-pill:focus-visible { outline: 2px solid var(--rd-climb); outline-offset: 2px; }
+  #screen-daily-board.routes :is(#daily-board-theme, #daily-board-sum, #daily-board-mtn, #daily-board-head, #daily-board-list, #daily-board-foot, #btn-reminder) { display: none !important; }
+  .lb-routes { width: 100%; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 12px; text-align: left; }
+  .lb-routes[hidden] { display: none; }
+  .lb-routes-climbs { display: flex; justify-content: center; gap: 6px; }
+  .lb-routes-pill { padding: 5px 12px; border-radius: 999px; border: 0; box-shadow: inset 0 0 0 1.5px var(--rd-line); background: none; color: var(--rd-muted); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+  .lb-routes-pill.on { box-shadow: inset 0 0 0 1.5px var(--rd-ink); color: var(--rd-ink); }
+  .lb-routes-steps { display: flex; flex-direction: column; gap: 12px; }
+  .rt-step { display: flex; flex-direction: column; gap: 6px; }
+  .rt-head { display: flex; justify-content: space-between; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rd-muted); }
+  .rt-words { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rt-w { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 2px; min-width: 4.4rem; padding: 6px 10px 8px; border-radius: 9px; background: var(--rd-card); }
+  .rt-w b { font-size: 0.88rem; letter-spacing: 0.04em; }
+  .rt-w i { font-style: normal; font-size: 0.74rem; color: var(--rd-muted); font-variant-numeric: tabular-nums; }
+  .rt-bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--rd-climb); }
+  .rt-w.tw { box-shadow: inset 0 0 0 2px var(--rd-gold); }
+  .rt-w.you { box-shadow: inset 0 0 0 2px var(--rd-ink); }
+  .rt-w.tw.you { box-shadow: inset 0 0 0 2px var(--rd-ink), 0 0 0 2px var(--rd-gold); }
+  .rt-w.zero { opacity: 0.5; }
   .lb-theme { width: 100%; border: 1px solid var(--rd-line); border-radius: 10px; overflow: hidden; text-align: center; }
   .lb-theme[hidden] { display: none; }
   .lb-theme-k { padding: 5px 0; background: var(--rd-strip); color: var(--rd-strip-ink); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
@@ -2234,12 +2257,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <!-- DAILY CLIMB: leaderboard -->
     <section id="screen-daily-board" hidden>
       <div class="scr-head"><button class="backpill" id="btn-daily-board-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl" id="daily-board-title">Daily Climb</h2><span class="dailycard-streak" id="daily-board-streak" hidden></span></div>
+      <div class="lb-tabs" id="daily-board-tabs" role="tablist" aria-label="Leaderboard view" hidden>
+        <button type="button" role="tab" data-tab="standings">Standings</button><button type="button" role="tab" data-tab="routes">Routes</button>
+      </div>
       <p class="note" id="daily-board-sub"></p>
       <div class="lb-theme" id="daily-board-theme" hidden><div class="lb-theme-k">Theme</div><div class="lb-theme-n" id="daily-board-theme-name"></div><div class="lb-theme-w" id="daily-board-theme-words" hidden></div></div>
       <div class="lbsum" id="daily-board-sum" hidden><div class="lbsum-you" id="daily-board-you"></div></div>
       <div class="board-mtn" id="daily-board-mtn" hidden></div>
       <div class="lb-head" id="daily-board-head" hidden><span class="h-rank">Rank</span><span class="h-name">Player</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
       <div class="lb-list" id="daily-board-list"></div>
+      <div class="lb-routes" id="daily-board-routes" hidden>
+        <div class="lb-routes-climbs" id="routes-climbs"></div>
+        <div class="lb-routes-steps" id="routes-steps"></div>
+      </div>
       <p class="note" id="daily-board-foot"></p>
       <button class="reminder-cta" id="btn-reminder" type="button" hidden></button>
       <div class="homelinks">
@@ -2729,7 +2759,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T10:50:58-07:00","n":10,"notes":[{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"},{"note":"Leaderboard theme card: every theme word, one row per Climb","v":"0.12.0-beta.9"},{"note":"Leaderboard: a Theme card up top with your theme words; no grey line under 'You finished'","v":"0.12.0-beta.8"},{"note":"Buttons say 'Keep Climbing!', 'Start Climbing', 'Keep Climbing' (capital C, orange)","v":"0.12.0-beta.7"},{"note":"Missed theme word ends on 'Get the next one!'; 'Keep climbing!' button; timer stops between Climbs and ignores phone freezes","v":"0.12.0-beta.6"}],"v":"0.12.0-beta.10"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T10:58:52-07:00","n":11,"notes":[{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"},{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"},{"note":"Leaderboard theme card: every theme word, one row per Climb","v":"0.12.0-beta.9"},{"note":"Leaderboard: a Theme card up top with your theme words; no grey line under 'You finished'","v":"0.12.0-beta.8"},{"note":"Buttons say 'Keep Climbing!', 'Start Climbing', 'Keep Climbing' (capital C, orange)","v":"0.12.0-beta.7"}],"v":"0.12.0-beta.11"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -2747,6 +2777,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
     save();
   }
   var player = function () { return db.player || (db.player = {}); };
+  // Pretend players' word choices: every word that fits a rung (everyday ones when there are any).
+  var fakeAna = null, fakeEveryday = null;
+  function fakeOptions(word) {
+    if (!fakeAna) {
+      fakeAna = {}; fakeEveryday = {};
+      var raw = window.THREE21_WORDS || [], fr = window.THREE21_FREQ || [];
+      if (!Array.isArray(raw)) raw = String(raw).split(/\s+/);
+      if (!Array.isArray(fr)) fr = String(fr).split(/\s+/);
+      fr.forEach(function (w) { fakeEveryday[w] = 1; });
+      raw.forEach(function (w) { if (w.length < 4) return; var k = w.split("").sort().join(""); (fakeAna[k] = fakeAna[k] || []).push(w); });
+    }
+    var all = fakeAna[word.split("").sort().join("")] || [word];
+    var common = all.filter(function (w) { return fakeEveryday[w]; });
+    return common.length ? common : all;
+  }
+  function fakeCheap(p, w) { return !!p && (w === p + "s" || (/e$/.test(p) && (w === p + "d" || w === p + "r" || w === p + "n"))); }
   var copy = function (o) { return o ? JSON.parse(JSON.stringify(o)) : null; };
   var fail = function (code) { return Object.assign(new Error(code), { code: code }); };
   var nameKey = function (n) { return String(n).trim().toLowerCase().replace(/ +/g, "."); };   // same as the live MatchDB
@@ -2772,8 +2818,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
         hintUsed: r() < 0.5, roundWords: [], finishedAt: now - Math.floor(r() * 36e6) };
       if (info.ladders) {
         e.roundWords = info.ladders.map(function (ladder) {
-          var x = r(), drop = x < 0.6 ? 0 : x < 0.85 ? 1 : 2;
-          return ladder.slice(0, Math.max(1, ladder.length - drop));
+          var x = r(), drop = x < 0.6 ? 0 : x < 0.85 ? 1 : 2, prev = null;
+          // like real players: usually the main answer, sometimes another word that fits (never just prev + s)
+          return ladder.slice(0, Math.max(1, ladder.length - drop)).map(function (ref) {
+            var opts = fakeOptions(ref).filter(function (w) { return !fakeCheap(prev, w); });
+            var pick = opts.indexOf(ref) >= 0 && r() < 0.55 ? ref : (opts[Math.floor(r() * opts.length)] || ref);
+            prev = pick;
+            return pick;
+          });
         });
         e.total = e.roundWords.reduce(function (a, w) { return a + w.length; }, 0);
         var list = String((window.THEME_WORDS || {})[info.theme] || "").split(" ");
@@ -7403,6 +7455,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       }
     }
     renderBoardMountain(done, myUid);
+    routesData = { done: done, myUid: myUid };
+    renderRoutes();
     // The tip floats over the foot of the mountain, pointing down at the list
     // (your open row can fill the list, so it can't live in there).
     if (tapTipOn && done.length) {
@@ -7475,6 +7529,67 @@ $1{ display: flex; gap: 8px; width: 100%; }
           { duration: 380, easing: "cubic-bezier(.2,.8,.25,1.5)" }); }, 500);
       }
     }
+  }
+
+  // ---- Routes: every way up each Climb, and how many players took each word ----
+  // Each step lists the words that fit (everyday ones, theme words, and any rarer word
+  // somebody played), sorted by how many of the players who reached that step chose it.
+  let routesData = null;      // { done, myUid } from the board's last render
+  let boardRouteClimb = 0;    // which Climb the routes view shows
+  function setBoardTab(tab) {
+    $("#screen-daily-board").classList.toggle("routes", tab === "routes");
+    $("#daily-board-routes").hidden = tab !== "routes";
+    $("#daily-board-tabs").querySelectorAll("button").forEach((b) => {
+      const on = b.dataset.tab === tab;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", String(on));
+    });
+    if (tab === "routes") renderRoutes();
+  }
+  $("#daily-board-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) setBoardTab(b.dataset.tab); });
+  function renderRoutes() {
+    if ($("#daily-board-routes").hidden || !boardTheme) return;
+    const done = routesData ? routesData.done : [], myUid = routesData ? routesData.myUid : null;
+    const pills = $("#routes-climbs");
+    pills.replaceChildren(...boardTheme.climbs.map((_, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "lb-routes-pill" + (i === boardRouteClimb ? " on" : "");
+      b.textContent = "Climb " + (i + 1);
+      b.addEventListener("click", () => { boardRouteClimb = i; renderRoutes(); });
+      return b;
+    }));
+    const i = boardRouteClimb, ladder = boardTheme.climbs[i].c;
+    const me = done.find((e) => e.uid === myUid);
+    const runs = done.map((e) => (e.roundWords || [])[i] || []);
+    const box = $("#routes-steps");
+    box.replaceChildren(...ladder.map((rung, k) => {
+      const counts = {}; let reached = 0;
+      runs.forEach((r) => { if (r[k]) { reached++; counts[r[k]] = (counts[r[k]] || 0) + 1; } });
+      const words = (ANA.get(sortStr(rung)) || [rung]).filter((w) => FREQ.has(w) || counts[w] || isThemeWord(boardTheme, i, w))
+        .sort((a, b) => (counts[b] || 0) - (counts[a] || 0) || a.localeCompare(b));
+      const step = document.createElement("div");
+      step.className = "rt-step";
+      const head = document.createElement("div");
+      head.className = "rt-head";
+      const l = document.createElement("span"); l.textContent = "Step " + (k + 1);
+      const r = document.createElement("span"); r.textContent = reached + " of " + done.length + (done.length === 1 ? " player" : " players");
+      head.append(l, r);
+      const row = document.createElement("div");
+      row.className = "rt-words";
+      words.forEach((w) => {
+        const pct = reached ? Math.round(100 * (counts[w] || 0) / reached) : 0;
+        const c = document.createElement("span");
+        c.className = "rt-w" + (isThemeWord(boardTheme, i, w) ? " tw" : "") + (me && (me.roundWords || [])[i] && me.roundWords[i][k] === w ? " you" : "") + (counts[w] ? "" : " zero");
+        const b = document.createElement("b"); b.textContent = w.toUpperCase();
+        const p = document.createElement("i"); p.textContent = pct + "%";
+        const bar = document.createElement("span"); bar.className = "rt-bar"; bar.style.width = pct + "%";
+        c.append(b, p, bar);
+        row.appendChild(c);
+      });
+      step.append(head, row);
+      return step;
+    }));
   }
 
   // ---- Board mountain: a flag for every finisher at the word they reached ----
@@ -7585,6 +7700,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     opts = opts || {};
     teardownDailyWatch();
     boardFocus = null;
+    routesData = null; boardRouteClimb = 0;
+    setBoardTab("standings");
     $("#daily-board-mtn").hidden = true;
     const today = dailyKeyOf();
     const yst = shiftDayKey(today, -1);
@@ -7599,6 +7716,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     sub.append(dayLine);
     if (!boardTheme) sub.append(document.createElement("br"), "3 Climbs · a point per word");
     $("#daily-board-theme").hidden = !boardTheme;
+    $("#daily-board-tabs").hidden = !boardTheme;   // routes need the day's ladders (themed days)
     if (boardTheme) $("#daily-board-theme-name").textContent = boardTheme.theme.name;
     $("#daily-board-theme-words").hidden = true;
     $("#daily-board-sum").hidden = true;
