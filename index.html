@@ -1690,8 +1690,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .rt-fill { display: block; height: 100%; border-radius: 4px; background: var(--rd-climb); }
   .rt-w:focus-visible { outline: 2px solid var(--rd-climb); outline-offset: 2px; }
   .rt-w.open { background: color-mix(in srgb, var(--rd-ink) 8%, var(--rd-card)); }
-  .rt-who { display: flex; flex-direction: column; gap: 3px; padding: 9px 12px; border-radius: 9px; background: var(--rd-card); font-size: 0.86rem; line-height: 1.45; }
-  .rt-who b { font-size: 0.72rem; letter-spacing: 0.08em; color: var(--rd-muted); }
+  .rt-pop { position: fixed; z-index: 70; width: min(240px, calc(100vw - 20px)); max-height: 230px; overflow-y: auto; overscroll-behavior: contain;
+    padding: 10px 12px 8px; border-radius: 12px; border: 1px solid var(--rd-line); background: var(--rd-sheet); color: var(--rd-ink);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22); text-align: left; animation: tc-fade .15s ease-out; }
+  .rt-pop[hidden] { display: none; }
+  .rt-pop b { display: block; margin-bottom: 4px; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--rd-muted); }
+  .rt-pop ul { margin: 0; padding: 0; list-style: none; }
+  .rt-pop li { padding: 6px 0; font-size: 0.92rem; font-weight: 600; border-top: 1px solid var(--rd-line); }
+  .rt-pop li:first-child { border-top: 0; }
+  .rt-pop li.you { color: var(--rd-climb); }
   .rt-w.tw { box-shadow: inset 0 0 0 2px var(--rd-gold); }
   .rt-w.you { box-shadow: inset 0 0 0 2px var(--rd-ink); }
   .rt-w.tw.you { box-shadow: inset 0 0 0 2px var(--rd-ink), 0 0 0 2px var(--rd-gold); }
@@ -2692,6 +2699,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       </div>
     </div>
   </div>
+  <!-- Routes: who played a word (opens next to the tapped word) -->
+  <div class="rt-pop" id="rt-pop" role="dialog" aria-labelledby="rt-pop-title" hidden><b id="rt-pop-title"></b><ul id="rt-pop-list"></ul></div>
   <!-- A one-time tip in a new player's first game -->
   <div class="coach" id="coach" role="status" aria-live="polite" hidden><span id="coach-t"></span><small id="coach-s"></small></div>
   <!-- Forfeit a climb? -->
@@ -2765,7 +2774,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:04:29-07:00","n":12,"notes":[{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"},{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"},{"note":"Leaderboard theme card: every theme word, one row per Climb","v":"0.12.0-beta.9"},{"note":"Leaderboard: a Theme card up top with your theme words; no grey line under 'You finished'","v":"0.12.0-beta.8"}],"v":"0.12.0-beta.12"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:07:42-07:00","n":13,"notes":[{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"},{"note":"Trap-free calendar: no word can block a theme word (from Oct 6)","v":"0.12.0-beta.10"},{"note":"Leaderboard theme card: every theme word, one row per Climb","v":"0.12.0-beta.9"}],"v":"0.12.0-beta.13"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4381,6 +4390,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function show(name) {
     if (updateWaiting && !BUSY_SCREENS.has(name)) setTimeout(applyUpdateWhenCalm, 300);
     hideChipPopover(); // never leave a word definition floating over the next screen
+    if (!$("#rt-pop").hidden) hideRoutePop(); // ...or a Routes "who played it" pop-up
     hideInstallSheet(); // ...or the Add to Home Screen how-to
     hideReminderSheet(); // ...or the daily reminder sheet
     hideClaimSheet(); // ...or the claim-a-username sheet
@@ -7542,7 +7552,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // somebody played), sorted by how many of the players who reached that step chose it.
   let routesData = null;      // { done, myUid } from the board's last render
   let boardRouteClimb = 0;    // which Climb the routes view shows
-  let routeOpen = null;       // "step|word" whose players are listed under its row
+  let routeOpen = null;       // "step|word" whose players are showing in the pop-up
   function setBoardTab(tab) {
     $("#screen-daily-board").classList.toggle("routes", tab === "routes");
     $("#daily-board-routes").hidden = tab !== "routes";
@@ -7554,7 +7564,32 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (tab === "routes") renderRoutes();
   }
   $("#daily-board-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) setBoardTab(b.dataset.tab); });
+  // Tap a word: a small scrollable pop-up next to it lists who played it; tap anywhere else to close.
+  function showRoutePop(chip, word, names) {
+    const pop = $("#rt-pop");
+    $("#rt-pop-title").textContent = word.toUpperCase() + " · " + (names.length ? names.length + (names.length === 1 ? " player" : " players") : "nobody played it");
+    $("#rt-pop-list").replaceChildren(...names.slice().sort((a, z) => (a === "You" ? -1 : z === "You" ? 1 : a.localeCompare(z))).map((n) => {
+      const li = document.createElement("li"); li.textContent = n; if (n === "You") li.className = "you"; return li;
+    }));
+    pop.hidden = false;
+    pop.scrollTop = 0;
+    // beside the word: below it if there's room, otherwise above; kept on screen
+    const r = chip.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight, m = 10;
+    const left = Math.min(Math.max(r.left, m), innerWidth - pw - m);
+    const top = r.bottom + 6 + ph <= innerHeight - m ? r.bottom + 6 : Math.max(m, r.top - 6 - ph);
+    pop.style.left = left + "px";
+    pop.style.top = top + "px";
+  }
+  function hideRoutePop() {
+    routeOpen = null;
+    $("#rt-pop").hidden = true;
+    document.querySelectorAll(".rt-w.open").forEach((x) => { x.classList.remove("open"); x.setAttribute("aria-expanded", "false"); });
+  }
+  document.addEventListener("click", (e) => { if (!$("#rt-pop").hidden && !e.target.closest("#rt-pop")) hideRoutePop(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#rt-pop").hidden) hideRoutePop(); });
+  $("#daily-board-routes").addEventListener("scroll", () => { if (!$("#rt-pop").hidden) hideRoutePop(); });
   function renderRoutes() {
+    if (!$("#rt-pop").hidden) hideRoutePop();   // a live update redraws the words: close any pop-up
     if ($("#daily-board-routes").hidden || !boardTheme) return;
     const done = routesData ? routesData.done : [], myUid = routesData ? routesData.myUid : null;
     const pills = $("#routes-climbs");
@@ -7563,7 +7598,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       b.type = "button";
       b.className = "lb-routes-pill" + (i === boardRouteClimb ? " on" : "");
       b.textContent = "Climb " + (i + 1);
-      b.addEventListener("click", () => { boardRouteClimb = i; routeOpen = null; renderRoutes(); });
+      b.addEventListener("click", () => { boardRouteClimb = i; renderRoutes(); });
       return b;
     }));
     const i = boardRouteClimb, ladder = boardTheme.climbs[i].c;
@@ -7588,7 +7623,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
       head.append(l, r);
       const row = document.createElement("div");
       row.className = "rt-words";
-      let openList = null;
       words.forEach((w) => {
         const pct = reached ? Math.round(100 * (counts[w] || 0) / reached) : 0;
         const key = k + "|" + w, open = routeOpen === key;
@@ -7603,25 +7637,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const fill = document.createElement("span"); fill.className = "rt-fill"; fill.style.width = pct + "%";
         track.appendChild(fill);
         c.append(b, p, track);
-        c.addEventListener("click", () => { routeOpen = open ? null : key; renderRoutes(); });
+        c.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          if (routeOpen === key) { hideRoutePop(); return; }
+          document.querySelectorAll(".rt-w.open").forEach((x) => { x.classList.remove("open"); x.setAttribute("aria-expanded", "false"); });
+          routeOpen = key; c.classList.add("open"); c.setAttribute("aria-expanded", "true");
+          showRoutePop(c, w, who[w] || []);
+        });
         row.appendChild(c);
-        if (open) {
-          // tap a word: who played it
-          const names = who[w] || [];
-          openList = document.createElement("div");
-          openList.className = "rt-who";
-          const t = document.createElement("b");
-          t.textContent = w.toUpperCase() + " · " + (names.length ? names.length + (names.length === 1 ? " player" : " players") : "nobody played it");
-          openList.appendChild(t);
-          if (names.length) {
-            const list = document.createElement("span");
-            list.textContent = names.sort((a, z) => (a === "You" ? -1 : z === "You" ? 1 : a.localeCompare(z))).join(", ");
-            openList.appendChild(list);
-          }
-        }
       });
       step.append(head, row);
-      if (openList) step.appendChild(openList);
       return step;
     }));
   }
@@ -9979,7 +10004,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // dictionary definition, a player's name or a drawing.
   const CLB_RE = /\b[Cc]limbs?\b/;
   const CLB_SKIP = ".clb, .brand-k, .chips, .tile, .wordtrail, .missed-word, .def, .chip-popover, .lb-flags, .lb-name, " +
-    ".ascent-toast, .rt-who, #pf-name, .whoami, .hts-stage, .hts-key, .tc-legend, .beta-sheet, .beta-pill, svg, script, style, textarea, input, select";
+    ".ascent-toast, .rt-pop, #pf-name, .whoami, .hts-stage, .hts-key, .tc-legend, .beta-sheet, .beta-pill, svg, script, style, textarea, input, select";
   function clbWrapText(node) {
     const p = node.parentElement;
     if (!p || !CLB_RE.test(node.data) || p.closest(CLB_SKIP)) return;
