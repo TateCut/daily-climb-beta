@@ -1709,11 +1709,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .lb-theme[hidden] { display: none; }
   .lb-theme-k { padding: 5px 0; background: var(--rd-strip); color: var(--rd-strip-ink); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
   .lb-theme-n { padding: 7px 0 8px; font-family: var(--slab); font-weight: 700; font-size: 1.75rem; line-height: 1.1; }
-  .lb-theme-w { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 10px 11px; margin-top: -2px; }
-  .lb-theme-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-  .lb-theme-w[hidden] { display: none; }
-  .lb-theme-chip { padding: 3px 10px; border-radius: 999px; background: var(--rd-gold); color: var(--rd-gold-ink); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; }
-  .lb-theme-chip.miss { background: none; box-shadow: inset 0 0 0 1.5px var(--rd-line); color: var(--rd-muted); }
   /* The mountain: a band of sky, edge to edge on a phone. */
   #screen-daily-board .board-mtn svg { max-height: none; -webkit-mask-image: none; mask-image: none; background: linear-gradient(var(--rd-sky1), var(--rd-sky2)); }
   @media (max-width: 491px) { #screen-daily-board .board-mtn { width: calc(100% + 32px); margin: 0 -16px; } }
@@ -2276,7 +2271,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button type="button" role="tab" data-tab="standings">Standings</button><button type="button" role="tab" data-tab="routes">Routes</button>
       </div>
       <p class="note" id="daily-board-sub"></p>
-      <div class="lb-theme" id="daily-board-theme" hidden><div class="lb-theme-k">Theme</div><div class="lb-theme-n" id="daily-board-theme-name"></div><div class="lb-theme-w" id="daily-board-theme-words" hidden></div></div>
+      <div class="lb-theme" id="daily-board-theme" hidden><div class="lb-theme-k">Theme</div><div class="lb-theme-n" id="daily-board-theme-name"></div></div>
       <div class="lbsum" id="daily-board-sum" hidden><div class="lbsum-you" id="daily-board-you"></div></div>
       <div class="board-mtn" id="daily-board-mtn" hidden></div>
       <div class="lb-head" id="daily-board-head" hidden><span class="h-rank">Rank</span><span class="h-name">Player</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
@@ -2776,7 +2771,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T11:12:41-07:00","n":15,"notes":[{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"},{"note":"Leaderboard Routes tab: every word on every step, with the share of players who chose it","v":"0.12.0-beta.11"}],"v":"0.12.0-beta.15"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T11:15:47-07:00","n":16,"notes":[{"note":"Standings theme card shows just THEME and the theme name (theme words are on Routes)","v":"0.12.0-beta.16"},{"note":"Routes pop-up lists players in leaderboard order, with their place","v":"0.12.0-beta.15"},{"note":"Fix: the Routes pop-up and the Routes list scroll on phones","v":"0.12.0-beta.14"},{"note":"Routes: tapping a word opens a scrollable pop-up of its players next to it","v":"0.12.0-beta.13"},{"note":"Routes: bar moved inside the tile (yellow edge stays whole); tap a word to see who played it","v":"0.12.0-beta.12"}],"v":"0.12.0-beta.16"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7499,24 +7494,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#daily-board-you").textContent = "You finished " + ordinal(mine + 1);
       $("#daily-board-foot").textContent = "";
     }
-    const tw = $("#daily-board-theme-words");
-    tw.replaceChildren();
-    tw.hidden = !(mine >= 0 && boardTheme);
-    if (mine >= 0 && boardTheme) {
-      const words = done[mine].roundWords || [];
-      // One row per Climb, stacked: every theme word you found, and every one you could still have played.
-      boardTheme.climbs.forEach((_, i) => {
-        const row = document.createElement("div");
-        row.className = "lb-theme-row";
-        themeSpots(boardTheme, i, words[i] || []).forEach((m) => {
-          const c = document.createElement("span");
-          c.className = "lb-theme-chip" + (m.found ? "" : " miss");
-          c.textContent = m.word.toUpperCase();
-          row.appendChild(c);
-        });
-        if (row.children.length) tw.appendChild(row);
-      });
-    }
 
     if (opts.justFinished && !opts._juiced) {
       opts._juiced = true;
@@ -7785,7 +7762,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#daily-board-theme").hidden = !boardTheme;
     $("#daily-board-tabs").hidden = !boardTheme;   // routes need the day's ladders (themed days)
     if (boardTheme) $("#daily-board-theme-name").textContent = boardTheme.theme.name;
-    $("#daily-board-theme-words").hidden = true;
     $("#daily-board-sum").hidden = true;
 
     const pill = $("#daily-board-streak");
@@ -8361,25 +8337,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   // Climb i's theme words for these words: every rung that's a theme word
   // (found), or, if none, the calendar's theme rung (missed).
-  // Every theme-word spot in climb i, step by step: the one you played (found), or the theme
-  // word(s) that fit that step ("BLEATS / STABLE" share one) if you missed it. A theme word your
-  // previous word made impossible (STABLE then STABLED, RACE then RACER) isn't a miss: it's left out.
-  function themeSpots(theme, i, words) {
-    const ladder = theme.climbs[i].c, cal = (theme.words && theme.words[i]) || [], out = [];
-    for (let k = 0; k < ladder.length; k++) {
-      const key = sortStr(ladder[k]);
-      const opts = newRules(theme)
-        ? (ANA.get(key) || [ladder[k]]).filter((w) => themeSet(theme.id).has(w) || cal.includes(w))
-        : cal.filter((w) => sortStr(w) === key);
-      if (!opts.length) continue;
-      const played = words[k];
-      if (played && opts.includes(played)) { out.push({ found: true, word: played }); continue; }
-      const prev = words[k - 1];
-      if (prev && opts.every((w) => isInflectionOf(w, prev))) continue;
-      out.push({ found: false, word: opts.join(" / ") });
-    }
-    return out;
-  }
   function themeRungs(theme, i, words) {
     const found = [];
     (words || []).forEach((w, rung) => { if (isThemeWord(theme, i, w)) found.push({ rung: rung, found: true, word: w }); });
