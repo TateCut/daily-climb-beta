@@ -2861,7 +2861,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-04T12:28:20-07:00","n":23,"notes":[{"note":"Meet Routes: no leftover letters when the caption changes","v":"0.12.0-beta.23"},{"note":"One-time \"Meet Routes\" intro for returning players","v":"0.12.0-beta.22"},{"note":"No back door to today's leaderboard before you've played","v":"0.12.0-beta.21"},{"note":"Routes: removed the key under the Climb buttons","v":"0.12.0-beta.20"},{"note":"Routes: theme words are solid yellow tiles with a flag, plus a key","v":"0.12.0-beta.19"}],"v":"0.12.0-beta.23"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-04T12:31:45-07:00","n":1,"notes":[{"note":"Same as live v0.12.0 (adds its patch note)","v":"0.13.0-beta.1"}],"v":"0.13.0-beta.1"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9401,6 +9401,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Lives here, inside the page, because the page is always fetched fresh
   // (sw.js caches other files cache-first, so a notes file could go stale).
   const PATCH_NOTES = [
+    { v: "0.12.0", date: "2026-10-04", title: "Climb Routes",
+      notes: [
+        ["new", "Routes on the leaderboard: after you finish, see every word that fit each step of each Climb and how many players picked it. Tap a word to see who played it."],
+        ["new", "Today's theme now sits at the top of the leaderboard."],
+        ["imp", "Your time now pauses between Climbs, and time while your phone is asleep or you're on a call no longer counts."],
+        ["imp", "Upcoming puzzles have been reworked so a word choice can never block a theme word."],
+        ["fix", "No more peeking at today's leaderboard from the calendar before you've played."],
+      ] },
     { v: "0.11.0", date: "2026-10-02", title: "A fresh look",
       notes: [
         ["new", "A fresh look: cleaner screens, new fonts and a new logo. The game now opens in light mode; tap the moon for dark mode."],
