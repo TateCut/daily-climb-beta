@@ -2866,7 +2866,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-05T09:35:53-07:00","n":1,"notes":[{"note":"Same as live v0.12.1 (adds its patch note)","v":"0.13.0-beta.1"}],"v":"0.13.0-beta.1"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-05T10:59:01-07:00","n":2,"notes":[{"note":"Hint never points at a blocked word","v":"0.13.0-beta.2"},{"note":"Same as live v0.12.1 (adds its patch note)","v":"0.13.0-beta.1"}],"v":"0.13.0-beta.2"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4981,9 +4981,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   function useHint() {
     if (hintUsed || !guessMode() || locked || checking) return;
-    const ex = isClimb()
-      ? (climbPuzzle && climbPuzzle.c[climbStage - 1])
-      : exampleWord(poolKey());
+    const ex = isClimb() ? climbHintWord() : exampleWord(poolKey());
     if (!ex) return;
     const reveal = ex.length >= 5 ? ex.slice(0, 2) : ex.slice(0, 1);
     hintUsed = true;
@@ -6869,6 +6867,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
   }
 
+  // How everyday a word is: its FREQ rank, else (TSARS, STIES) its singular's rank behind
+  // every FREQ word, else last.
+  function everydayRank(w) {
+    if (FREQ.has(w)) return FREQ.get(w);
+    const stem = w.replace(/(es|s|ed|d)$/, "");
+    if (stem !== w && FREQ.has(stem)) return 1e6 + FREQ.get(stem);
+    if (/s$/.test(w) && FREQ.has(w.slice(0, -1))) return 1e6 + FREQ.get(w.slice(0, -1));
+    return Infinity;
+  }
   // The most common valid word for the current pool that isn't an inflection of
   // what the player last played — i.e. a word that would actually have counted.
   function climbExample() {
@@ -6876,10 +6883,27 @@ $1{ display: flex; gap: 8px; width: 100%; }
     let best = null, bestRank = Infinity;
     for (const w of arr) {
       if (isInflectionOf(w, climbPrev)) continue;
-      const r = FREQ.has(w) ? FREQ.get(w) : Infinity;
+      const r = everydayRank(w);
       if (best === null || r < bestRank) { best = w; bestRank = r; }
     }
     return best || (climbPuzzle && climbPuzzle.c[climbStage - 1]) || null;
+  }
+  // The hint's word: one the player can actually play after their last word (STAR blocks
+  // STARS, so after STAR it's TSARS), and that still leaves a way on to the next step.
+  // The puzzle's own word when it qualifies, otherwise the most everyday one that does.
+  function climbHintWord() {
+    const ref = climbPuzzle && climbPuzzle.c[climbStage - 1];
+    const next = climbPuzzle && climbPuzzle.c[climbStage];
+    const nextOpts = next ? (ANA.get(sortStr(next)) || [next]) : null;
+    const ok = (w) => !isInflectionOf(w, climbPrev) && (!nextOpts || nextOpts.some((n) => !isInflectionOf(n, w)));
+    if (ref && ok(ref)) return ref;
+    let best = null, bestRank = Infinity;
+    for (const w of ANA.get(poolKey()) || []) {
+      if (!ok(w)) continue;
+      const r = everydayRank(w);
+      if (best === null || r < bestRank) { best = w; bestRank = r; }
+    }
+    return best || climbExample();
   }
 
   // A climb (round) has ended — completed all 6 rungs, or struck out / gave up.
