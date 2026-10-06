@@ -2865,7 +2865,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-06T14:15:55-07:00","n":3,"notes":[{"note":"Dead-end-free calendar (not live yet)","v":"0.13.0-beta.3"},{"note":"No more frozen floating letter","v":"0.13.0-beta.2"},{"note":"Same as live v0.12.2 (adds its patch note)","v":"0.13.0-beta.1"}],"v":"0.13.0-beta.3"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-06T14:52:21-07:00","n":4,"notes":[{"note":"New theme words (from Oct 9), stronger Mystery, Oct 12 is Art, AORTIC Climb rebuilt","v":"0.13.0-beta.4"},{"note":"Dead-end-free calendar (not live yet)","v":"0.13.0-beta.3"},{"note":"No more frozen floating letter","v":"0.13.0-beta.2"},{"note":"Same as live v0.12.2 (adds its patch note)","v":"0.13.0-beta.1"}],"v":"0.13.0-beta.4"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -6745,13 +6745,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const newRules = (t) => !!t && newRulesOn(t.base);
   // Is w a theme word? Anything on the theme's list (theme-words.js) counts,
   // on any rung, plus the calendar's own theme words for climb i.
+  // A word added later (THEME_WORDS_FROM) only counts from its day on, so adding one never
+  // changes the scoring of a day that's already being played. base: the day (omit for all).
   const themeSets = {};
-  function themeSet(id) {
-    if (!themeSets[id]) themeSets[id] = new Set(String((window.THEME_WORDS || {})[id] || "").split(" ").filter(Boolean));
-    return themeSets[id];
+  function themeSet(id, base) {
+    const k = id + "|" + (base || "");
+    if (!themeSets[k]) {
+      const from = (window.THEME_WORDS_FROM || {})[id] || {};
+      themeSets[k] = new Set(String((window.THEME_WORDS || {})[id] || "").split(" ").filter((w) => w && (!base || !from[w] || base >= from[w])));
+    }
+    return themeSets[k];
   }
   function isThemeWord(t, i, w) {
-    return !!(t && w) && ((newRules(t) && themeSet(t.id).has(w)) || ((t.words && t.words[i]) || []).includes(w));
+    return !!(t && w) && ((newRules(t) && themeSet(t.id, t.base).has(w)) || ((t.words && t.words[i]) || []).includes(w));
   }
   // The theme words among a climb's words (each one is a bonus point; old days: the first only).
   const themeHits = (t, i, words) => {
@@ -7385,7 +7391,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return false;
   }
   function autoExample(t, words) {
-    const theme = themeSet(t.id);
+    const theme = themeSet(t.id, t.base);
     let best = null, bestRank = Infinity;
     theme.forEach((w) => {
       if (w.length < 4 || w.length > 6 || !FREQ.has(w) || spoils(w, words)) return;
