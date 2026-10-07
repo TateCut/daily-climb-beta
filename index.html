@@ -2892,7 +2892,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T14:19:16-07:00","n":17,"notes":[{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"},{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"},{"note":"Smart shuffle: never spells the answer or comes close","v":"0.13.0-beta.15"},{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"},{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"}],"v":"0.13.0-beta.17"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T14:26:22-07:00","n":18,"notes":[{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"},{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"},{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"},{"note":"Smart shuffle: never spells the answer or comes close","v":"0.13.0-beta.15"},{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"}],"v":"0.13.0-beta.18"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9946,6 +9946,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Lives here, inside the page, because the page is always fetched fresh
   // (sw.js caches other files cache-first, so a notes file could go stale).
   const PATCH_NOTES = [
+    { v: "0.12.3", date: "2026-10-07", title: "No peeking",
+      notes: [
+        ["imp", "Shuffle no longer spells the answer for you. Tap it as much as you like to see your letters in a new order, but it will never land on the word, or even come close."],
+        ["new", "Tap anyone on the leaderboard to see their points out of what was possible on each Climb. Theme words they missed are outlined in gold, so you can see exactly where the points went."],
+        ["imp", "The Still climbing list is off the leaderboard for now."],
+      ] },
     { v: "0.12.2", date: "2026-10-06", title: "Room to scroll",
       notes: [
         ["imp", "The leaderboard now scrolls as one page, so you can see more players at once."],
