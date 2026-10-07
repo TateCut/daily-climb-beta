@@ -1498,13 +1498,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     --rd-climb: #f0a04b; --rd-strip: #c9874a; --rd-strip-ink: #121212; --rd-sky1: #17130f; --rd-sky2: #2b211a;
     --rd-m1: #3a2d23; --rd-m2: #4c392b; --rd-m3: #271e17; --rd-slot: #5c5c60; --rd-good: #2f6f49; --rd-bad: #ff7a6b; --rd-tint: rgba(201, 135, 74, 0.24);
     --rd-ok: #6fd08c; --rd-sun: #e9dccb; --rd-sun-ring: #c9874a;
-    --rd-gold-text: #f6c90e; --rd-on-climb: #1c1005; --rd-climb-inv: #c25e08; --rd-tier-t: #6fd08c; --rd-tier-s: #9fb8ff;
+    --rd-gold-text: #f6c90e; --rd-gm-line: #f6c90e; --rd-gm-ink: #f6c90e; --rd-on-climb: #1c1005; --rd-climb-inv: #c25e08; --rd-tier-t: #6fd08c; --rd-tier-s: #9fb8ff;
     --franklin: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   html.light { --rd-bg: #ffffff; --rd-sheet: #ffffff; --rd-card: #f6f4f0; --rd-ink: #121212; --rd-muted: #5a5a5a; --rd-line: #d3d6da;
     --rd-btn: #121212; --rd-btn-ink: #ffffff; --rd-tile: #efece6; --rd-tile-ink: #121212; --rd-climb: #c25e08; --rd-strip: #f4d3a6;
     --rd-sky1: #fdf6ee; --rd-sky2: #f7dfc0; --rd-m1: #efcfa9; --rd-m2: #e2b07f; --rd-m3: #c98d58; --rd-slot: #c9ccd1; --rd-good: #cfeedb; --rd-bad: #d4473a;
     --rd-tint: rgba(244, 211, 166, 0.55); --rd-ok: #1f8a4c; --rd-sun: #fffaf0; --rd-sun-ring: #f2a65a;
-    --rd-gold-text: #8a6700; --rd-on-climb: #ffffff; --rd-climb-inv: #f0a04b; --rd-tier-t: #1f8a4c; --rd-tier-s: #3b5bdb; color-scheme: light; }
+    --rd-gold-text: #8a6700; --rd-gm-line: #c99a00; --rd-gm-ink: #7a5a00; --rd-on-climb: #ffffff; --rd-climb-inv: #f0a04b; --rd-tier-t: #1f8a4c; --rd-tier-s: #3b5bdb; color-scheme: light; }
   /* Every screen on the redesign palette: the original tokens point at the --rd-* ones. */
   :root { --bg: var(--rd-bg); --surface: var(--rd-card); --line: var(--rd-line); --text: var(--rd-ink); --muted: var(--rd-muted);
     --accent: var(--rd-climb); --on-accent: var(--rd-on-climb); --good: var(--rd-ok); --warn: var(--rd-bad); --gold: var(--rd-gold-text);
@@ -1714,11 +1714,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .rt-flag { display: inline-flex; margin-right: 5px; vertical-align: -1px; }
   .rt-flag svg { width: 8px; height: 11px; }
   /* Leaderboard detail: steps a player didn't reach, and the day's total out of the most possible */
-  #screen-daily-board .chips .missed-step { padding: 4px 10px; border-radius: 999px; border: 1.5px dashed var(--rd-line); color: var(--rd-muted); background: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
-  #screen-daily-board .chips .missed-step.tw { border-color: var(--rd-gold); color: var(--rd-gold-text); }
-  #screen-daily-board .lb-detail-total { margin: 0 0 8px; font-weight: 700; color: var(--rd-ink); }
-  #screen-daily-board .chips span.missed-tw { outline: 1.5px dashed var(--rd-gold); outline-offset: 1px; }
-  #screen-daily-board .missed-note { margin-top: 6px; font-size: 0.75rem; font-weight: 600; color: var(--rd-gold-text); }
+  #screen-daily-board .chips .missed-step { padding: 2.5px 8.5px; border-radius: 999px; border: 1.5px dashed var(--rd-line); color: var(--rd-muted); background: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
+  #screen-daily-board .chips .missed-step.tw { padding: 2px 8px; border: 2px dashed var(--rd-gm-line); color: var(--rd-gm-ink); }
+  #screen-daily-board .chips .pair { display: inline-flex; }
+  #screen-daily-board .chips .pair > span:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 8px; }
+  #screen-daily-board .chips .pair > .missed-step { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left-style: solid; padding-left: 7px; }
+  #screen-daily-board .lb-total { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--rd-line); }
+  #screen-daily-board .lb-total .h, #screen-daily-board .rounds .round-label.pts .h { font-family: var(--slab); font-weight: 700; color: var(--rd-ink); }
+  #screen-daily-board .lb-total .h { font-size: 1.35rem; }
+  #screen-daily-board .lb-total .sc, #screen-daily-board .rounds .round-label.pts .sc { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--rd-ink); }
+  #screen-daily-board .lb-total .sc { font-size: 1.6rem; line-height: 1; }
+  #screen-daily-board .lb-total .sc span, #screen-daily-board .rounds .round-label.pts .sc span { color: var(--rd-muted); font-weight: 600; }
+  #screen-daily-board .rounds .round-label.pts { display: flex; align-self: stretch; margin-top: 4px; justify-content: space-between; align-items: baseline; font-size: 1.15rem; letter-spacing: 0; text-transform: none; }
+  #screen-daily-board .rounds .round-label.pts .clb { color: var(--rd-climb); }
   /* Hikes (beta test): the picker, and the "-1 letter" step marker */
   #screen-hikes .hike-list { width: 100%; display: flex; flex-direction: column; gap: 10px; }
   #screen-hikes .note { text-align: center; }
@@ -2884,7 +2892,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T13:45:31-07:00","n":16,"notes":[{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"},{"note":"Smart shuffle: never spells the answer or comes close","v":"0.13.0-beta.15"},{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"},{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"},{"note":"Still climbing hidden (same as live)","v":"0.13.0-beta.12"}],"v":"0.13.0-beta.16"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T14:19:16-07:00","n":17,"notes":[{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"},{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"},{"note":"Smart shuffle: never spells the answer or comes close","v":"0.13.0-beta.15"},{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"},{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"}],"v":"0.13.0-beta.17"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -5577,6 +5585,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return ladder.length + ladder.filter((rung) => (ANA.get(sortStr(rung)) || [rung]).some((w) => isThemeWord(theme, i, w))).length;
   }
   const climbPoints = (theme, i, words) => words.length + themeHits(theme, i, words).length;
+  function pointsHead(n) {
+    const h = document.createElement("span"), c = document.createElement("span");
+    h.className = "h"; c.className = "clb"; c.textContent = "Climb";
+    h.append(c, " " + n);
+    return h;
+  }
+  function pointsOutOf(got, max) {
+    const sc = document.createElement("span"), m = document.createElement("span");
+    sc.className = "sc"; m.textContent = "/" + max;
+    sc.append(String(got), m);
+    return sc;
+  }
   function renderRoundsBlock(container, wordsByRound, theme) {
     container.innerHTML = "";
     (wordsByRound || []).forEach((words, i) => {
@@ -5585,12 +5605,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const label = document.createElement("div");
       label.className = "round-label";
       const ladder = theme && theme.climbs[i] ? theme.climbs[i].c : null;
-      if (theme) {
-        const c = document.createElement("span"); c.className = "clb"; c.textContent = "Climb";
-        // out of what was possible, so nobody has to do the math: "4/6 words · 5/7 points"
-        label.append(c, " " + (i + 1) + " · " + (ladder ? words.length + "/" + ladder.length + " words" : wordsLabel(words.length)) +
-          (ladder && newRules(theme) ? " · " + climbPoints(theme, i, words) + "/" + climbMaxPoints(theme, i) + " points" : ""));
+      if (theme && ladder && newRules(theme)) {
+        // out of what was possible, so nobody has to do the math: "Climb 2 ... 6/8"
+        label.classList.add("pts");
+        label.append(pointsHead(i + 1), pointsOutOf(climbPoints(theme, i, words), climbMaxPoints(theme, i)));
       }
+      else if (theme) { const c = document.createElement("span"); c.className = "clb"; c.textContent = "Climb"; label.append(c, " " + (i + 1) + " · " + wordsLabel(words.length)); }
       else label.textContent = "Round " + (i + 1) + " · " + wordsLabel(words.length);
       const chips = document.createElement("div");
       chips.className = "chips";
@@ -5615,22 +5635,20 @@ $1{ display: flex; gap: 8px; width: 100%; }
         chips.classList.add("flagged");
       });
       // steps they reached where a theme word was hiding in the same letters (CARES when SCARE was one)
-      const swaps = [];
-      if (theme && newRules(theme)) words.forEach((w, k) => {
-        if (isThemeWord(theme, i, w) || !chips.children[k]) return;
+      if (theme && newRules(theme)) Array.from(chips.children).slice(0, words.length).forEach((chip, k) => {
+        const w = words[k];
+        if (isThemeWord(theme, i, w)) return;
         const tw = (ANA.get(sortStr(w)) || []).find((a) => isThemeWord(theme, i, a));
         if (!tw) return;
-        chips.children[k].classList.add("missed-tw");
-        swaps.push(tw.toUpperCase() + " (instead of " + w.toUpperCase() + ")");
+        const pair = document.createElement("div"), g = document.createElement("span");
+        pair.className = "pair";
+        g.className = "missed-step tw";
+        g.textContent = tw.toUpperCase();
+        chip.before(pair);
+        pair.append(chip, g);
       });
       row.appendChild(label);
       row.appendChild(chips);
-      if (swaps.length) {
-        const n = document.createElement("div");
-        n.className = "missed-note";
-        n.textContent = "Missed theme word: " + swaps.join(", ");
-        row.appendChild(n);
-      }
       container.appendChild(row);
     });
   }
@@ -9059,15 +9077,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
       d.appendChild(badge);
     }
     if (theme && newRules(theme)) {
-      const tot = document.createElement("p");
-      tot.className = "note lb-detail-total";
+      const tot = document.createElement("div"), h = document.createElement("span");
+      tot.className = "lb-total";
+      h.className = "h"; h.textContent = "Total";
       const words = e.roundWords || [];
       const got = theme.climbs.reduce((a, _, i) => a + climbPoints(theme, i, words[i] || []), 0);
       const max = theme.climbs.reduce((a, _, i) => a + climbMaxPoints(theme, i), 0);
-      tot.textContent = got + " of " + max + " points possible";
+      tot.append(h, pointsOutOf(got, max));
       d.appendChild(tot);
     }
-    if (theme) d.appendChild(themeFlagStrip(theme, e.roundWords || []));
+    else if (theme) d.appendChild(themeFlagStrip(theme, e.roundWords || []));
     const rounds = document.createElement("div");
     rounds.className = "rounds";
     renderRoundsBlock(rounds, e.roundWords || [], theme);
