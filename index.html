@@ -1904,6 +1904,29 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .ann .sig { font-size: 0.74rem; color: var(--rd-muted); font-style: italic; }
   .ann .replay { align-self: flex-start; margin-top: 2px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: inherit; font-size: 0.8rem; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
   .ann.old:not(.open) p + p { display: none; }
+  /* The "Show me" tour */
+  .tour-block { position: fixed; inset: 0; z-index: 70; transition: background .3s; }
+  .tour-ui.intro .tour-block { background: rgba(10, 6, 2, 0.4); }
+  .tour-banner { position: fixed; z-index: 73; left: 50%; transform: translate(-50%, calc(-100% - 140px)); top: calc(env(safe-area-inset-top, 0px) + 112px); width: min(100% - 24px, 420px);
+    padding: 16px 16px 14px; border-radius: 18px; background: var(--rd-sheet); color: var(--rd-ink); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3); text-align: left;
+    display: flex; flex-direction: column; gap: 6px; transition: transform .45s cubic-bezier(.3,.7,.3,1); }
+  .tour-banner.show { transform: translate(-50%, 0); }
+  .tour-banner h3 { margin: 2px 0 0; font-family: var(--slab); font-weight: 700; font-size: 1.4rem; line-height: 1.15; }
+  .tour-banner p { margin: 0; font-size: 0.88rem; line-height: 1.45; color: var(--rd-muted); }
+  .tour-banner .install-actions { margin-top: 8px; }
+  .tour-chip { align-self: flex-start; padding: 2px 8px; border-radius: 6px; background: var(--rd-gold); color: var(--rd-gold-ink); font-size: 0.64rem; font-weight: 800; letter-spacing: 0.12em; }
+  .tour-sig { align-self: flex-end; font-family: var(--slab); font-style: italic; color: var(--rd-muted); }
+  .tour-spot { position: fixed; z-index: 71; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(10, 6, 2, 0.58); pointer-events: none;
+    transition: left .4s cubic-bezier(.3,.7,.3,1), top .4s cubic-bezier(.3,.7,.3,1), width .4s, height .4s; }
+  .tour-spot::after { content: ""; position: absolute; inset: -5px; border-radius: 15px; border: 2px solid var(--rd-gold); animation: tour-pulse 1.3s ease-in-out infinite; }
+  @keyframes tour-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.06); opacity: .5; } }
+  .tour-tip { position: fixed; z-index: 72; left: 50%; transform: translateX(-50%); width: min(100% - 32px, 380px); padding: 12px 14px; border-radius: 14px;
+    background: var(--rd-sheet); color: var(--rd-ink); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3); text-align: left; transition: top .4s cubic-bezier(.3,.7,.3,1); }
+  .tour-tip b { display: block; font-family: var(--slab); font-size: 1.1rem; }
+  .tour-tip > span { display: block; margin-top: 3px; font-size: 0.84rem; line-height: 1.4; color: var(--rd-muted); }
+  .tour-nx { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.74rem; color: var(--rd-muted); }
+  .tour-nx button { flex: none; width: auto; padding: 7px 18px; font-size: 0.85rem; border-radius: 999px; }
+  @media (prefers-reduced-motion: reduce) { .tour-banner, .tour-spot, .tour-tip { transition: none; } .tour-spot::after { animation: none; } }
   .ann.old:not(.open) p { color: var(--rd-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .ann.old { cursor: pointer; }
   .hs-top-r { display: flex; align-items: center; gap: 6px; }
@@ -2813,6 +2836,23 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <button class="primary" id="btn-fb-send" type="button" disabled>Send</button>
     </div>
   </div>
+  <!-- The "Show me" tour for the new-menu announcement: a thank-you banner, then a spotlight on ☰,
+       Announcements and Send feedback, with a tip for each -->
+  <div class="tour-ui" id="tour-layer" hidden>
+    <div class="tour-block"></div>
+    <div class="tour-banner" id="tour-banner" role="dialog" aria-modal="true" aria-labelledby="tour-b-title">
+      <span class="tour-chip">THANK YOU</span>
+      <h3 id="tour-b-title">You've been here from the start</h3>
+      <p>Daily Climb is still young, and every streak, score and idea you've shared has shaped it. Thank you. Let me show you what's new.</p>
+      <span class="tour-sig">— Tate</span>
+      <div class="install-actions"><button class="ghost" id="btn-tour-skip" type="button">Skip</button><button class="primary" id="btn-tour-go" type="button">Show me</button></div>
+    </div>
+    <div class="tour-spot" id="tour-spot" hidden></div>
+    <div class="tour-tip" id="tour-tip" role="dialog" aria-live="polite" hidden>
+      <b id="tour-tip-t"></b><span id="tour-tip-s"></span>
+      <div class="tour-nx"><span id="tour-tip-n"></span><button class="primary" id="btn-tour-next" type="button">Next</button></div>
+    </div>
+  </div>
   <!-- Announcements: messages from Tate, newest first (ANNOUNCEMENTS) -->
   <div class="install-sheet ann-sheet" id="ann-sheet" role="dialog" aria-modal="true" aria-labelledby="ann-title" hidden>
     <h3 id="ann-title">Announcements</h3>
@@ -2980,7 +3020,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T16:09:39-07:00","n":26,"notes":[{"note":"Announcements: reading time (behind the scenes)","v":"0.13.0-beta.26"},{"note":"Announcement: thank you to early players","v":"0.13.0-beta.25"},{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"}],"v":"0.13.0-beta.26"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T16:19:59-07:00","n":27,"notes":[{"note":"Announcement: the Show me tour","v":"0.13.0-beta.27"},{"note":"Announcements: reading time (behind the scenes)","v":"0.13.0-beta.26"},{"note":"Announcement: thank you to early players","v":"0.13.0-beta.25"},{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"}],"v":"0.13.0-beta.27"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4726,7 +4766,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!$("#rt-pop").hidden) hideRoutePop(); // ...or a Routes "who played it" pop-up
     hideInstallSheet(); // ...or the Add to Home Screen how-to
     hideReminderSheet(); // ...or the daily reminder sheet
-    closeHomeMenu(); hideFeedbackSheet(); hideAnnSheet(); // ...or the ☰ menu, feedback, announcements
+    closeHomeMenu(); hideFeedbackSheet(); hideAnnSheet(); endMenuTour("away"); // ...or the ☰ menu, feedback, announcements, the tour
     hideClaimSheet(); // ...or the claim-a-username sheet
     hideTrophySheet(); hideTrophyPop(); // ...or trophy overlays
     if (name !== "home") closeWhatsNew(); else { setTimeout(maybeWhatsNew, 1200); setTimeout(maybeAnnouncement, 1700); setTimeout(renderMenuDot, 0); } // the one-time Routes intro, a new announcement
@@ -10098,7 +10138,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     else if (act === "reminder") showReminderSheet();
   });
   // (only real taps: the menu pressing a hidden button must not close it)
-  document.addEventListener("click", (e) => { if (e.isTrusted && !homeMenu.hidden && !homeMenu.contains(e.target)) closeHomeMenu(); });
+  document.addEventListener("click", (e) => { if (e.isTrusted && !homeMenu.hidden && !homeMenu.contains(e.target) && !e.target.closest(".tour-ui")) closeHomeMenu(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !homeMenu.hidden) { closeHomeMenu(); homeMenuBtn.focus(); } });
 
   // ---- Send feedback ----
@@ -10174,7 +10214,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // and puts a dot on ☰ until it's read; all of them live in the Announcements sheet.
   // replay: "routes" adds a link that plays that update's intro again.
   const ANNOUNCEMENTS = [
-    { id: "menu", date: "2026-10-07", title: "Thank you, and a new menu",
+    { id: "menu", date: "2026-10-07", title: "Thank you, and a new menu", tour: true,
       body: "First, a big thank you. Daily Climb is still young, and if you're reading this, you've been here for the early days. Every streak you've kept, every score you've posted and every bug or idea you've sent my way has shaped this game into something better than I could have made on my own. I'm really grateful you're here.\n\n" +
         "Now, what's new. Everything that used to sit along the top of the home screen lives behind the ☰ button: the theme calendar, how to play, dark mode and sound. Your daily reminder switch is in there too.\n\n" +
         "Announcements is new. It's where I'll post news like this, so you never miss an update. A dot on ☰ means there's something new to read.\n\n" +
@@ -10238,6 +10278,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const paras = a.body.split("\n\n").map((txt) => { const p = document.createElement("p"); p.textContent = txt; return p; });
       const sig = document.createElement("span"); sig.className = "sig"; sig.textContent = "— Tate";
       card.append(meta, t, ...paras, sig);
+      if (a.tour) {
+        const r = document.createElement("button"); r.type = "button"; r.className = "replay"; r.textContent = "Show me again";
+        r.addEventListener("click", (e) => { e.stopPropagation(); annCloseHow = "replay"; hideAnnSheet(); setTimeout(() => startMenuTour(false), 250); });
+        card.appendChild(r);
+      }
       if (a.replay === "routes") {
         const r = document.createElement("button"); r.type = "button"; r.className = "replay"; r.textContent = "Watch the intro again";
         r.addEventListener("click", (e) => { e.stopPropagation(); annCloseHow = "replay"; hideAnnSheet(); setTimeout(openWhatsNew, 250); });
@@ -10272,9 +10317,81 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function maybeAnnouncement() {
     const top = ANNOUNCEMENTS[0];
     if (!top || top.replay || !announcementUnread() || !tutorialSeen || updateWaiting || screens.home.hidden) return;
-    if (!$("#whatsnew").hidden || !$("#howto-card").hidden || !$("#trophy-pop").hidden || anySheetOpen()) return;
-    showAnnouncements(true);
+    if (!$("#whatsnew").hidden || !$("#howto-card").hidden || !$("#trophy-pop").hidden || anySheetOpen() || !$("#tour-layer").hidden) return;
+    if (top.tour) startMenuTour(true); else showAnnouncements(true);
   }
+
+  // ---- The "Show me" tour (the new-menu announcement) ----
+  // A thank-you banner, then a gold spotlight on ☰, Announcements and Send feedback, each with a tip.
+  // Its time on screen is recorded like an announcement's (end = they reached the last tip).
+  const TOUR_STEPS = [
+    { el: () => homeMenuBtn, pad: 3, t: "Everything from the top of the home screen is in here now",
+      s: "The theme calendar, how to play, invites, dark mode, sound and your daily reminder." },
+    { el: () => homeMenu.querySelector('[data-act="news"]'), pad: 2, menu: true, t: "Announcements",
+      s: "News from me, all in one place. A dot on ☰ means there's something new to read." },
+    { el: () => homeMenu.querySelector('[data-act="feedback"]'), pad: 2, menu: true, t: "Send feedback",
+      s: "Ideas, bugs, a puzzle you loved or hated. It comes straight to me, and I read every message." },
+  ];
+  let tourStep = -1;
+  function startMenuTour(auto) {
+    if (screens.home.hidden) return;
+    closeHomeMenu();
+    tourStep = -1;
+    $("#tour-layer").hidden = false;
+    $("#tour-spot").hidden = true;
+    $("#tour-tip").hidden = true;
+    const b = $("#tour-banner");
+    b.hidden = false;
+    b.classList.remove("show");
+    $("#tour-layer").classList.add("intro");
+    setTimeout(() => b.classList.add("show"), 40);
+    setTimeout(() => $("#btn-tour-go").focus(), 450);
+    const top = ANNOUNCEMENTS[0];
+    annView = { id: top.id, ms: 0, since: document.hidden ? 0 : Date.now(), end: false, auto: !!auto,
+      words: [$("#tour-banner p").textContent].concat(TOUR_STEPS.map((x) => x.t + " " + x.s)).join(" ").split(/\s+/).length };
+    annCloseHow = "away";
+    markAnnouncementsSeen();
+  }
+  function placeTour() {
+    const st = TOUR_STEPS[tourStep];
+    if (!st) return;
+    const r = st.el().getBoundingClientRect(), spot = $("#tour-spot"), tip = $("#tour-tip");
+    Object.assign(spot.style, { left: (r.left - st.pad) + "px", top: (r.top - st.pad) + "px", width: (r.width + st.pad * 2) + "px", height: (r.height + st.pad * 2) + "px" });
+    // the tip sits under the menu (or under ☰), or above if there's no room below
+    const under = st.menu ? homeMenu.getBoundingClientRect().bottom : r.bottom;
+    const th = tip.offsetHeight || 120;
+    tip.style.top = (under + 16 + th < innerHeight ? under + 16 : Math.max(12, r.top - th - 16)) + "px";
+  }
+  function tourGo(i) {
+    tourStep = i;
+    const st = TOUR_STEPS[i];
+    if (st.menu && homeMenu.hidden) openHomeMenu();
+    $("#tour-banner").classList.remove("show");
+    $("#tour-tip-t").textContent = st.t;
+    $("#tour-tip-s").textContent = st.s;
+    $("#tour-tip-n").textContent = (i + 1) + " of " + TOUR_STEPS.length;
+    $("#btn-tour-next").textContent = i === TOUR_STEPS.length - 1 ? "Done" : "Next";
+    $("#tour-spot").hidden = false;
+    $("#tour-tip").hidden = false;
+    if (i === TOUR_STEPS.length - 1 && annView) annView.end = true;
+    $("#tour-layer").classList.remove("intro");
+    setTimeout(placeTour, 0);
+    $("#btn-tour-next").focus();
+  }
+  function endMenuTour(how) {
+    const layer = document.getElementById("tour-layer");   // (looks it up itself: show() can run before this code does)
+    if (!layer || layer.hidden) return;
+    layer.hidden = true;
+    tourStep = -1;
+    closeHomeMenu();
+    annCloseHow = how;
+    logAnnView();
+  }
+  $("#btn-tour-go").addEventListener("click", () => tourGo(0));
+  $("#btn-tour-skip").addEventListener("click", () => endMenuTour("skip"));
+  $("#btn-tour-next").addEventListener("click", () => { if (tourStep < TOUR_STEPS.length - 1) tourGo(tourStep + 1); else endMenuTour("done"); });
+  addEventListener("resize", () => { if (!$("#tour-layer").hidden) placeTour(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#tour-layer").hidden) endMenuTour("skip"); });
   $("#btn-ann-done").addEventListener("click", () => { annCloseHow = "done"; hideAnnSheet(); });
   renderMenuDot();
 
@@ -10666,7 +10783,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return null;
   }
   const TROPHY_POP_SCREENS = ["home", "dailyboard", "profile", "trophies", "collectionover", "climbover"];
-  const anySheetOpen = () => ["#install-sheet", "#reminder-sheet", "#claim-sheet", "#trophy-sheet", "#feedback-sheet", "#ann-sheet"].some((s) => !$(s).hidden);
+  const anySheetOpen = () => ["#install-sheet", "#reminder-sheet", "#claim-sheet", "#trophy-sheet", "#feedback-sheet", "#ann-sheet", "#tour-layer"].some((s) => !$(s).hidden);
   function drainTrophyQueue() {
     if (!trophyQueue.length || !$("#trophy-pop").hidden || anySheetOpen() || !$("#whatsnew").hidden) return;
     if (TROPHY_POP_SCREENS.indexOf(currentScreen()) < 0) return; // never mid-climb
