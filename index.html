@@ -2980,7 +2980,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T16:02:02-07:00","n":25,"notes":[{"note":"Announcement: thank you to early players","v":"0.13.0-beta.25"},{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"}],"v":"0.13.0-beta.25"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T16:09:39-07:00","n":26,"notes":[{"note":"Announcements: reading time (behind the scenes)","v":"0.13.0-beta.26"},{"note":"Announcement: thank you to early players","v":"0.13.0-beta.25"},{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"}],"v":"0.13.0-beta.26"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3103,6 +3103,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     countFeature: async function (n) { var p = player(); p.features = p.features || {}; p.features[n] = (p.features[n] || 0) + 1; save(); },
     setPrefs: async function (o) { var p = player(); p.prefs = Object.assign(p.prefs || {}, o); save(); },
     markReferred: async function (r) { player().referredBy = r; save(); },
+    logAnnouncementView: async function (id, v) {
+      var p = player(); p.announcements = p.announcements || {}; var a = p.announcements[id] = p.announcements[id] || { opens: 0, totalMs: 0 };
+      a.opens++; a.totalMs += v.ms; a.lastMs = v.ms; a.lastAt = Date.now(); a.words = v.words; if (v.end) a.end = true;
+      if (v.first) { a.firstMs = v.ms; a.firstHow = v.how; a.firstAuto = v.auto; a.firstEnd = v.end; a.firstAt = Date.now(); }
+      save();
+    },
     sendFeedback: async function (text, meta) { db.feedback = db.feedback || []; db.feedback.push(Object.assign({ uid: UID, text: text, at: Date.now() }, meta)); save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
@@ -3674,6 +3680,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
     async setPrefs(prefs) {
       if (!uid) return;
       try { await setDoc(doc(db, "players", uid), { prefs: prefs }, { merge: true }); } catch (e) {}
+    },
+    // players/{uid}.announcements.{id}: how long the newest announcement was on screen. opens and totalMs
+    // add up every viewing; first* is the first one (usually the pop-up); end: its last line came into view.
+    async logAnnouncementView(id, v) {
+      if (!uid) return;
+      const a = { opens: increment(1), totalMs: increment(v.ms), lastMs: v.ms, lastAt: serverTimestamp(), words: v.words };
+      if (v.end) a.end = true;
+      if (v.first) Object.assign(a, { firstMs: v.ms, firstHow: v.how, firstAuto: v.auto, firstEnd: v.end, firstAt: serverTimestamp() });
+      try { await setDoc(doc(db, "players", uid), { announcements: { [id]: a } }, { merge: true }); } catch (e) {}
     },
     // feedback/{auto id}: a note from the home screen's Send feedback (only Tate reads them, on the stats page)
     async sendFeedback(text, meta) {
@@ -9862,7 +9877,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-home-install").addEventListener("click", openInstall);
   $("#btn-install-done").addEventListener("click", hideInstallSheet);
   // The scrim + Escape close whichever sheet is open (install or reminder).
-  $("#install-scrim").addEventListener("click", () => { hideInstallSheet(); hideReminderSheet(); hideFeedbackSheet(); hideAnnSheet(); hideDifficultySheet(); hideClaimSheet(); hideTrophySheet(); if (!$("#trophy-pop").hidden) { hideTrophyPop(); setTimeout(drainTrophyQueue, 250); } });
+  $("#install-scrim").addEventListener("click", () => { hideInstallSheet(); hideReminderSheet(); hideFeedbackSheet(); if (!$("#ann-sheet").hidden) annCloseHow = "outside"; hideAnnSheet(); hideDifficultySheet(); hideClaimSheet(); hideTrophySheet(); if (!$("#trophy-pop").hidden) { hideTrophyPop(); setTimeout(drainTrophyQueue, 250); } });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideInstallSheet(); hideReminderSheet(); hideClaimSheet(); hideTrophySheet(); if (!$("#trophy-pop").hidden) { hideTrophyPop(); setTimeout(drainTrophyQueue, 250); } } });
   $("#btn-install-copy").addEventListener("click", () => {
     const b = $("#btn-install-copy");
@@ -10075,7 +10090,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (act === "sound") { $("#btn-sound").click(); syncHomeMenu(); return; }
     if (act === "reminder" && remindersOnHere()) { b.setAttribute("aria-checked", "false"); turnRemindersOff().then(syncHomeMenu); return; }
     closeHomeMenu();
-    if (act === "news") showAnnouncements();
+    if (act === "news") showAnnouncements(false);
     else if (act === "calendar") $("#btn-calendar").click();
     else if (act === "invite") $("#btn-home-invite").click();
     else if (act === "feedback") showFeedbackSheet();
@@ -10183,7 +10198,31 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   function renderMenuDot() { $("#hs-menu-dot").hidden = !announcementUnread(); }
   let annOpenedFrom = null;
-  function showAnnouncements() {
+  // How long the newest announcement stays on screen (paused while the app is in the background),
+  // whether its end came into view, and how it was closed. Saved to players/{uid}.announcements.
+  let annView = null, annCloseHow = "away";
+  const ANN_MAX_MS = 5 * 60000;   // one viewing counts at most 5 minutes (a phone left open isn't reading)
+  function annSeenEnd() {
+    const list = $("#ann-list"), first = list.firstElementChild;
+    if (!annView || !first) return;
+    if (first.getBoundingClientRect().bottom <= list.getBoundingClientRect().bottom + 4) annView.end = true;
+  }
+  function annPause() { if (annView && annView.since) { annView.ms += Date.now() - annView.since; annView.since = 0; } }
+  function annResume() { if (annView && !annView.since) annView.since = Date.now(); }
+  document.addEventListener("visibilitychange", () => { if (document.hidden) annPause(); else if (!$("#ann-sheet").hidden) annResume(); });
+  function logAnnView() {
+    const v = annView;
+    annView = null;
+    if (!v) return;
+    annPause();
+    v.ms = Math.min(ANN_MAX_MS, v.ms + (v.since ? Date.now() - v.since : 0));
+    const firstKey = "dc.ann.logged." + v.id;
+    let first = false; try { first = localStorage.getItem(firstKey) !== "1"; localStorage.setItem(firstKey, "1"); } catch (e) {}
+    if (dbReady() && window.MatchDB && window.MatchDB.logAnnouncementView)
+      window.MatchDB.logAnnouncementView(v.id, { ms: Math.round(v.ms), end: !!v.end, how: annCloseHow, auto: v.auto, words: v.words, first: first }).catch(() => {});
+    annCloseHow = "away";
+  }
+  function showAnnouncements(auto) {
     const unread = announcementUnread();
     const list = $("#ann-list");
     list.replaceChildren();
@@ -10201,7 +10240,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       card.append(meta, t, ...paras, sig);
       if (a.replay === "routes") {
         const r = document.createElement("button"); r.type = "button"; r.className = "replay"; r.textContent = "Watch the intro again";
-        r.addEventListener("click", (e) => { e.stopPropagation(); hideAnnSheet(); setTimeout(openWhatsNew, 250); });
+        r.addEventListener("click", (e) => { e.stopPropagation(); annCloseHow = "replay"; hideAnnSheet(); setTimeout(openWhatsNew, 250); });
         card.appendChild(r);
       }
       if (i) card.addEventListener("click", () => card.classList.toggle("open"));
@@ -10212,11 +10251,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#ann-sheet").hidden = false;
     list.scrollTop = 0;
     $("#btn-ann-done").focus();
+    const top = ANNOUNCEMENTS[0];
+    if (top) {
+      annView = { id: top.id, ms: 0, since: document.hidden ? 0 : Date.now(), end: false, auto: !!auto, words: (top.title + " " + top.body).split(/\s+/).length };
+      annCloseHow = "away";
+      requestAnimationFrame(annSeenEnd);   // a short message is all on screen right away
+    }
     markAnnouncementsSeen();
   }
+  $("#ann-list").addEventListener("scroll", annSeenEnd, { passive: true });
   function hideAnnSheet() {
     if ($("#ann-sheet").hidden) return;
     $("#ann-sheet").hidden = true;
+    logAnnView();
     if ($("#install-sheet").hidden && $("#reminder-sheet").hidden && $("#feedback-sheet").hidden) $("#install-scrim").hidden = true;
     if (annOpenedFrom && annOpenedFrom.focus) annOpenedFrom.focus();
     annOpenedFrom = null;
@@ -10226,9 +10273,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const top = ANNOUNCEMENTS[0];
     if (!top || top.replay || !announcementUnread() || !tutorialSeen || updateWaiting || screens.home.hidden) return;
     if (!$("#whatsnew").hidden || !$("#howto-card").hidden || !$("#trophy-pop").hidden || anySheetOpen()) return;
-    showAnnouncements();
+    showAnnouncements(true);
   }
-  $("#btn-ann-done").addEventListener("click", hideAnnSheet);
+  $("#btn-ann-done").addEventListener("click", () => { annCloseHow = "done"; hideAnnSheet(); });
   renderMenuDot();
 
   // ---- Patch notes ----
