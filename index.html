@@ -1903,6 +1903,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .ann p { margin: 0; font-size: 0.84rem; line-height: 1.45; color: var(--rd-ink); }
   .ann .sig { font-size: 0.74rem; color: var(--rd-muted); font-style: italic; }
   .ann .replay { align-self: flex-start; margin-top: 2px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: inherit; font-size: 0.8rem; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .ann.old:not(.open) p + p { display: none; }
   .ann.old:not(.open) p { color: var(--rd-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .ann.old { cursor: pointer; }
   .hs-top-r { display: flex; align-items: center; gap: 6px; }
@@ -2979,7 +2980,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T15:53:22-07:00","n":23,"notes":[{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"}],"v":"0.13.0-beta.23"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T15:57:24-07:00","n":24,"notes":[{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"}],"v":"0.13.0-beta.24"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10158,6 +10159,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // and puts a dot on ☰ until it's read; all of them live in the Announcements sheet.
   // replay: "routes" adds a link that plays that update's intro again.
   const ANNOUNCEMENTS = [
+    { id: "menu", date: "2026-10-07", title: "A new menu, and a way to reach me",
+      body: "Everything that used to sit along the top of the home screen now lives behind the ☰ button: the theme calendar, how to play, dark mode and sound. Your daily reminder switch is in there too.\n\n" +
+        "Announcements is new. It's where I'll post news like this, so you never miss an update. A dot on ☰ means there's something new to read.\n\n" +
+        "Send feedback is new too, and it comes straight to me. Ideas, bugs, a puzzle you loved or hated: I read every message." },
     { id: "routes", date: "2026-10-04", title: "Climb Routes are here",
       body: "After you finish the daily, open Routes on the leaderboard to see every word that fit each step of each Climb, and how many players picked it. Tap a word to see who played it.",
       replay: "routes" },
@@ -10189,9 +10194,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       meta.appendChild(d);
       if (!i && unread) { const n = document.createElement("span"); n.className = "ann-new"; n.textContent = "NEW"; meta.appendChild(n); }
       const t = document.createElement("b"); t.textContent = a.title;
-      const body = document.createElement("p"); body.textContent = a.body;
+      const paras = a.body.split("\n\n").map((txt) => { const p = document.createElement("p"); p.textContent = txt; return p; });
       const sig = document.createElement("span"); sig.className = "sig"; sig.textContent = "— Tate";
-      card.append(meta, t, body, sig);
+      card.append(meta, t, ...paras, sig);
       if (a.replay === "routes") {
         const r = document.createElement("button"); r.type = "button"; r.className = "replay"; r.textContent = "Watch the intro again";
         r.addEventListener("click", (e) => { e.stopPropagation(); hideAnnSheet(); setTimeout(openWhatsNew, 250); });
