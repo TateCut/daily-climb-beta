@@ -2973,7 +2973,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T15:38:48-07:00","n":20,"notes":[{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"},{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"},{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"}],"v":"0.13.0-beta.20"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T15:45:37-07:00","n":21,"notes":[{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"},{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"}],"v":"0.13.0-beta.21"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3061,9 +3061,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     getPlayerName: async function () { return (db.player && db.player.name) || null; },
     savePlayerName: async function (name) { player().name = name; save(); },
     markTutorialSeen: async function () { player().tutorialSeen = true; save(); },
-    pushSupported: async function () { return false; },
-    enableReminders: async function () { throw new Error("Reminders are off in the beta"); },
-    disableReminders: async function () {},
+    // Pretend reminders, so the menu's switch and the reminder sheet can be tried on the beta:
+    // the browser still asks for notification permission, but nothing is ever sent.
+    pushSupported: async function () { return "Notification" in window; },
+    enableReminders: async function (hour, tz) { player().reminder = { on: true, hour: hour, tz: tz, tokens: ["beta-token"] }; save(); return "beta-token"; },
+    disableReminders: async function () { if (db.player) delete db.player.reminder; save(); },
     isUsernameTaken: async function (n) { var k = nameKey(n); return k === "taken" || !!db.usernames[k]; },
     claimUsername: async function (username, secret, rec) {
       var k = nameKey(username);
