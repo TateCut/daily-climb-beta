@@ -3020,7 +3020,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T16:19:59-07:00","n":27,"notes":[{"note":"Announcement: the Show me tour","v":"0.13.0-beta.27"},{"note":"Announcements: reading time (behind the scenes)","v":"0.13.0-beta.26"},{"note":"Announcement: thank you to early players","v":"0.13.0-beta.25"},{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"}],"v":"0.13.0-beta.27"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T16:27:22-07:00","n":0,"notes":[{"note":"Synced with live v0.13.0","v":"0.14.0-beta.0"}],"v":"0.14.0-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10404,6 +10404,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Lives here, inside the page, because the page is always fetched fresh
   // (sw.js caches other files cache-first, so a notes file could go stale).
   const PATCH_NOTES = [
+    { v: "0.13.0", date: "2026-10-07", title: "A new menu and Past Climbs",
+      notes: [
+        ["new", "The home screen has a new ☰ menu. The theme calendar, how to play, invites, dark mode and sound all live there now, plus a switch to turn your daily reminder on or off in one tap."],
+        ["new", "Announcements: news from Tate, all in one place. A dot on ☰ means there's something new to read."],
+        ["new", "Send feedback straight to Tate from the menu. Ideas, bugs, a puzzle you loved or hated: he reads every message."],
+        ["new", "Past Climbs on your profile: every daily you've played since Oct 2, with your place, the theme and your points. Scroll back as far as you like, and tap any day to see its leaderboard."],
+        ["fix", "Your profile now counts points the same way the leaderboard does, theme bonuses included."],
+      ] },
     { v: "0.12.3", date: "2026-10-07", title: "No peeking",
       notes: [
         ["imp", "Shuffle no longer spells the answer for you. Tap it as much as you like to see your letters in a new order, but it will never land on the word, or even come close."],
