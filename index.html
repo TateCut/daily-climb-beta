@@ -2973,7 +2973,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T15:45:37-07:00","n":21,"notes":[{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"},{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"}],"v":"0.13.0-beta.21"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T15:48:56-07:00","n":22,"notes":[{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"}],"v":"0.13.0-beta.22"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10018,14 +10018,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#reminder-sub").textContent = "Couldn't turn on reminders. Check your connection and try again.";
     }
   }
+  async function turnRemindersOff() {
+    const r = reminderLocal();
+    try { await window.MatchDB.disableReminders(r && r.token); } catch (e) {}
+    try { localStorage.removeItem(REMINDER_KEY); } catch (e) {}
+    trackEv("reminder_off");
+    renderReminderLink();
+  }
   async function reminderSecondary() {
-    if (reminderMode === "manage") {
-      const r = reminderLocal();
-      try { await window.MatchDB.disableReminders(r && r.token); } catch (e) {}
-      try { localStorage.removeItem(REMINDER_KEY); } catch (e) {}
-      trackEv("reminder_off");
-      renderReminderLink();
-    }
+    if (reminderMode === "manage") await turnRemindersOff();
     hideReminderSheet();
   }
   $("#btn-reminder").addEventListener("click", () => showReminderSheet());
@@ -10065,6 +10066,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // The switches flip in place (the menu stays open); everything else opens something.
     if (act === "dark") { $("#btn-theme").click(); syncHomeMenu(); return; }
     if (act === "sound") { $("#btn-sound").click(); syncHomeMenu(); return; }
+    if (act === "reminder" && remindersOnHere()) { b.setAttribute("aria-checked", "false"); turnRemindersOff().then(syncHomeMenu); return; }
     closeHomeMenu();
     if (act === "news") showAnnouncements();
     else if (act === "calendar") $("#btn-calendar").click();
