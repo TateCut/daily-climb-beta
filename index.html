@@ -2878,7 +2878,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T12:13:53-07:00","n":13,"notes":[{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"},{"note":"Still climbing hidden (same as live)","v":"0.13.0-beta.12"},{"note":"Stats page: finishers tile uses the leaderboards; profiles that haven't finished","v":"0.13.0-beta.11"},{"note":"Stats page: remove duplicate copies (same as live)","v":"0.13.0-beta.10"},{"note":"Stats page: duplicate players check","v":"0.13.0-beta.9"}],"v":"0.13.0-beta.13"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T12:33:49-07:00","n":14,"notes":[{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"},{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"},{"note":"Still climbing hidden (same as live)","v":"0.13.0-beta.12"},{"note":"Stats page: finishers tile uses the leaderboards; profiles that haven't finished","v":"0.13.0-beta.11"},{"note":"Stats page: remove duplicate copies (same as live)","v":"0.13.0-beta.10"}],"v":"0.13.0-beta.14"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -2995,6 +2995,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     getTrophyRarity: async function () { return null; },
     markSeedBeaten: async function (i) { var p = player(); p.beatenSeeds = p.beatenSeeds || []; if (p.beatenSeeds.indexOf(i) < 0) p.beatenSeeds.push(i); save(); },
     markAdventureStart: async function (i) { var p = player(); p.adventure = p.adventure || { starts: 0 }; p.adventure.starts++; save(); },
+    stampApp: async function (info) { player().app = info; save(); },
+    countFeature: async function (n) { var p = player(); p.features = p.features || {}; p.features[n] = (p.features[n] || 0) + 1; save(); },
+    setPrefs: async function (o) { var p = player(); p.prefs = Object.assign(p.prefs || {}, o); save(); },
+    markReferred: async function (r) { player().referredBy = r; save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
     createMatch: async function () { throw new Error("Not in the beta"); },
@@ -3550,6 +3554,26 @@ $1{ display: flex; gap: 8px; width: 100%; }
       try {
         await setDoc(doc(db, "players", uid), { shares: { [how]: increment(1), lastAt: serverTimestamp() } }, { merge: true });
       } catch (e) {}
+    },
+    // players/{uid}.app = { standalone, platform, tz, lastAt }: Home Screen app or browser (stats page)
+    async stampApp(info) {
+      if (!uid) return;
+      try { await setDoc(doc(db, "players", uid), { app: Object.assign({}, info, { lastAt: serverTimestamp() }) }, { merge: true }); } catch (e) {}
+    },
+    // players/{uid}.features = { routes, themeCard, patchNotes, calendar, howTo, invite }: times opened
+    async countFeature(name) {
+      if (!uid) return;
+      try { await setDoc(doc(db, "players", uid), { features: { [name]: increment(1) } }, { merge: true }); } catch (e) {}
+    },
+    // players/{uid}.prefs = { dark, sound }: the player's current choices
+    async setPrefs(prefs) {
+      if (!uid) return;
+      try { await setDoc(doc(db, "players", uid), { prefs: prefs }, { merge: true }); } catch (e) {}
+    },
+    // players/{uid}.referredBy: who shared the link that brought this player (set at their first finish)
+    async markReferred(ref) {
+      if (!uid || !ref || ref === uid) return;
+      try { await setDoc(doc(db, "players", uid), { referredBy: ref, referredAt: serverTimestamp() }, { merge: true }); } catch (e) {}
     },
     async markAdventureBeaten(seedIndex) {
       if (!uid) return;
@@ -4615,6 +4639,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const RESUME_TTL = 36 * 3600 * 1000; // drop a stale save after a day and a half
   let resumeState = null;
   let climbMs = [];   // the daily's solving time per Climb (stats page)
+  let dailyMisses = [];   // the daily's rejected guesses (stats page)
 
   function saveProgress() {
     if (screens.play.hidden || mode === "climb" || mode === "collection" || mode === "hike") return; // one-off climbs don't resume
@@ -4629,7 +4654,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         newCount: pool.filter((t) => t.isNew).length,
         guessesLeft: guessesLeft, wrongGuesses: wrongGuesses, hintUsed: hintUsed,
         sessionStrikes: sessionStrikes, solveMs: solveMs, dailyElapsedMs: dailyElapsedNow(),
-        themeFound: themeFound, climbMs: climbMs,
+        themeFound: themeFound, climbMs: climbMs, dailyMisses: dailyMisses,
       }));
     } catch (e) {}
   }
@@ -4640,7 +4665,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         mode: mode, matchCode: matchCode, matchSeed: matchSeed, dailyDay: dailyDay,
         difficulty: difficulty, format: format,
         sessionStrikes: sessionStrikes, solveMs: solveMs, dailyElapsedMs: dailyElapsedNow(),
-        round: nextRound, roundWords: roundWords, hintUsed: hintUsed, themeFound: themeFound, climbMs: climbMs,
+        round: nextRound, roundWords: roundWords, hintUsed: hintUsed, themeFound: themeFound, climbMs: climbMs, dailyMisses: dailyMisses,
       }));
     } catch (e) {}
   }
@@ -4680,6 +4705,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     sessionStrikes = s.sessionStrikes || 0;
     solveMs = s.solveMs || 0;
     climbMs = Array.isArray(s.climbMs) ? s.climbMs.slice() : [];
+    dailyMisses = Array.isArray(s.dailyMisses) ? s.dailyMisses.slice() : [];
     locked = false;
     checking = false;
     carryMs = 0;
@@ -4995,6 +5021,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   function loseGuess(word) {
     if (wrongGuesses.indexOf(word) < 0) wrongGuesses.push(word);
+    if (mode === "daily") { dailyMisses.push(word); saveDailyProgress(); }
     renderWrongWords();
     sessionStrikes++;
     const unlimited = mode === "collection"; // the whole point is to eventually clear every seed
@@ -5629,6 +5656,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const u = new URL(location.href);
     u.search = "";
     u.hash = "";
+    // ?r= who shared it (their username, else their account), so a new player can credit them
+    const r = myUsername ? String(myUsername).trim().toLowerCase().replace(/ +/g, ".") : (window.MatchDB && window.MatchDB.uid);
+    if (r) u.searchParams.set("r", r);
     return u.toString();
   }
   function dbReady() {
@@ -6883,6 +6913,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     sessionStrikes = 0;
     solveMs = 0;
     climbMs = [];
+    dailyMisses = [];
     hintUsed = false;                    // one hint for the whole session
     format = "guesses";                  // 3 strikes, no clock
     playerName = storedName || "You";
@@ -7158,7 +7189,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       name: storedName || playerName || "Player",
       climb: round, step: currentRoundWords.length,
       points: dailyWordsSoFar() + (dailyTheme && newRules(dailyTheme) ? themeBonusSoFar() : 0),
-      strikes: sessionStrikes, solveMs: Math.round(solveMs || 0), climbMs: Array.from({ length: climbMs.length }, (_, i) => Math.round(climbMs[i] || 0)), roundWords: words, finished: false,
+      strikes: sessionStrikes, solveMs: Math.round(solveMs || 0), climbMs: Array.from({ length: climbMs.length }, (_, i) => Math.round(climbMs[i] || 0)), misses: dailyMisses.slice(-40), roundWords: words, finished: false,
     }, extra || {});
     window.MatchDB.saveDailyProgress(dailyDay, rec);
     if (STILL_CLIMBING && window.MatchDB.saveDailyLive) window.MatchDB.saveDailyLive(dailyDay, rec);   // the word-free public note
@@ -7745,7 +7776,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (stage === 1) coachTip("tap", $("#tray"), "Tap the letters to spell a word", "or drag them into place");
     else setTimeout(() => coachTip("newletter", () => $("#tray .tile.new"), "A new letter dropped in. Use every letter!", "", { below: true, ms: 6000 }), 700);
   }
-  $("#themestrip").addEventListener("click", () => { if (mode === "daily" && dailyTheme && !screens.play.hidden) openThemeCard(); });
+  $("#themestrip").addEventListener("click", () => { if (mode === "daily" && dailyTheme && !screens.play.hidden) { openThemeCard(); countFeature("themeCard"); } });
 
   function startDailySession() {
     if (!dictReady || !CLIMBS.length) { setTimeout(startDailySession, 100); return; }
@@ -7776,6 +7807,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (dailyPost && dailyPost.day === dailyDay) return dailyPost.p;
     const day = dailyDay;
     const totalRungs = roundWords.reduce((a, w) => a + w.length, 0);
+    const firstEver = !myDailyLastDay;
     const p = (async () => {
       window.MatchDB.track("daily_finish", { rungs: totalRungs, strikes: sessionStrikes });
       saveDailyProgress({ finished: true });
@@ -7790,6 +7822,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         });
         await window.MatchDB.bumpStreak(day, prevDay);
         ok = true;
+        if (firstEver) creditReferral();
         const pl = await window.MatchDB.getPlayer();
         if (pl) { myDailyStreak = pl.dailyStreak || 0; myDailyLastDay = pl.dailyLastDay || null; myPlayer = pl; }
         cacheProfile();
@@ -8087,7 +8120,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     });
     if (tab === "routes") renderRoutes();
   }
-  $("#daily-board-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) setBoardTab(b.dataset.tab); });
+  $("#daily-board-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) { setBoardTab(b.dataset.tab); if (b.dataset.tab === "routes") countFeature("routes"); } });
   // Tap a word: a small scrollable pop-up next to it lists who played it, in leaderboard
   // order with each player's place; tap anywhere else to close.
   function showRoutePop(chip, word, names) {
@@ -8557,7 +8590,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       go.onclick = () => showDailyBoard(calSel + DAILY_SALT, { live: calSel === today });
     }
   }
-  $("#btn-calendar").addEventListener("click", () => showCalendar());
+  $("#btn-calendar").addEventListener("click", () => { showCalendar(); countFeature("calendar"); });
   $("#btn-cal-home").addEventListener("click", goHome);
   $("#cal-prev").addEventListener("click", () => { calMonth = calMonth[1] ? [calMonth[0], calMonth[1] - 1] : [calMonth[0] - 1, 11]; renderCalendar(); });
   $("#cal-next").addEventListener("click", () => { calMonth = calMonth[1] < 11 ? [calMonth[0], calMonth[1] + 1] : [calMonth[0] + 1, 0]; renderCalendar(); });
@@ -9373,13 +9406,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (e.cancelable) e.preventDefault();
     }, { passive: false });
   })();
-  $("#btn-home-howto").addEventListener("click", () => openHowto(false));
-  $("#btn-play-help").addEventListener("click", () => openHowto(false));   // a refresher: the clock keeps running
+  $("#btn-home-howto").addEventListener("click", () => { openHowto(false); countFeature("howTo"); });
+  $("#btn-play-help").addEventListener("click", () => { openHowto(false); countFeature("howTo"); });   // a refresher: the clock keeps running
   $("#btn-start-howto").addEventListener("click", () => openHowto(false));
 
   // Invite friends — a panel with the game link to copy, plus the native share
   // sheet where the browser supports it.
   function showInvite() {
+    countFeature("invite");
     $("#invite-link").value = gameLink();
     $("#invite-note").textContent = "";
     $("#btn-invite-share").hidden = !navigator.share;
@@ -9389,6 +9423,32 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!navigator.share) return;
     navigator.share({ title: "Daily Climb", text: "Play today's Daily Climb with me:", url: gameLink() })
       .then(() => markShare("native")).catch(() => {});
+  }
+  // Stats page: how often features are opened, and the player's dark / sound choices.
+  function countFeature(name) {
+    if (dbReady() && window.MatchDB.hasAuth && window.MatchDB.countFeature) window.MatchDB.countFeature(name).catch(() => {});
+  }
+  function savePrefs(o) {
+    if (dbReady() && window.MatchDB.hasAuth && window.MatchDB.setPrefs) window.MatchDB.setPrefs(o).catch(() => {});
+  }
+  // Home Screen app or browser, phone or computer, and time zone: once a day per device, profiles only.
+  function stampAppOncePerDay() {
+    if (!dbReady() || !window.MatchDB.hasAuth || !window.MatchDB.stampApp || !storedName) return;
+    const today = dayKeyOf();
+    try { if (localStorage.getItem("dc.appStamp") === today) return; localStorage.setItem("dc.appStamp", today); } catch (e) {}
+    const ua = navigator.userAgent || "";
+    let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+    window.MatchDB.stampApp({ standalone: document.documentElement.classList.contains("standalone"),
+      platform: /iPhone|iPad|iPod/.test(ua) ? "ios" : /Android/.test(ua) ? "android" : "desktop", tz: tz }).catch(() => {});
+  }
+  // Invite links carry ?r=<who shared it>; a new player who arrives on one credits that player
+  // at their first finished daily.
+  function creditReferral() {
+    let ref = null; try { ref = localStorage.getItem("dc.ref"); localStorage.removeItem("dc.ref"); } catch (e) {}
+    if (!ref || !window.MatchDB || !window.MatchDB.markReferred) return;
+    const mine = [window.MatchDB.uid, String(myUsername || "").trim().toLowerCase().replace(/ +/g, ".")];
+    if (mine.includes(ref)) return;
+    window.MatchDB.markReferred(ref).catch(() => {});
   }
   function markShare(how) {
     if (dbReady() && window.MatchDB.hasAuth && window.MatchDB.markShare) window.MatchDB.markShare(how).catch(() => {});
@@ -9959,6 +10019,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     try { localStorage.setItem(PATCH_SEEN_KEY, APP_VERSION); } catch (e) {}
     renderPatchChip();
     trackEv("patch_notes_open", { version: APP_VERSION });
+    countFeature("patchNotes");
     show("patchnotes");
   }
   $("#btn-patch-notes").addEventListener("click", showPatchNotes);
@@ -10520,6 +10581,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const toggleSound = () => {
     FX.set(!FX.isOn());
     syncSoundBtn();
+    savePrefs({ sound: FX.isOn() });
     if (FX.isOn()) setTimeout(() => FX.play("accept"), 60); // let the iOS audio session settle
   };
   $("#btn-sound").addEventListener("click", toggleSound);
@@ -10540,6 +10602,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const light = document.documentElement.classList.toggle("light");
     try { localStorage.setItem("dc.theme", light ? "light" : "dark"); } catch (e) {}
     syncThemeBtn();
+    savePrefs({ dark: !light });
   }));
   syncThemeBtn();
 
@@ -10601,6 +10664,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     let restoreName = null;
     try { const r = new URLSearchParams(location.search).get("restore"); if (r && USERNAME_RE.test(r) && !MOVED) restoreName = r; } catch (e) {}
 
+    // An invite link's ?r=: remember who shared it (credited at this player's first finish).
+    try { const ref = new URLSearchParams(location.search).get("r"); if (ref && /^[A-Za-z0-9_.]{1,40}$/.test(ref) && !localStorage.getItem("dc.ref")) localStorage.setItem("dc.ref", ref); } catch (e) {}
     // Versus / invite links are off for now: ignore any ?m= and clean the URL.
     if (location.search) history.replaceState(null, "", location.pathname);
     const code = null;
@@ -10666,6 +10731,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           return;
         }
         prefillNames(storedName);
+        stampAppOncePerDay();
         if (!code && (!screens.loading.hidden || !screens.landing.hidden)) leaveLoading(goHome);
         else if (!code && !screens.home.hidden) renderDailyCard(); // refresh the optimistic home
         checkTrophies(); // e.g. yesterday's final place just landed
