@@ -1888,6 +1888,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .fb-sheet textarea { display: block; width: 100%; margin-top: 12px; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--rd-line); background: var(--rd-bg); color: var(--rd-ink);
     font: inherit; font-size: 0.95rem; line-height: 1.4; resize: none; min-height: 120px; }
   .fb-sheet textarea:focus { outline: none; border-color: var(--rd-ink); }
+  .fb-chk { display: grid; place-items: center; width: 56px; height: 56px; margin: 6px auto 8px; border-radius: 50%; background: var(--rd-gold); color: var(--rd-gold-ink); }
+  .fb-chk svg { width: 26px; height: 26px; }
+  .fb-sheet.sent { text-align: center; }
+  .fb-sheet.sent h3 { font-size: 1.45rem; }
+  .fb-sheet.sent .install-sub { max-width: 22em; margin: 6px auto 16px; font-size: 0.86rem; }
   .fb-meta { display: flex; justify-content: space-between; margin: 6px 2px 12px; font-size: 0.72rem; color: var(--rd-muted); }
   .ann-sheet { max-height: calc(100dvh - 40px); display: flex; flex-direction: column; }
   .ann-list { margin: 10px 0 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0; }
@@ -2797,6 +2802,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   </div>
   <!-- Send feedback: a plain text box; saved to feedback/{id} with the player's name, read on the stats page -->
   <div class="install-sheet fb-sheet" id="feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="fb-title" hidden>
+    <span class="fb-chk" id="fb-chk" aria-hidden="true" hidden><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     <h3 id="fb-title">Send feedback</h3>
     <p class="install-sub" id="fb-sub">Ideas, bugs, a puzzle you loved or hated. It all goes straight to Tate.</p>
     <textarea id="fb-text" maxlength="1000" rows="5" aria-label="Your feedback" placeholder="What's on your mind?"></textarea>
@@ -2973,7 +2979,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T15:48:56-07:00","n":22,"notes":[{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"}],"v":"0.13.0-beta.22"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T15:53:22-07:00","n":23,"notes":[{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"}],"v":"0.13.0-beta.23"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10084,6 +10090,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let fbOpenedFrom = null, fbSent = false;
   function showFeedbackSheet() {
     fbSent = false;
+    $("#feedback-sheet").classList.remove("sent");
+    $("#fb-chk").hidden = true;
     $("#fb-title").textContent = "Send feedback";
     $("#fb-sub").textContent = "Ideas, bugs, a puzzle you loved or hated. It all goes straight to Tate.";
     $("#fb-text").hidden = false;
@@ -10127,8 +10135,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
       try { localStorage.setItem(FB_KEY, String(Date.now())); } catch (e) {}
       fbSent = true;
       $("#fb-text").value = "";
-      $("#fb-title").textContent = "Thanks!";
-      $("#fb-sub").textContent = "Tate reads every message.";
+      const who = myUsername || storedName;
+      $("#feedback-sheet").classList.add("sent");
+      $("#fb-chk").hidden = false;
+      $("#fb-title").textContent = who ? "Thanks, " + who + "!" : "Thanks!";
+      $("#fb-sub").textContent = "Tate reads every message. Ideas like yours are how Daily Climb gets better.";
       $("#fb-text").hidden = true;
       $(".fb-meta").hidden = true;
       $("#btn-fb-cancel").hidden = true;
