@@ -1865,6 +1865,41 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #screen-home .clb { color: var(--hs-climb); }
   .hs-top { width: 100%; display: flex; align-items: center; justify-content: space-between; }
   .hs-top .icon-btn { background: none; border: 0; color: var(--hs-ink); }
+  /* The ☰ menu */
+  .hs-top { position: relative; }
+  .hs-menu-btn { position: relative; }
+  .hs-menu-btn svg { width: 22px; height: 22px; }
+  .hs-menu-btn[aria-expanded="true"] { background: color-mix(in srgb, var(--hs-ink) 8%, transparent) !important; border-radius: 50%; }
+  .hs-dot { position: absolute; top: 7px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--hs-climb); box-shadow: 0 0 0 2px var(--hs-bg); }
+  .hs-menu { position: absolute; top: 46px; left: 0; z-index: 40; width: 232px; padding: 6px; border-radius: 16px; background: var(--hs-card); color: var(--hs-card-ink);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26); text-align: left; animation: hm-in .16s ease-out; }
+  @keyframes hm-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .hs-menu button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; background: none; color: inherit;
+    font: inherit; font-size: 0.92rem; font-weight: 600; text-align: left; cursor: pointer; }
+  .hs-menu button:active, .hs-menu button:focus-visible { background: color-mix(in srgb, var(--hs-card-ink) 7%, transparent); outline: none; }
+  .hs-menu button svg { width: 18px; height: 18px; flex: none; }
+  .hs-menu hr { border: 0; height: 1px; margin: 4px 8px; background: color-mix(in srgb, var(--hs-card-ink) 10%, transparent); }
+  .hm-dot { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--hs-climb); }
+  .hm-sw { margin-left: auto; position: relative; width: 34px; height: 20px; flex: none; border-radius: 999px; background: color-mix(in srgb, var(--hs-card-ink) 16%, transparent); transition: background .15s; }
+  .hm-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform .15s; }
+  .hs-menu [aria-checked="true"] .hm-sw { background: var(--hs-climb); }
+  .hs-menu [aria-checked="true"] .hm-sw::after { transform: translateX(14px); }
+  /* Feedback and Announcements sheets */
+  .fb-sheet textarea { display: block; width: 100%; margin-top: 12px; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--rd-line); background: var(--rd-bg); color: var(--rd-ink);
+    font: inherit; font-size: 0.95rem; line-height: 1.4; resize: none; min-height: 120px; }
+  .fb-sheet textarea:focus { outline: none; border-color: var(--rd-ink); }
+  .fb-meta { display: flex; justify-content: space-between; margin: 6px 2px 12px; font-size: 0.72rem; color: var(--rd-muted); }
+  .ann-sheet { max-height: calc(100dvh - 40px); display: flex; flex-direction: column; }
+  .ann-list { margin: 10px 0 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0; }
+  .ann { padding: 11px 13px; border-radius: 12px; background: color-mix(in srgb, var(--rd-ink) 5%, transparent); display: flex; flex-direction: column; gap: 4px; text-align: left; }
+  .ann-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--rd-muted); }
+  .ann-new { padding: 1px 6px; border-radius: 6px; background: var(--rd-gold); color: var(--rd-gold-ink); letter-spacing: 0.08em; }
+  .ann b { font-family: var(--slab); font-size: 1.08rem; }
+  .ann p { margin: 0; font-size: 0.84rem; line-height: 1.45; color: var(--rd-ink); }
+  .ann .sig { font-size: 0.74rem; color: var(--rd-muted); font-style: italic; }
+  .ann .replay { align-self: flex-start; margin-top: 2px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: inherit; font-size: 0.8rem; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .ann.old:not(.open) p { color: var(--rd-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ann.old { cursor: pointer; }
   .hs-top-r { display: flex; align-items: center; gap: 6px; }
   .hs-ic { flex-direction: row; }
   .hs-ic .rb-ic { width: 38px; height: 38px; border: 0; background: none; color: var(--hs-ink); }
@@ -2184,11 +2219,25 @@ $1{ display: flex; gap: 8px; width: 100%; }
            profile on the right; then the logo, the name, one Play button, Adventure
            Mode, and the day's details. Colors: --hs-* (dark by default, html.light). -->
       <div class="hs-top">
-        <button class="icon-btn" id="btn-calendar" type="button" aria-label="Theme calendar"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+        <button class="icon-btn hs-menu-btn" id="btn-home-menu" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="hs-dot" id="hs-menu-dot" hidden></span></button>
+        <!-- The ☰ menu: announcements, calendar, invite, feedback; how to play; the three switches -->
+        <div class="hs-menu" id="home-menu" role="menu" aria-label="Menu" hidden>
+          <button type="button" role="menuitem" data-act="news"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6.5h2.5l6.5-3.5v10L4.5 9.5H2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M4.5 9.5l1 4h1.8l-.8-3.6M13 6.3v3.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Announcements<span class="hm-dot" id="hm-news-dot" hidden></span></button>
+          <button type="button" role="menuitem" data-act="calendar"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Theme calendar</button>
+          <button type="button" role="menuitem" data-act="invite"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6" cy="5.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.8 13.5a4.2 4.2 0 0 1 8.4 0M12.5 5v4M10.5 7h4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Invite a friend</button>
+          <button type="button" role="menuitem" data-act="feedback"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7.5H7L4 13.5V11H2.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.2 7.2h5.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Send feedback</button>
+          <hr>
+          <button type="button" role="menuitem" data-act="howto"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg>How to play</button>
+          <hr>
+          <button type="button" role="menuitemcheckbox" data-act="reminder" aria-checked="false" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 11V7.3a4 4 0 0 1 8 0V11l1.3 1.5H2.7z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6.6 14h2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Daily reminder<span class="hm-sw" aria-hidden="true"></span></button>
+          <button type="button" role="menuitemcheckbox" data-act="dark" aria-checked="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Dark mode<span class="hm-sw" aria-hidden="true"></span></button>
+          <button type="button" role="menuitemcheckbox" data-act="sound" aria-checked="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6h2.5l3.5-3v10L5 10H2.5Z" fill="currentColor"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Sound<span class="hm-sw" aria-hidden="true"></span></button>
+        </div>
+        <button class="icon-btn" id="btn-calendar" type="button" aria-label="Theme calendar" hidden><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
         <div class="hs-top-r">
-          <button class="roundbtn hs-ic" id="btn-home-howto" type="button" aria-label="How to play"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg></span><span class="rb-lab">How to play</span></button>
-          <button id="btn-theme" class="roundbtn hs-ic tgl-theme" type="button" aria-label="Dark mode" aria-pressed="false"><span class="rb-ic" aria-hidden="true"><svg class="ic-moon" viewBox="0 0 16 16"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><svg class="ic-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Dark mode</span></button>
-          <button class="roundbtn sound-toggle hs-ic" id="btn-sound" type="button" aria-label="Sound" aria-pressed="false"><span class="rb-ic" aria-hidden="true"></span><span class="rb-lab">Sound</span></button>
+          <button class="roundbtn hs-ic" id="btn-home-howto" type="button" hidden aria-label="How to play"><span class="rb-ic" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg></span><span class="rb-lab">How to play</span></button>
+          <button id="btn-theme" class="roundbtn hs-ic tgl-theme" type="button" hidden aria-label="Dark mode" aria-pressed="false"><span class="rb-ic" aria-hidden="true"><svg class="ic-moon" viewBox="0 0 16 16"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><svg class="ic-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="rb-lab">Dark mode</span></button>
+          <button class="roundbtn sound-toggle hs-ic" id="btn-sound" type="button" hidden aria-label="Sound" aria-pressed="false"><span class="rb-ic" aria-hidden="true"></span><span class="rb-lab">Sound</span></button>
           <button class="avatar-btn" id="btn-avatar" type="button" aria-label="Your profile"><span id="avatar-initial"></span><span class="avatar-streak" id="avatar-streak" hidden></span></button>
         </div>
       </div>
@@ -2262,7 +2311,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
            installed (renderInstallButton), otherwise Invite a friend. -->
       <div class="hs-cards">
         <button class="hs-card" id="btn-home-install" type="button" hidden><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6M9 11h6"/></svg></span><span class="hs-card-txt"><b>Add Daily Climb to your Home Screen</b><span>Open it like an app, every morning.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
-        <button class="hs-card" id="btn-home-invite" type="button"><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6M18.5 7v6M15.5 10h6"/></svg></span><span class="hs-card-txt"><b>Invite a friend</b><span>Same puzzle, same day. Compare your Climbs.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
+        <button class="hs-card" id="btn-home-invite" type="button" hidden><span class="hs-card-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6M18.5 7v6M15.5 10h6"/></svg></span><span class="hs-card-txt"><b>Invite a friend</b><span>Same puzzle, same day. Compare your Climbs.</span></span><span class="hs-card-chev" aria-hidden="true">&rsaquo;</span></button>
       </div>
       <div class="home-foot">
         <button class="vchip" id="btn-patch-notes" type="button"><span class="vchip-dot" aria-hidden="true"></span><span id="vchip-label"></span></button>
@@ -2746,6 +2795,23 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <button class="primary" id="btn-reminder-primary" type="button"></button>
     </div>
   </div>
+  <!-- Send feedback: a plain text box; saved to feedback/{id} with the player's name, read on the stats page -->
+  <div class="install-sheet fb-sheet" id="feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="fb-title" hidden>
+    <h3 id="fb-title">Send feedback</h3>
+    <p class="install-sub" id="fb-sub">Ideas, bugs, a puzzle you loved or hated. It all goes straight to Tate.</p>
+    <textarea id="fb-text" maxlength="1000" rows="5" aria-label="Your feedback" placeholder="What's on your mind?"></textarea>
+    <div class="fb-meta"><span id="fb-from"></span><span id="fb-count">0 / 1000</span></div>
+    <div class="install-actions">
+      <button class="ghost" id="btn-fb-cancel" type="button">Not now</button>
+      <button class="primary" id="btn-fb-send" type="button" disabled>Send</button>
+    </div>
+  </div>
+  <!-- Announcements: messages from Tate, newest first (ANNOUNCEMENTS) -->
+  <div class="install-sheet ann-sheet" id="ann-sheet" role="dialog" aria-modal="true" aria-labelledby="ann-title" hidden>
+    <h3 id="ann-title">Announcements</h3>
+    <div class="ann-list" id="ann-list"></div>
+    <div class="install-actions"><button class="primary" id="btn-ann-done" type="button">Done</button></div>
+  </div>
   <!-- What Trail / Ridge / Summit mean (tap the difficulty chip on a themed
        day's home screen). Same sheet frame as Add to Home Screen. -->
   <div class="install-sheet" id="difficulty-sheet" role="dialog" aria-modal="true" aria-labelledby="difficulty-title" hidden>
@@ -2907,7 +2973,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T15:03:27-07:00","n":19,"notes":[{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"},{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"},{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"},{"note":"Smart shuffle: never spells the answer or comes close","v":"0.13.0-beta.15"}],"v":"0.13.0-beta.19"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T15:38:48-07:00","n":20,"notes":[{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"},{"note":"Profile: Past Climbs","v":"0.13.0-beta.19"},{"note":"Sync with live v0.12.3","v":"0.13.0-beta.18"},{"note":"Leaderboard detail: gold outline design","v":"0.13.0-beta.17"},{"note":"Leaderboard: words and points out of possible, missed steps and theme words","v":"0.13.0-beta.16"}],"v":"0.13.0-beta.20"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3028,6 +3094,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     countFeature: async function (n) { var p = player(); p.features = p.features || {}; p.features[n] = (p.features[n] || 0) + 1; save(); },
     setPrefs: async function (o) { var p = player(); p.prefs = Object.assign(p.prefs || {}, o); save(); },
     markReferred: async function (r) { player().referredBy = r; save(); },
+    sendFeedback: async function (text, meta) { db.feedback = db.feedback || []; db.feedback.push(Object.assign({ uid: UID, text: text, at: Date.now() }, meta)); save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
     createMatch: async function () { throw new Error("Not in the beta"); },
@@ -3598,6 +3665,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     async setPrefs(prefs) {
       if (!uid) return;
       try { await setDoc(doc(db, "players", uid), { prefs: prefs }, { merge: true }); } catch (e) {}
+    },
+    // feedback/{auto id}: a note from the home screen's Send feedback (only Tate reads them, on the stats page)
+    async sendFeedback(text, meta) {
+      if (!uid) throw new Error("not signed in");
+      await setDoc(doc(collection(db, "feedback")), Object.assign({ uid: uid, text: text, at: serverTimestamp() }, meta));
     },
     // players/{uid}.referredBy: who shared the link that brought this player (set at their first finish)
     async markReferred(ref) {
@@ -4630,9 +4702,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!$("#rt-pop").hidden) hideRoutePop(); // ...or a Routes "who played it" pop-up
     hideInstallSheet(); // ...or the Add to Home Screen how-to
     hideReminderSheet(); // ...or the daily reminder sheet
+    closeHomeMenu(); hideFeedbackSheet(); hideAnnSheet(); // ...or the ☰ menu, feedback, announcements
     hideClaimSheet(); // ...or the claim-a-username sheet
     hideTrophySheet(); hideTrophyPop(); // ...or trophy overlays
-    if (name !== "home") closeWhatsNew(); else setTimeout(maybeWhatsNew, 1200); // the one-time Routes intro
+    if (name !== "home") closeWhatsNew(); else { setTimeout(maybeWhatsNew, 1200); setTimeout(maybeAnnouncement, 1700); setTimeout(renderMenuDot, 0); } // the one-time Routes intro, a new announcement
     coachPending = null; hideCoach(); if (name !== "play") clearTimeout(stuckT); // ...or a first-game tip
     if (!$("#difficulty-sheet").hidden) hideDifficultySheet(); // ...or the Trail/Ridge/Summit explainer
     setTimeout(() => drainTrophyQueue(), 450); // queued "Trophy unlocked!" pops wait for a calm screen
@@ -9780,7 +9853,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-home-install").addEventListener("click", openInstall);
   $("#btn-install-done").addEventListener("click", hideInstallSheet);
   // The scrim + Escape close whichever sheet is open (install or reminder).
-  $("#install-scrim").addEventListener("click", () => { hideInstallSheet(); hideReminderSheet(); hideDifficultySheet(); hideClaimSheet(); hideTrophySheet(); if (!$("#trophy-pop").hidden) { hideTrophyPop(); setTimeout(drainTrophyQueue, 250); } });
+  $("#install-scrim").addEventListener("click", () => { hideInstallSheet(); hideReminderSheet(); hideFeedbackSheet(); hideAnnSheet(); hideDifficultySheet(); hideClaimSheet(); hideTrophySheet(); if (!$("#trophy-pop").hidden) { hideTrophyPop(); setTimeout(drainTrophyQueue, 250); } });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideInstallSheet(); hideReminderSheet(); hideClaimSheet(); hideTrophySheet(); if (!$("#trophy-pop").hidden) { hideTrophyPop(); setTimeout(drainTrophyQueue, 250); } } });
   $("#btn-install-copy").addEventListener("click", () => {
     const b = $("#btn-install-copy");
@@ -9954,6 +10027,187 @@ $1{ display: flex; gap: 8px; width: 100%; }
     hideReminderSheet();
   }
   $("#btn-reminder").addEventListener("click", () => showReminderSheet());
+
+  // ---- The ☰ menu on the home screen ----
+  // Everything but the profile: announcements, calendar, invite, feedback, how to play, and the
+  // reminder / dark mode / sound switches. The old buttons stay in the page (hidden) and the menu
+  // presses them, so each keeps doing exactly what it did.
+  const homeMenu = $("#home-menu"), homeMenuBtn = $("#btn-home-menu");
+  function closeHomeMenu() {   // (looks the menu up itself: show() can run before this code does)
+    const m = document.getElementById("home-menu");
+    if (!m || m.hidden) return;
+    m.hidden = true;
+    document.getElementById("btn-home-menu").setAttribute("aria-expanded", "false");
+  }
+  async function syncHomeMenu() {
+    const set = (act, on) => homeMenu.querySelector('[data-act="' + act + '"]').setAttribute("aria-checked", String(!!on));
+    set("dark", !document.documentElement.classList.contains("light"));
+    set("sound", FX.isOn());
+    $("#hm-news-dot").hidden = !announcementUnread();
+    const rem = homeMenu.querySelector('[data-act="reminder"]');
+    const ability = await reminderAbility();
+    rem.hidden = !ability;
+    set("reminder", remindersOnHere());
+  }
+  function openHomeMenu() {
+    homeMenu.hidden = false;
+    homeMenuBtn.setAttribute("aria-expanded", "true");
+    syncHomeMenu();
+  }
+  homeMenuBtn.addEventListener("click", (e) => { e.stopPropagation(); if (homeMenu.hidden) openHomeMenu(); else closeHomeMenu(); });
+  homeMenu.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-act]");
+    if (!b) return;
+    e.stopPropagation();
+    const act = b.dataset.act;
+    // The switches flip in place (the menu stays open); everything else opens something.
+    if (act === "dark") { $("#btn-theme").click(); syncHomeMenu(); return; }
+    if (act === "sound") { $("#btn-sound").click(); syncHomeMenu(); return; }
+    closeHomeMenu();
+    if (act === "news") showAnnouncements();
+    else if (act === "calendar") $("#btn-calendar").click();
+    else if (act === "invite") $("#btn-home-invite").click();
+    else if (act === "feedback") showFeedbackSheet();
+    else if (act === "howto") $("#btn-home-howto").click();
+    else if (act === "reminder") showReminderSheet();
+  });
+  // (only real taps: the menu pressing a hidden button must not close it)
+  document.addEventListener("click", (e) => { if (e.isTrusted && !homeMenu.hidden && !homeMenu.contains(e.target)) closeHomeMenu(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !homeMenu.hidden) { closeHomeMenu(); homeMenuBtn.focus(); } });
+
+  // ---- Send feedback ----
+  const FB_MAX = 1000, FB_KEY = "dc.fb.at";
+  let fbOpenedFrom = null, fbSent = false;
+  function showFeedbackSheet() {
+    fbSent = false;
+    $("#fb-title").textContent = "Send feedback";
+    $("#fb-sub").textContent = "Ideas, bugs, a puzzle you loved or hated. It all goes straight to Tate.";
+    $("#fb-text").hidden = false;
+    $(".fb-meta").hidden = false;
+    $("#btn-fb-cancel").hidden = false;
+    $("#btn-fb-send").textContent = "Send";
+    $("#fb-from").textContent = storedName || myUsername ? "Sending as " + (myUsername || storedName) : "";
+    fbCount();
+    fbOpenedFrom = document.activeElement;
+    $("#install-scrim").hidden = false;
+    $("#feedback-sheet").hidden = false;
+    setTimeout(() => $("#fb-text").focus(), 60);
+    countFeature("feedback");
+  }
+  function hideFeedbackSheet() {
+    if ($("#feedback-sheet").hidden) return;
+    $("#feedback-sheet").hidden = true;
+    if ($("#install-sheet").hidden && $("#reminder-sheet").hidden && $("#ann-sheet").hidden) $("#install-scrim").hidden = true;
+    if (fbOpenedFrom && fbOpenedFrom.focus) fbOpenedFrom.focus();
+    fbOpenedFrom = null;
+  }
+  function fbCount() {
+    const n = $("#fb-text").value.trim().length;
+    $("#fb-count").textContent = $("#fb-text").value.length + " / " + FB_MAX;
+    $("#btn-fb-send").disabled = !n;
+  }
+  async function sendFeedback() {
+    if (fbSent) { hideFeedbackSheet(); return; }
+    const text = $("#fb-text").value.trim().slice(0, FB_MAX);
+    if (!text) return;
+    let last = 0; try { last = +localStorage.getItem(FB_KEY) || 0; } catch (e) {}
+    if (Date.now() - last < 30000) { $("#fb-sub").textContent = "You just sent one. Give it a few seconds, then send this one."; return; }
+    const btn = $("#btn-fb-send");
+    btn.disabled = true; btn.textContent = "Sending…";
+    try {
+      if (!dbReady() || !window.MatchDB || !window.MatchDB.sendFeedback) throw new Error("offline");
+      let platform = "desktop"; const ua = navigator.userAgent || "";
+      if (/iPhone|iPad|iPod/.test(ua)) platform = "ios"; else if (/Android/.test(ua)) platform = "android";
+      await window.MatchDB.sendFeedback(text, { name: myUsername || storedName || "", version: APP_VERSION, day: dailyKeyOf(),
+        app: { standalone: isStandalone(), platform: platform } });
+      try { localStorage.setItem(FB_KEY, String(Date.now())); } catch (e) {}
+      fbSent = true;
+      $("#fb-text").value = "";
+      $("#fb-title").textContent = "Thanks!";
+      $("#fb-sub").textContent = "Tate reads every message.";
+      $("#fb-text").hidden = true;
+      $(".fb-meta").hidden = true;
+      $("#btn-fb-cancel").hidden = true;
+      btn.disabled = false; btn.textContent = "Done";
+    } catch (e) {
+      btn.disabled = false; btn.textContent = "Send";
+      $("#fb-sub").textContent = "Couldn't send. Check your connection and try again.";
+    }
+  }
+  $("#fb-text").addEventListener("input", fbCount);
+  $("#btn-fb-send").addEventListener("click", sendFeedback);
+  $("#btn-fb-cancel").addEventListener("click", hideFeedbackSheet);
+
+  // ---- Announcements ----
+  // Messages from Tate to the players, NEWEST FIRST. A new one pops up once on the home screen
+  // and puts a dot on ☰ until it's read; all of them live in the Announcements sheet.
+  // replay: "routes" adds a link that plays that update's intro again.
+  const ANNOUNCEMENTS = [
+    { id: "routes", date: "2026-10-04", title: "Climb Routes are here",
+      body: "After you finish the daily, open Routes on the leaderboard to see every word that fit each step of each Climb, and how many players picked it. Tap a word to see who played it.",
+      replay: "routes" },
+  ];
+  const ANN_KEY = "dc.ann.seen";
+  function announcementUnread() {
+    const top = ANNOUNCEMENTS[0];
+    if (!top) return false;
+    let seen = null; try { seen = localStorage.getItem(ANN_KEY); } catch (e) { return false; }
+    if (seen === top.id) return false;
+    return !(top.replay === "routes" && whatsNewSeen());   // the Routes intro already showed it
+  }
+  function markAnnouncementsSeen() {
+    if (ANNOUNCEMENTS[0]) try { localStorage.setItem(ANN_KEY, ANNOUNCEMENTS[0].id); } catch (e) {}
+    renderMenuDot();
+  }
+  function renderMenuDot() { $("#hs-menu-dot").hidden = !announcementUnread(); }
+  let annOpenedFrom = null;
+  function showAnnouncements() {
+    const unread = announcementUnread();
+    const list = $("#ann-list");
+    list.replaceChildren();
+    ANNOUNCEMENTS.forEach((a, i) => {
+      const card = document.createElement("div");
+      card.className = "ann" + (i ? " old" : "");
+      const p = a.date.split("-").map(Number);
+      const meta = document.createElement("div"); meta.className = "ann-meta";
+      const d = document.createElement("span"); d.textContent = new Date(p[0], p[1] - 1, p[2], 12).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      meta.appendChild(d);
+      if (!i && unread) { const n = document.createElement("span"); n.className = "ann-new"; n.textContent = "NEW"; meta.appendChild(n); }
+      const t = document.createElement("b"); t.textContent = a.title;
+      const body = document.createElement("p"); body.textContent = a.body;
+      const sig = document.createElement("span"); sig.className = "sig"; sig.textContent = "— Tate";
+      card.append(meta, t, body, sig);
+      if (a.replay === "routes") {
+        const r = document.createElement("button"); r.type = "button"; r.className = "replay"; r.textContent = "Watch the intro again";
+        r.addEventListener("click", (e) => { e.stopPropagation(); hideAnnSheet(); setTimeout(openWhatsNew, 250); });
+        card.appendChild(r);
+      }
+      if (i) card.addEventListener("click", () => card.classList.toggle("open"));
+      list.appendChild(card);
+    });
+    annOpenedFrom = document.activeElement;
+    $("#install-scrim").hidden = false;
+    $("#ann-sheet").hidden = false;
+    list.scrollTop = 0;
+    $("#btn-ann-done").focus();
+    markAnnouncementsSeen();
+  }
+  function hideAnnSheet() {
+    if ($("#ann-sheet").hidden) return;
+    $("#ann-sheet").hidden = true;
+    if ($("#install-sheet").hidden && $("#reminder-sheet").hidden && $("#feedback-sheet").hidden) $("#install-scrim").hidden = true;
+    if (annOpenedFrom && annOpenedFrom.focus) annOpenedFrom.focus();
+    annOpenedFrom = null;
+  }
+  // A brand-new announcement (one without its own intro) opens by itself, once, on the home screen.
+  function maybeAnnouncement() {
+    const top = ANNOUNCEMENTS[0];
+    if (!top || top.replay || !announcementUnread() || !tutorialSeen || updateWaiting || screens.home.hidden) return;
+    if (!$("#whatsnew").hidden || !$("#howto-card").hidden || !$("#trophy-pop").hidden || anySheetOpen()) return;
+    showAnnouncements();
+  }
+  $("#btn-ann-done").addEventListener("click", hideAnnSheet);
+  renderMenuDot();
 
   // ---- Patch notes ----
   // Every release players can see, NEWEST FIRST. On each "commit and push"
@@ -10343,7 +10597,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return null;
   }
   const TROPHY_POP_SCREENS = ["home", "dailyboard", "profile", "trophies", "collectionover", "climbover"];
-  const anySheetOpen = () => ["#install-sheet", "#reminder-sheet", "#claim-sheet", "#trophy-sheet"].some((s) => !$(s).hidden);
+  const anySheetOpen = () => ["#install-sheet", "#reminder-sheet", "#claim-sheet", "#trophy-sheet", "#feedback-sheet", "#ann-sheet"].some((s) => !$(s).hidden);
   function drainTrophyQueue() {
     if (!trophyQueue.length || !$("#trophy-pop").hidden || anySheetOpen() || !$("#whatsnew").hidden) return;
     if (TROPHY_POP_SCREENS.indexOf(currentScreen()) < 0) return; // never mid-climb
