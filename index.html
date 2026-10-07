@@ -1626,8 +1626,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
     font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
   #screen-play .btnrow button.primary { padding: 0 22px; background: var(--rd-btn); border-color: var(--rd-btn); color: var(--rd-btn-ink); }
   @media (max-width: 380px) { #screen-play .btnrow { gap: 6px; } #screen-play .btnrow button { padding: 0 11px; font-size: 0.85rem; } #screen-play .btnrow button.primary { padding: 0 16px; } }
-  #screen-play #btn-endround.forfeit { margin-top: 2px; padding: 8px 12px; border: 0; background: none; color: var(--rd-muted); font-size: 0.9rem; font-weight: 600;
-    text-decoration: underline; text-underline-offset: 3px; }
+  body:has(#screen-play:not([hidden])) { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
+  body:has(#screen-play:not([hidden])) main { margin-bottom: 0; align-self: stretch; display: flex; flex-direction: column; }
+  body:has(#screen-play:not([hidden])) #screen-play { flex: 1; }
+  #screen-play #msg { margin-block: -8px; }   /* tighter around the message line, so the pill fits on short screens */
+  #screen-play #btn-endround.forfeit { margin: auto 0; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 13px; border-radius: 999px;
+    border: 1.5px solid var(--rd-bad); background: none; color: var(--rd-bad); font-size: 0.78rem; font-weight: 600; text-decoration: none; }
+  #screen-play #btn-endround.forfeit .clb { color: inherit; }   /* all red: no orange right next to the red */
+  #screen-play #btn-endround.forfeit svg { width: 11px; height: 12px; flex: none; }
   #screen-play .linkbtn { color: var(--rd-muted); }
   /* Today's theme card + the forfeit check, on the same paper. */
   #theme-card, #forfeit-confirm { background: rgba(0, 0, 0, 0.5); }
@@ -3020,7 +3026,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T16:27:22-07:00","n":0,"notes":[{"note":"Synced with live v0.13.0","v":"0.14.0-beta.0"}],"v":"0.14.0-beta.0"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T16:43:47-07:00","n":1,"notes":[{"note":"Forfeit Climb: small red pill","v":"0.14.0-beta.1"},{"note":"Synced with live v0.13.0","v":"0.14.0-beta.0"}],"v":"0.14.0-beta.1"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -5032,7 +5038,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
     // "Quit to menu" shows in practice/collection; the daily is one attempt, versus restarts.
     $("#btn-play-home").hidden = mode !== "solo" && mode !== "climb" && mode !== "collection" && mode !== "hike";
-    $("#btn-endround").innerHTML = mode === "hike" ? "End Hike" : climb ? 'Forfeit <span class="clb">Climb</span>' : "End round";
+    $("#btn-endround").innerHTML = mode === "hike" ? "End Hike" : climb ? '<svg viewBox="0 0 12 13" aria-hidden="true"><path d="M2 12.5V1.2M2 1.5h7.5L8 4.2l1.5 2.8H2" fill="currentColor" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Forfeit <span class="clb">Climb</span>' : "End round";
     $("#btn-endround").className = climb ? "ghost forfeit" : "linkbtn";
   }
 
