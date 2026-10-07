@@ -2878,7 +2878,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T12:33:49-07:00","n":14,"notes":[{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"},{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"},{"note":"Still climbing hidden (same as live)","v":"0.13.0-beta.12"},{"note":"Stats page: finishers tile uses the leaderboards; profiles that haven't finished","v":"0.13.0-beta.11"},{"note":"Stats page: remove duplicate copies (same as live)","v":"0.13.0-beta.10"}],"v":"0.13.0-beta.14"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T13:34:30-07:00","n":15,"notes":[{"note":"Smart shuffle: never spells the answer or comes close","v":"0.13.0-beta.15"},{"note":"Tracking for the new stats (wrong guesses, app vs browser, features, invites) + stats page tabs","v":"0.13.0-beta.14"},{"note":"Stats page: who has notifications on","v":"0.13.0-beta.13"},{"note":"Still climbing hidden (same as live)","v":"0.13.0-beta.12"},{"note":"Stats page: finishers tile uses the leaderboards; profiles that haven't finished","v":"0.13.0-beta.11"}],"v":"0.13.0-beta.15"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4454,7 +4454,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const fresh = tiles.filter((t) => t.isNew).map((t) => t.id);
     const grouped = carried.length > 0 && !!prevWord;
     const str = (ids) => ids.map((id) => tileMap[id].ch).join("");
-    let fallback = null;
+    let fallback = null, best = null, bestScore = Infinity;
 
     for (let attempt = 0; attempt < 40; attempt++) {
       const order = grouped
@@ -4463,9 +4463,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
       fallback = order;
       if (WORD_SET.has(str(order))) continue;
       if (grouped && carried.length > 1 && str(order.slice(0, carried.length)) === prevWord) continue;
-      return order;
+      const sc = revealScore(str(order).toLowerCase());   // the least helpful start, like Shuffle
+      if (sc < bestScore) { best = order; bestScore = sc; if (sc === 0) break; }
     }
-    return fallback;
+    return best || fallback;
   }
 
   // 3-letter starting words that have at least one valid 5-letter extension.
@@ -5492,9 +5493,37 @@ $1{ display: flex; gap: 8px; width: 100%; }
     FX.play("shuffle"); buzz(8);
   }
 
+  // How much a row of letters gives away: letters already in a real word's spots count
+  // double, and pairs of letters that sit side by side in a real word count once. Lower is
+  // better. The real words are every word these letters spell (theme words included).
+  function revealScore(str) {
+    const cands = ANA.get(poolKey()) || [];
+    if (!cands.length || !str) return 0;
+    let best = 0;
+    for (const w of cands) {
+      if (w === str) return 1e9;   // the answer itself
+      let pos = 0, pairs = 0;
+      if (str.length === w.length) for (let i = 0; i < str.length; i++) if (str[i] === w[i]) pos++;
+      for (let i = 0; i + 1 < str.length; i++) if (w.includes(str[i] + str[i + 1])) pairs++;
+      best = Math.max(best, pos * 2 + pairs);
+    }
+    return best;
+  }
+  const trayString = (cells) => cells.filter((c) => c.type === "letter").map((c) => tileMap[c.id].ch).join("").toLowerCase();
+  // Shuffle as often as you like, but it never spells the answer or comes close: it tries a
+  // few dozen orders and keeps the one that gives the least away (tapping it over and over
+  // used to reveal short words).
   function doShuffle() {
     if (locked || checking) return;
-    shuffle(trayCells);
+    const before = trayString(trayCells);
+    let best = null, bestScore = Infinity;
+    for (let i = 0; i < 40; i++) {
+      const cand = shuffle(trayCells.slice());
+      const str = trayString(cand);
+      const sc = revealScore(str) + (str === before && before.length > 1 ? 50 : 0);   // and it visibly changes
+      if (sc < bestScore) { best = cand; bestScore = sc; if (sc === 0) break; }
+    }
+    trayCells.splice(0, trayCells.length, ...best);
     msg("");
     render(false);
     FX.play("shuffle"); buzz(8);
