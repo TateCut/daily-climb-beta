@@ -2980,7 +2980,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-07T15:57:24-07:00","n":24,"notes":[{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"},{"note":"Home: the â° menu, Send feedback, Announcements","v":"0.13.0-beta.20"}],"v":"0.13.0-beta.24"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-07T16:02:02-07:00","n":25,"notes":[{"note":"Announcement: thank you to early players","v":"0.13.0-beta.25"},{"note":"Announcement: the new menu","v":"0.13.0-beta.24"},{"note":"Feedback: thank-you window","v":"0.13.0-beta.23"},{"note":"Menu: reminder switch turns off in one tap","v":"0.13.0-beta.22"},{"note":"Beta: pretend reminders","v":"0.13.0-beta.21"}],"v":"0.13.0-beta.25"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10159,10 +10159,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // and puts a dot on ☰ until it's read; all of them live in the Announcements sheet.
   // replay: "routes" adds a link that plays that update's intro again.
   const ANNOUNCEMENTS = [
-    { id: "menu", date: "2026-10-07", title: "A new menu, and a way to reach me",
-      body: "Everything that used to sit along the top of the home screen now lives behind the ☰ button: the theme calendar, how to play, dark mode and sound. Your daily reminder switch is in there too.\n\n" +
+    { id: "menu", date: "2026-10-07", title: "Thank you, and a new menu",
+      body: "First, a big thank you. Daily Climb is still young, and if you're reading this, you've been here for the early days. Every streak you've kept, every score you've posted and every bug or idea you've sent my way has shaped this game into something better than I could have made on my own. I'm really grateful you're here.\n\n" +
+        "Now, what's new. Everything that used to sit along the top of the home screen lives behind the ☰ button: the theme calendar, how to play, dark mode and sound. Your daily reminder switch is in there too.\n\n" +
         "Announcements is new. It's where I'll post news like this, so you never miss an update. A dot on ☰ means there's something new to read.\n\n" +
-        "Send feedback is new too, and it comes straight to me. Ideas, bugs, a puzzle you loved or hated: I read every message." },
+        "Send feedback is new too, and it comes straight to me. Ideas, bugs, a puzzle you loved or hated: I read every message.\n\n" +
+        "Lots more to come. See you on tomorrow's Climb." },
     { id: "routes", date: "2026-10-04", title: "Climb Routes are here",
       body: "After you finish the daily, open Routes on the leaderboard to see every word that fit each step of each Climb, and how many players picked it. Tap a word to see who played it.",
       replay: "routes" },
