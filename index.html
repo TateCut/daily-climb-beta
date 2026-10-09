@@ -991,7 +991,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   .tr-fam-top b { font-size: 0.88rem; }
   .tr-fam-top small { margin-left: auto; font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
   .tr-tiers { display: flex; gap: 4px; margin-top: 8px; }
-  .tr-tiers .tr-btn { width: 25%; }
+  .tr-tiers .tr-btn { flex: 1 1 0; min-width: 0; }   /* 4 or 5 tiers to a row */
   .tr-singles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .tr-single { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 9px 4px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; font: inherit; color: var(--muted); }
   .tr-single svg { width: 40px; height: 44px; }
@@ -2963,8 +2963,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <div class="hts-illus"><div class="hts-key" id="hts-key"></div></div>
         <p class="hts-lead">Find the theme words.</p>
         <ul class="hts-bul">
-          <li>Each <span class="clb">Climb</span> hides a word that fits today's theme.</li>
-          <li>Theme words turn <b class="hts-gold">yellow</b> and are worth 2 points.</li>
+          <li>Each <span class="clb">Climb</span> hides theme words.</li>
+          <li>At a fork in the trail, two words fit. The theme word turns <b class="hts-gold">yellow</b> and is worth 2 points.</li>
         </ul>
       </div>
       <div class="hts-slide" data-i="2" hidden>
@@ -3014,7 +3014,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <p class="tc-ex-lab" id="tc-ex-lab">Example</p>
         <div class="tc-legend" id="tc-legend"></div>
       </div>
-      <p class="tc-foot">Every <span class="clb">Climb</span> has at least one word related to the theme.</p>
+      <p class="tc-foot" id="tc-foot">Every <span class="clb">Climb</span> has at least one word related to the theme.</p>
       <label class="tc-opt"><input type="checkbox" id="tc-off"> I understand, don't show again</label>
       <button class="primary" id="btn-theme-card" type="button">Start <span class="clb">Climbing</span></button>
     </div>
@@ -3065,7 +3065,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-09T09:51:44-07:00","n":5,"notes":[{"note":"6-7-8 from Oct 10: launch note + announcement, theme flags on the mountain, Climb 1/2/3 card","v":"0.14.0-beta.5"},{"note":"Home: today's theme is the headline; Trail / Ridge / Summit removed","v":"0.14.0-beta.4"},{"note":"New daily format: every day from Oct 11 is three Climbs of 6, 7 and 8 letters with 3+ choice steps","v":"0.14.0-beta.3"},{"note":"Tour: thank-you note fully leaves the screen","v":"0.14.0-beta.2"},{"note":"Forfeit Climb: small red pill","v":"0.14.0-beta.1"}],"v":"0.14.0-beta.5"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-09T10:07:51-07:00","n":6,"notes":[{"note":"Forks everywhere: How to Play + theme card name forks; new Forks trophies; Perfect days; tighter speed trophies","v":"0.14.0-beta.6"},{"note":"6-7-8 from Oct 10: launch note + announcement, theme flags on the mountain, Climb 1/2/3 card","v":"0.14.0-beta.5"},{"note":"Home: today's theme is the headline; Trail / Ridge / Summit removed","v":"0.14.0-beta.4"},{"note":"New daily format: every day from Oct 11 is three Climbs of 6, 7 and 8 letters with 3+ choice steps","v":"0.14.0-beta.3"},{"note":"Tour: thank-you note fully leaves the screen","v":"0.14.0-beta.2"}],"v":"0.14.0-beta.6"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3216,7 +3216,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     submitDaily: async function (day, r) {
       db.dailies[day] = Object.assign({ uid: UID, name: r.name || "Player", total: r.total || 0, strikes: r.strikes || 0, solveMs: r.solveMs || 0,
         hintUsed: !!r.hintUsed, roundWords: r.roundWords || [], finishedAt: Date.now() },
-        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {});
+        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {});
       save();
     },
     getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
@@ -3936,6 +3936,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
         finishedAt: Date.now(),
         // Themed days: theme words found (a bonus point each) and the day's most words.
         ...(r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}),
+        // 6-7-8 days: forks in the trail where the theme word was played (the Forks trophies)
+        ...(r.forks != null ? { forks: r.forks } : {}),
       });
     },
     // dailies/{day}/progress/{uid} — where a player has got to in today's daily, updated as they
@@ -7549,6 +7551,17 @@ $1{ display: flex; gap: 8px; width: 100%; }
     ascentToastT = setTimeout(() => t.classList.remove("show"), 2400);
   }
 
+  // Forks in the trail taken today: steps where you played a theme word and the same letters also spell an
+  // everyday word that isn't one (top 10,000), as the calendar builds them. Counts toward the Forks trophies.
+  function forksTaken() {
+    if (!newFormat(dailyTheme)) return 0;
+    let fk = 0;
+    (roundWords || []).forEach((words, i) => (words || []).forEach((w) => {
+      if (!isThemeWord(dailyTheme, i, w)) return;
+      if ((ANA.get(sortStr(w)) || []).some((x) => x !== w && !isThemeWord(dailyTheme, i, x) && FREQ.has(x) && FREQ.get(x) < 10000)) fk++;
+    }));
+    return fk;
+  }
   let ascentFresh = null;   // the theme word just found (its flag pulses)
   function renderAscentMini() {
     const el = $("#ascent-mini");
@@ -7856,6 +7869,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     keyRow(ex && ex.decoy, "Any word", "1 point", false);
     keyRow(ex && ex.word, "On-theme word", "2 points", true);
     $("#tc-ex-lab").hidden = !ex;
+    // 6-7-8 days: the example pair is a fork in the trail (same letters, one word on theme)
+    $("#tc-ex-lab").textContent = newFormat(dailyTheme) ? "A fork in the trail" : "Example";
+    $("#tc-foot").textContent = newFormat(dailyTheme) ? "Every Daily Climb has 3+ forks in the trail." : "Every Climb has at least one word related to the theme.";
     $("#tc-off").checked = themeCardOff();
     themeCardOpenAt = Date.now();
     pauseDailyTimer();            // the clock (and this word's solve time) waits for the card
@@ -8146,6 +8162,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           total: totalRungs, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords,
           hintUsed: hintUsed,
           ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id } : {}),
+          ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
         });
         await window.MatchDB.bumpStreak(day, prevDay);
         ok = true;
@@ -8157,7 +8174,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       // Profile + trophies: today counts right away (final place comes tomorrow).
       setTodayResult(Object.assign({ t: totalRungs, s: sessionStrikes, ms: solveMs, h: hintUsed, at: Date.now() },
         dailyTheme ? { m: dailyMax(), th: themeBonusSoFar(), tf: themeFound.slice(),
-          tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played) } : {}));
+          tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played), fk: newFormat(dailyTheme) ? forksTaken() : null } : {}));
       if (ok) clearResume();   // posted: nothing left to resume (if it failed, a resume tries again)
     })();
     dailyPost = { day: day, p: p };
@@ -10716,6 +10733,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   const TROPHY_GLYPH = {
     flame: '<path d="M12 2.5c.8 3.2 4.6 5 4.6 9.6a4.6 4.6 0 0 1-9.2 0c0-2.3 1.2-3.7 2.4-4.8.1 1.8 1 2.8 2.2 3.1-.7-2.8.1-5.5 0-7.9Z" fill="currentColor"/>',
+    fork: '<path d="M12 21.5v-7.5M12 14 6.5 6.5M12 14l5.5-7.5M3.8 9.2 6.5 6.5l2.7 2.7M14.8 9.2l2.7-2.7 2.7 2.7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
     peak: '<path d="M2.5 19.5 9.5 7l3.2 5.4 2.1-3.1 6.7 10.2Z" fill="currentColor"/><path d="M9.5 7v-4.5l3.6 1.3-3.6 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>',
     crown: '<path d="M3.5 17.5h17l1-9.5-5.2 3.8L12 4.5l-4.3 7.3L2.5 8Z" fill="currentColor"/><rect x="3.5" y="18.8" width="17" height="2.2" rx="1" fill="currentColor"/>',
     podium: '<path d="M3 13h5.6v8H3zM9.2 8.5h5.6V21H9.2zM15.4 15h5.6v6h-5.6z" fill="currentColor"/>',
@@ -10732,6 +10750,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     q: '<text x="12" y="17.5" text-anchor="middle" font-size="15" font-weight="900" fill="currentColor" font-family="system-ui,sans-serif">?</text>',
   };
   const TIER_ORDER = ["bronze", "silver", "gold", "summit"];
+  const tierAt = (ti) => TIER_ORDER[Math.min(ti, TIER_ORDER.length - 1)];   // a family's 5th tier wears the top color too
   const TIER_NAME = { bronze: "Bronze", silver: "Silver", gold: "Gold", summit: "Summit", special: "Special", secret: "Secret" };
   // Hexagonal trophy badge (fills are the tg-* gradients in the logo <svg>).
   function trophyBadge(tier, glyph, locked) {
@@ -10752,9 +10771,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     { id: "streak", group: "Streaks", glyph: "flame", name: "Streak", unit: "day streak",
       tiers: [[3, "Warm Up"], [7, "One Week Wonder"], [30, "Iron Climber"], [100, "Century Climber"]],
       how: (n) => "Play " + n + " days in a row" },
-    { id: "summit", group: "Summits", glyph: "peak", name: "Perfect climbs", unit: "perfect climbs",
-      tiers: [[1, "First Summit"], [10, "Summit Seeker"], [50, "Peak Bagger"], [100, "Mountain Legend"]],
+    { id: "summit", group: "Perfect days", glyph: "peak", name: "Perfect days", unit: "perfect days",
+      tiers: [[1, "First Peak"], [10, "Peak Seeker"], [50, "Peak Bagger"], [100, "Mountain Legend"], [250, "Range Runner"]],
       how: (n) => n === 1 ? "Get every word in a daily" : "Get every word in " + n + " dailies" },
+    { id: "forks", group: "Forks in the trail", glyph: "fork", name: "Forks in the trail", unit: "forks to the theme",
+      tiers: [[10, "Fork Finder"], [50, "Pathfinder"], [150, "Trail Reader"], [500, "Trail Master"]],
+      how: (n) => "Take the theme path at " + n + " forks" },
     { id: "wins", group: "Wins & podiums", glyph: "crown", name: "Daily wins", unit: "wins",
       tiers: [[1, "First Win"], [5, "Front Runner"], [25, "Dynasty"], [100, "King of the Mountain"]],
       how: (n) => n === 1 ? "Finish 1st in a daily" : "Finish 1st in " + n + " dailies" },
@@ -10769,8 +10791,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       how: (n) => "Play " + n + " dailies" },
   ];
   const TROPHY_SINGLES = [
-    { id: "speed", name: "Speed Climber", glyph: "bolt", how: "Perfect daily in under 5 minutes" },
-    { id: "lightning", name: "Lightning", glyph: "bolt", how: "Perfect daily in under 3 minutes" },
+    { id: "speed", name: "Speed Climber", glyph: "bolt", how: "Perfect daily in under 3 minutes" },
+    { id: "lightning", name: "Lightning", glyph: "bolt", how: "Perfect daily in under 2 minutes" },
     { id: "purist", name: "Purist", glyph: "star", how: "Perfect daily without using a hint" },
     { id: "clean", name: "Clean Climb", glyph: "check", how: "Perfect daily with no wrong words" },
     { id: "flawless", name: "Flawless", glyph: "gem", how: "Perfect daily: no hint and no wrong words" },
@@ -10789,7 +10811,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const n = +id.slice(dash + 1);
     const ti = f ? f.tiers.findIndex((t) => t[0] === n) : -1;
     if (!f || ti < 0) return null;
-    return { name: f.tiers[ti][1], how: f.how(n), tier: TIER_ORDER[ti], glyph: f.glyph, family: f, n: n };
+    return { name: f.tiers[ti][1], how: f.how(n), tier: tierAt(ti), glyph: f.glyph, family: f, n: n };
   }
 
   // Local-date helpers on "YYYY-MM-DD".
@@ -10817,7 +10839,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const put = (id, date) => { if (!earned[id]) earned[id] = date; };
     const fam = (id) => TROPHY_FAMILIES.find((f) => f.id === id);
     const hit = (id, value, date) => fam(id).tiers.forEach(([n]) => { if (value >= n) put(id + "-" + n, date); });
-    let days = 0, perfect = 0, wins = 0, podium = 0, run = 0, bestRun = 0, prev = null, winRun = 0, lastWin = null;
+    let days = 0, perfect = 0, forks = 0, wins = 0, podium = 0, run = 0, bestRun = 0, prev = null, winRun = 0, lastWin = null;
     entries.forEach((e) => {
       days++; hit("days", days, e.base);
       run = prev && nextDayBase(prev) === e.base ? run + 1 : 1;
@@ -10826,12 +10848,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
       hit("streak", run, e.base);
       if (isPerfect(e)) {
         perfect++; hit("summit", perfect, e.base);
-        if (e.ms > 0 && e.ms < 300000) put("speed", e.base);
-        if (e.ms > 0 && e.ms < 180000) put("lightning", e.base);
+        const fast = e.base >= FORMAT_DAY ? [180000, 120000] : [300000, 180000];   // 6-7-8 days are shorter
+        if (e.ms > 0 && e.ms < fast[0]) put("speed", e.base);
+        if (e.ms > 0 && e.ms < fast[1]) put("lightning", e.base);
         if (!e.h) put("purist", e.base);
         if (!e.s) put("clean", e.base);
         if (!e.h && !e.s) put("flawless", e.base);
       }
+      if (e.fk) { forks += e.fk; hit("forks", forks, e.base); }
       if (e.r === 1) {
         wins++; hit("wins", wins, e.base);
         winRun = lastWin && nextDayBase(lastWin) === e.base ? winRun + 1 : 1;
@@ -10851,7 +10875,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // Stored awards win (their real dates, other devices, Comeback).
     Object.assign(earned, (myPlayer && myPlayer.trophies) || {});
     return { earned: earned, entries: entries,
-      have: { streak: best, summit: perfect, wins: wins, podium: podium, adventure: myBeatenSeeds.length, days: days } };
+      have: { streak: best, summit: perfect, forks: forks, wins: wins, podium: podium, adventure: myBeatenSeeds.length, days: days } };
   }
 
   // Award anything newly earned: save it and queue the pop-ups. The very first
@@ -10956,7 +10980,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     ]);
     if (p) myPlayer = p;
     if (mine && !todayResult) setTodayResult({ t: mine.total, s: mine.strikes, ms: mine.solveMs, h: mine.hintUsed, at: mine.finishedAt,
-      m: mine.max, th: mine.themeWords });
+      m: mine.max, th: mine.themeWords, fk: mine.forks });
     if (!screens.profile.hidden) renderProfile();
     checkTrophies();
   }
@@ -10964,6 +10988,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     todayResult = { base: dayBase(dailyKeyOf()), t: r.t || 0, s: r.s || 0, ms: r.ms || 0, h: !!r.h, at: r.at || Date.now() };
     // Themed days: most words (m), theme words found (th), which ones (tf), what was played on each theme rung (tp).
     if (r.m) Object.assign(todayResult, { m: r.m, th: r.th || 0, tf: r.tf || null, tp: r.tp || null });
+    if (r.fk != null) todayResult.fk = r.fk;   // forks in the trail taken (6-7-8 days)
     try { localStorage.setItem(TODAY_KEY, JSON.stringify(todayResult)); } catch (e) {}
   }
   const ordinalOf = (n) => ordinal(n);
@@ -11052,7 +11077,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     nextEl.replaceChildren();
     if (next) {
       const [n, tname] = next.f.tiers[next.ti];
-      nextEl.innerHTML = trophyBadge(TIER_ORDER[next.ti], next.f.glyph, true) + '<div class="pf-next-txt"><b></b><small></small><div class="pf-bar"><i></i></div></div>';
+      nextEl.innerHTML = trophyBadge(tierAt(next.ti), next.f.glyph, true) + '<div class="pf-next-txt"><b></b><small></small><div class="pf-bar"><i></i></div></div>';
       nextEl.querySelector("b").textContent = "Next: " + tname;
       nextEl.querySelector("small").textContent = Math.min(ev.have[next.f.id], n) + " / " + n + " " + next.f.unit;
       nextEl.querySelector(".pf-bar i").style.width = Math.round(next.pct * 100) + "%";
@@ -11193,7 +11218,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const id = f.id + "-" + n, got = !!ev.earned[id];
         const btn = document.createElement("button");
         btn.type = "button"; btn.className = "tr-btn" + (got ? " got" : "");
-        btn.innerHTML = trophyBadge(TIER_ORDER[ti], f.glyph, !got);
+        btn.innerHTML = trophyBadge(tierAt(ti), f.glyph, !got);
         const s = document.createElement("span"); s.textContent = tname; btn.appendChild(s);
         btn.addEventListener("click", () => showTrophySheet(id));
         row.appendChild(btn);
