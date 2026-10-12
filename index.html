@@ -1627,6 +1627,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #theme-card .tc-sw.gold { background: var(--rd-gold); color: var(--rd-gold-ink); }
   #theme-card .tc-pts, #theme-card .tc-pts.g { color: var(--rd-ink); }
   .tc-opt { display: flex; align-items: center; gap: 9px; align-self: center; font-size: 0.9rem; color: var(--rd-ink); cursor: pointer; user-select: none; }
+  .tc-opt[hidden] { display: none; }
   .tc-opt input { width: 20px; height: 20px; margin: 0; accent-color: var(--rd-ink); cursor: pointer; }
   #theme-card .primary, #forfeit-confirm .primary { height: 48px; padding: 0 20px; border-radius: 999px; background: var(--rd-btn); color: var(--rd-btn-ink); font-weight: 600; }
   #forfeit-confirm .ff-card h3 { font-family: var(--slab); font-weight: 700; font-size: 1.4rem; }
@@ -2957,6 +2958,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <ul class="hts-bul">
           <li>Unscramble the letters into a word.</li>
           <li>Each new word adds one letter.</li>
+          <li>Each day has 3 <span class="clb">Climbs</span>, from 4 letters up to 6, 7 and 8.</li>
         </ul>
       </div>
       <div class="hts-slide" data-i="1" hidden>
@@ -3065,7 +3067,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-12T11:12:47-07:00","n":10,"notes":[{"note":"How to Play slide 2: Each Climb hides theme words / Theme words are worth 2 points","v":"0.14.0-beta.10"},{"note":"Launch build: 6-7-8 starts Oct 13 on top of the live calendar; every fork playable","v":"0.14.0-beta.9"},{"note":"New players start clean: no Meet Routes, thank-you tour, launch note or NEW dot meant for existing players","v":"0.14.0-beta.8"},{"note":"Fix: a theme word you can't actually play (POTTERS after POTTER) no longer counts toward most points or shows in Routes","v":"0.14.0-beta.7"},{"note":"Forks everywhere: How to Play + theme card name forks; new Forks trophies; Perfect days; tighter speed trophies","v":"0.14.0-beta.6"}],"v":"0.14.0-beta.10"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-12T11:20:54-07:00","n":11,"notes":[{"note":"How to Play slide 1 says each day has 3 Climbs (6, 7, 8); no theme pop-up before Climb 1 on 6-7-8 days","v":"0.14.0-beta.11"},{"note":"How to Play slide 2: Each Climb hides theme words / Theme words are worth 2 points","v":"0.14.0-beta.10"},{"note":"Launch build: 6-7-8 starts Oct 13 on top of the live calendar; every fork playable","v":"0.14.0-beta.9"},{"note":"New players start clean: no Meet Routes, thank-you tour, launch note or NEW dot meant for existing players","v":"0.14.0-beta.8"},{"note":"Fix: a theme word you can't actually play (POTTERS after POTTER) no longer counts toward most points or shows in Routes","v":"0.14.0-beta.7"}],"v":"0.14.0-beta.11"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7855,6 +7857,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   });
   function themeCardShown(day) {
     if (themeCardOff()) return true;   // opted out: it still opens from the theme box, just never on its own
+    if (newFormat(dailyTheme)) return true;   // 6-7-8 days: How to Play explains the theme, so the card only opens from the theme box
     try { return localStorage.getItem(THEME_CARD_KEY) === dayBase(day); } catch (e) { return false; }
   }
   function openThemeCard() {
@@ -7888,6 +7891,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#tc-ex-lab").textContent = newFormat(dailyTheme) ? "A fork in the trail" : "Example";
     $("#tc-foot").textContent = newFormat(dailyTheme) ? "Every Daily Climb has 3+ forks in the trail." : "Every Climb has at least one word related to the theme.";
     $("#tc-off").checked = themeCardOff();
+    $("#tc-off").closest(".tc-opt").hidden = newFormat(dailyTheme);   // it never opens on its own on 6-7-8 days
     themeCardOpenAt = Date.now();
     pauseDailyTimer();            // the clock (and this word's solve time) waits for the card
     $("#theme-card").hidden = false;
