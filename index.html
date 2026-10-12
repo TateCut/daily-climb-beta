@@ -3109,7 +3109,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-12T12:59:13-07:00","n":16,"notes":[{"note":"Between Climbs: icon-style mountain","v":"0.14.0-beta.16"},{"note":"Climb 2 tip just says Climb 2","v":"0.14.0-beta.15"},{"note":"Between Climbs: mountain + leaderboard rows","v":"0.14.0-beta.14"},{"note":"Fix: dragging a letter onto an empty tray space no longer shifts the other letters","v":"0.14.0-beta.13"},{"note":"Theme pop-up removed on 6-7-8 days (tapping the theme does nothing)","v":"0.14.0-beta.12"}],"v":"0.14.0-beta.16"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-12T13:14:30-07:00","n":0,"notes":[{"note":"Synced with live v0.14.0","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10664,7 +10664,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // behind-the-scenes work gets no entry). Tags: "new" | "imp" | "fix".
   // Lives here, inside the page, because the page is always fetched fresh
   // (sw.js caches other files cache-first, so a notes file could go stale).
+  // Each release shows from its date on (the player's own day), so notes can ship ahead of the change they describe.
   const PATCH_NOTES = [
+    { v: "0.14.0", date: "2026-10-13", title: "A new shape for the daily",
+      notes: [
+        ["new", "Every daily is now three Climbs that peak at 6, 7 and 8 letters, the same length every day. Trail, Ridge and Summit are retired."],
+        ["new", "Forks in the trail. Every day has 3+ steps where two words fit, an everyday word and a theme word. Take the theme word for a bonus point."],
+        ["new", "A new screen between Climbs: your mountain, your points out of the most possible, and any fork you missed."],
+        ["new", "Theme words you find plant a gold flag on the mountain, and the card at the top shows which Climb you're on."],
+        ["new", "Forks in the trail trophies at 10, 50, 150 and 500. Summits are now Perfect days, with a new Range Runner trophy at 250."],
+        ["imp", "Much bigger theme lists, so more of the words you play count."],
+        ["imp", "Speed Climber and Lightning now need a perfect day in under 3 and 2 minutes. Anyone who already has them keeps them."],
+        ["imp", "The home screen puts today's theme front and center."],
+        ["imp", "A shorter How to Play, and the theme pop-up before Climb 1 is gone."],
+        ["imp", "Forfeit Climb is now a smaller red button, up off the bottom edge of the screen."],
+        ["fix", "Dragging a letter into an empty space in your tray no longer shifts the other letters."],
+      ] },
     { v: "0.13.0", date: "2026-10-07", title: "A new menu and Past Climbs",
       notes: [
         ["new", "The home screen has a new ☰ menu. The theme calendar, how to play, invites, dark mode and sound all live there now, plus a switch to turn your daily reminder on or off in one tap."],
@@ -10787,7 +10802,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       notes: [
         ["new", "See what's changed in every update. Tap the version number at the bottom of the home screen; an amber dot means there's something new."],
       ] },
-  ];
+  ].filter((p) => p.date <= dayBase(dailyKeyOf()));
   const APP_VERSION = PATCH_NOTES[0].v;
   const PATCH_SEEN_KEY = "three21.patchSeen"; // last version this player opened the notes for
   const PATCH_TAG = { new: "New", imp: "Improved", fix: "Fixed", rem: "Removed" };
