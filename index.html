@@ -3065,7 +3065,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-12T08:00:59-07:00","n":7,"notes":[{"note":"Fix: a theme word you can't actually play (POTTERS after POTTER) no longer counts toward most points or shows in Routes","v":"0.14.0-beta.7"},{"note":"Forks everywhere: How to Play + theme card name forks; new Forks trophies; Perfect days; tighter speed trophies","v":"0.14.0-beta.6"},{"note":"6-7-8 from Oct 10: launch note + announcement, theme flags on the mountain, Climb 1/2/3 card","v":"0.14.0-beta.5"},{"note":"Home: today's theme is the headline; Trail / Ridge / Summit removed","v":"0.14.0-beta.4"},{"note":"New daily format: every day from Oct 11 is three Climbs of 6, 7 and 8 letters with 3+ choice steps","v":"0.14.0-beta.3"}],"v":"0.14.0-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-12T10:41:44-07:00","n":8,"notes":[{"note":"New players start clean: no Meet Routes, thank-you tour, launch note or NEW dot meant for existing players","v":"0.14.0-beta.8"},{"note":"Fix: a theme word you can't actually play (POTTERS after POTTER) no longer counts toward most points or shows in Routes","v":"0.14.0-beta.7"},{"note":"Forks everywhere: How to Play + theme card name forks; new Forks trophies; Perfect days; tighter speed trophies","v":"0.14.0-beta.6"},{"note":"6-7-8 from Oct 10: launch note + announcement, theme flags on the mountain, Climb 1/2/3 card","v":"0.14.0-beta.5"},{"note":"Home: today's theme is the headline; Trail / Ridge / Summit removed","v":"0.14.0-beta.4"}],"v":"0.14.0-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3251,7 +3251,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // ---- BETA badge + test tools ----
   window.DC_BETA_TOOLS = {
     resetAll: function () {
-      try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); sessionStorage.removeItem("three21.devDay"); } catch (e) {}
+      try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.|dc\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); sessionStorage.removeItem("three21.devDay"); } catch (e) {}
       location.reload();
     },
     replayToday: function () {
@@ -3272,13 +3272,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     },
     newPlayer: function () { // keep the test profile, but forget How to play and every first-game tip, then replay today
       if (db.player) db.player.tutorialSeen = false;
-      try { ["three21.tut", "three21.tips", "three21.tipsOn", "three21.tapTipShown"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+      try { ["three21.tut", "three21.tips", "three21.tipsOn", "three21.tapTipShown", "dc.ann.seen", "dc.note.seen", "dc.new.routes"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
       window.DC_BETA_TOOLS.replayToday();
     },
     toggleLight: function () { var b = document.getElementById("btn-theme"); if (b) b.click(); },
     toggleFakes: function () { db.noFakes = !db.noFakes; save(); location.reload(); },
     signupTest: function () { // a brand-new visitor: the welcome and sign-up screens
-      try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); localStorage.setItem(KEY, JSON.stringify({ signupTest: true })); } catch (e) {}
+      try { Object.keys(localStorage).filter(function (k) { return /^(three21\.|beta\.|dc\.)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); localStorage.setItem(KEY, JSON.stringify({ signupTest: true })); } catch (e) {}
       location.reload();
     },
   };
@@ -7984,7 +7984,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if ($("#howto-card").hidden) return;
     $("#howto-card").hidden = true;
     if (howtoTok) howtoTok.dead = true;
+    const firstTime = !tutorialSeen;
     tutorialSeen = true;
+    if (firstTime) skipIntrosForNewPlayer();
     if (window.MatchDB && window.MatchDB.markTutorialSeen) window.MatchDB.markTutorialSeen();
     try { localStorage.setItem("three21.tut", "1"); } catch (e) {}
     if (!howtoInGame) return;
@@ -10315,7 +10317,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const top = annList()[0]; if (top) try { localStorage.setItem(ANN_KEY, top.id); } catch (e) {}
     renderMenuDot();
   }
-  function renderMenuDot() { $("#hs-menu-dot").hidden = !announcementUnread(); }
+  function renderMenuDot() { $("#hs-menu-dot").hidden = !tutorialSeen || !announcementUnread(); }
   let annOpenedFrom = null;
   // How long the newest announcement stays on screen (paused while the app is in the background),
   // whether its end came into view, and how it was closed. Saved to players/{uid}.announcements.
@@ -10415,6 +10417,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const NOTE_KEY = "dc.note.seen";
   const noteShown = (id) => { try { return localStorage.getItem(NOTE_KEY) === id; } catch (e) { return true; } };
   let notePage = 1;
+  // A brand-new player learns the game as it is: once they've finished How to Play, the intros and announcements
+  // written for existing players (Meet Routes, the thank-you tour, the 6-7-8 launch note) count as seen.
+  // Anything announced after that reaches them like everyone else.
+  function skipIntrosForNewPlayer() {
+    markWhatsNewSeen();
+    const top = annList()[0];
+    if (top) try { localStorage.setItem(ANN_KEY, top.id); localStorage.setItem(NOTE_KEY, top.id); } catch (e) {}
+    renderMenuDot();
+  }
   function openShapeNote(auto) {
     const top = annList()[0];
     if (!top || screens.home.hidden) return;
