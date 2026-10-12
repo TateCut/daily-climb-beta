@@ -1495,6 +1495,37 @@ $1{ display: flex; gap: 8px; width: 100%; }
   /* Between Climbs. */
   #screen-climb-roundend h2 { font-family: var(--slab); font-weight: 700; font-size: 1.5rem !important; }
   #cre-words .tw { background: var(--rd-gold); border-color: var(--rd-gold); color: var(--rd-gold-ink); box-shadow: none; }
+  /* 6-7-8 days, between Climbs: the title, the three-summit mountain and leaderboard rows, centered on the screen */
+  #cre-mt, #cre-rows { display: none; }
+  #screen-climb-roundend.f678 { min-height: calc(100dvh - 150px); justify-content: center; gap: 14px; padding-bottom: 30px; }
+  #screen-climb-roundend.f678 h2 { font-size: 1.7rem !important; }
+  #screen-climb-roundend.f678 #cre-box, #screen-climb-roundend.f678 #cre-theme, #screen-climb-roundend.f678 #cre-sub,
+  #screen-climb-roundend.f678 #cre-word, #screen-climb-roundend.f678 #cre-def { display: none !important; }
+  #screen-climb-roundend.f678 #cre-mt { display: block; position: relative; align-self: stretch; height: 104px; border-radius: 12px; overflow: hidden; background: linear-gradient(var(--rd-sky1), var(--rd-sky2)); }
+  #cre-mt svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #cre-mt text { font-size: 10px; font-weight: 800; }
+  #screen-climb-roundend.f678 #cre-rows { display: flex; align-self: stretch; gap: 10px; text-align: left; }
+  #cre-rows .round { align-items: stretch; gap: 8px; }
+  #cre-rows .round + .round { padding-top: 10px; border-top: 1px solid var(--rd-line); }
+  #cre-rows .round-label.pts { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.15rem; letter-spacing: 0; text-transform: none; }
+  #cre-rows .round-label.pts .h { font-family: var(--slab); font-weight: 700; color: var(--rd-ink); }
+  #cre-rows .round-label.pts .clb { color: var(--rd-climb); }
+  #cre-rows .round-label.pts .sc { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--rd-ink); }
+  #cre-rows .round-label.pts .sc span { color: var(--rd-muted); font-weight: 600; }
+  #cre-rows .chips { justify-content: center; }
+  #cre-rows .chips.flagged { padding-top: 0; }
+  #cre-rows .chip-flag { display: none; }
+  #cre-rows .chips span { border: 0; background: var(--rd-tile); color: var(--rd-tile-ink); font-weight: 700; padding: 4px 10px; }
+  #cre-rows .chips span.theme-rung.gold { background: var(--rd-gold); color: var(--rd-gold-ink); }
+  #cre-rows .chips .missed-step { padding: 2.5px 8.5px; border-radius: 999px; border: 1.5px dashed var(--rd-line); color: var(--rd-muted); background: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
+  #cre-rows .chips .missed-step.tw { padding: 2px 8px; border: 2px dashed var(--rd-gm-line); color: var(--rd-gm-ink); }
+  #cre-rows .chips .pair { display: inline-flex; }
+  #cre-rows .chips .pair > span:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 8px; }
+  #cre-rows .chips .pair > .missed-step { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left-style: solid; padding-left: 7px; }
+  /* earlier Climbs fold to their score line (their words were on the last screen) */
+  #cre-rows .round.fold .chips { display: none; }
+  #cre-rows .round.fold .round-label.pts { font-size: 1rem; }
+  #cre-rows .round.fold .round-label.pts .h, #cre-rows .round.fold .round-label.pts .clb, #cre-rows .round.fold .round-label.pts .sc { color: var(--rd-muted); }
   .theme-reveal.got { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 14px; text-align: center; border: 0; border-radius: 14px;
     background: color-mix(in srgb, var(--rd-gold) 22%, var(--rd-bg)); animation: tr-cheer .5s cubic-bezier(.2,.8,.25,1.4) both; }
   .tr-nice { font-family: var(--slab); font-size: 1.7rem; font-weight: 700; line-height: 1; color: var(--rd-ink); }
@@ -2767,6 +2798,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <!-- CLIMB: between climbs (daily) -->
     <section id="screen-climb-roundend" hidden>
       <h2 id="cre-title" style="margin:0;font-size:1.3rem;">Climb 1 of 3</h2>
+      <div class="cre-mt" id="cre-mt" aria-hidden="true"></div>
+      <div class="rounds" id="cre-rows"></div>
       <div class="totalbox" id="cre-box">
         <span class="totalbox-label" id="cre-label">You cleared</span>
         <div class="chips" id="cre-words"></div>
@@ -3067,7 +3100,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-12T11:28:42-07:00","n":13,"notes":[{"note":"Fix: dragging a letter onto an empty tray space no longer shifts the other letters","v":"0.14.0-beta.13"},{"note":"Theme pop-up removed on 6-7-8 days (tapping the theme does nothing)","v":"0.14.0-beta.12"},{"note":"How to Play slide 1 says each day has 3 Climbs (6, 7, 8); no theme pop-up before Climb 1 on 6-7-8 days","v":"0.14.0-beta.11"},{"note":"How to Play slide 2: Each Climb hides theme words / Theme words are worth 2 points","v":"0.14.0-beta.10"},{"note":"Launch build: 6-7-8 starts Oct 13 on top of the live calendar; every fork playable","v":"0.14.0-beta.9"}],"v":"0.14.0-beta.13"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-12T12:09:56-07:00","n":14,"notes":[{"note":"Between Climbs: mountain + leaderboard rows","v":"0.14.0-beta.14"},{"note":"Fix: dragging a letter onto an empty tray space no longer shifts the other letters","v":"0.14.0-beta.13"},{"note":"Theme pop-up removed on 6-7-8 days (tapping the theme does nothing)","v":"0.14.0-beta.12"},{"note":"How to Play slide 1 says each day has 3 Climbs (6, 7, 8); no theme pop-up before Climb 1 on 6-7-8 days","v":"0.14.0-beta.11"},{"note":"How to Play slide 2: Each Climb hides theme words / Theme words are worth 2 points","v":"0.14.0-beta.10"}],"v":"0.14.0-beta.14"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7359,6 +7392,24 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return best || climbExample();
   }
 
+  // 6-7-8 days, between Climbs: the day's three summits (6, 7 and 8 letters). The trail reaches the top
+  // of the one just finished (n) and plants a flag on each one done; the next summit's number is orange.
+  function creMountain(n) {
+    const tops = [[70, 58], [150, 40], [245, 20]];
+    const tp = [[18, 104], [44, 84], [70, 58], [98, 70], [124, 58], [150, 40], [182, 52], [214, 38], [245, 20]];
+    const path = (a) => a.map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
+    const line = 'fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"';
+    return '<svg viewBox="0 -16 300 126" preserveAspectRatio="none">' +
+      '<path d="M0 110 L70 58 L100 74 L150 40 L185 56 L245 20 L300 70 V110 Z" fill="var(--rd-m2)"/>' +
+      '<path d="M0 110 L40 92 L95 100 L150 84 L205 96 L260 80 L300 92 V110 Z" fill="var(--rd-m3)"/>' +
+      '<path d="' + path(tp) + '" ' + line + ' stroke="var(--rd-muted)" stroke-width="2" stroke-dasharray="2 4"/>' +
+      '<path d="' + path(tp.slice(0, n * 3)) + '" ' + line + ' stroke="var(--rd-climb)" stroke-width="2.6"/>' +
+      tops.slice(0, n).map(([x, y]) => '<g transform="translate(' + x + " " + y + ')"><path d="M0 0 V-14" stroke="var(--rd-ink)" stroke-width="1.6"/>' +
+        '<path d="M0 -14 h9 l-2.4 3 2.4 3 H0z" fill="var(--rd-gold)" stroke="#121212" stroke-width="1"/></g>').join("") +
+      tops.map(([x, y], i) => '<text x="' + x + '" y="' + (y - 20) + '" text-anchor="middle" fill="' + (i === n ? "var(--rd-climb)" : "var(--rd-muted)") + '">' + (6 + i) + "</text>").join("") +
+      "</svg>";
+  }
+
   // A climb (round) has ended — completed all 6 rungs, or struck out / gave up.
   function climbRoundDone(completed) {
     clearInterval(timerId);
@@ -7367,6 +7418,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     clearDropTarget();
     defToken++;
     roundWords[round - 1] = currentRoundWords.slice();
+    const f678 = mode === "daily" && newFormat(dailyTheme);   // 6-7-8 days get the mountain + leaderboard rows
+    $("#screen-climb-roundend").classList.toggle("f678", f678);
     pauseDailyTimer();   // the clock waits on the between-Climbs screen
     saveDailyProgress({ climbDone: round });   // incl. a Climb ended early or out of strikes
     if (!completed) FX.play("over");
@@ -7446,7 +7499,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#cre-word").textContent = ex ? ex.toUpperCase() : "";
       if (ex) showDefinition(ex, $("#cre-def"));
     }
-    $("#btn-cre-next").innerHTML = isLastRound ? "See results" : 'Keep <span class="clb">Climbing</span>!';
+    if (f678) {
+      $("#cre-mt").innerHTML = creMountain(round);
+      renderRoundsBlock($("#cre-rows"), roundWords.slice(0, round), dailyTheme);
+      [...$("#cre-rows").children].forEach((r, i) => r.classList.toggle("fold", i < round - 1));
+    }
+    $("#btn-cre-next").innerHTML = isLastRound ? (f678 ? "See the leaderboard" : "See results") : 'Keep <span class="clb">Climbing</span>!';
     saveRoundBreak(round + 1);
     // Last Climb: post the result now, so closing the app on this screen doesn't lose it.
     // "See results" then just opens the board.
