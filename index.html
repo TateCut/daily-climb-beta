@@ -1501,9 +1501,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #screen-climb-roundend.f678 h2 { font-size: 1.7rem !important; }
   #screen-climb-roundend.f678 #cre-box, #screen-climb-roundend.f678 #cre-theme, #screen-climb-roundend.f678 #cre-sub,
   #screen-climb-roundend.f678 #cre-word, #screen-climb-roundend.f678 #cre-def { display: none !important; }
-  #screen-climb-roundend.f678 #cre-mt { display: block; position: relative; align-self: stretch; height: 104px; border-radius: 12px; overflow: hidden; background: linear-gradient(var(--rd-sky1), var(--rd-sky2)); }
-  #cre-mt svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  #cre-mt text { font-size: 10px; font-weight: 800; }
+  #screen-climb-roundend.f678 #cre-mt { display: block; align-self: stretch; }
+  #cre-mt svg { display: block; width: 100%; height: auto; overflow: visible; }
+  /* the newest stretch of trail dots itself in, the climber pops in, then the newest flag goes up */
+  #cre-mt .draw { animation: cre-draw 1s cubic-bezier(.5, .1, .3, 1) .25s both; }
+  @keyframes cre-draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+  #cre-mt .pop { transform-box: fill-box; transform-origin: center; animation: cre-pop .4s cubic-bezier(.3, 1.7, .5, 1) .95s both; }
+  @keyframes cre-pop { from { transform: scale(0); } to { transform: none; } }
+  #cre-mt .rise { transform-box: fill-box; transform-origin: 0% 100%; animation: cre-rise .45s cubic-bezier(.3, 1.6, .5, 1) 1.2s both; }
+  @keyframes cre-rise { from { transform: scaleY(0); } to { transform: none; } }
+  #cre-mt .wave { transform-box: fill-box; transform-origin: 0% 50%; animation: cre-wave 2.4s ease-in-out 1.7s infinite; }
+  @keyframes cre-wave { 0%, 100% { transform: none; } 50% { transform: skewY(-6deg) scaleX(.9); } }
+  @media (prefers-reduced-motion: reduce) { #cre-mt .draw, #cre-mt .pop, #cre-mt .rise, #cre-mt .wave { animation: none; } }
   #screen-climb-roundend.f678 #cre-rows { display: flex; align-self: stretch; gap: 10px; text-align: left; }
   #cre-rows .round { align-items: stretch; gap: 8px; }
   #cre-rows .round + .round { padding-top: 10px; border-top: 1px solid var(--rd-line); }
@@ -3100,7 +3109,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-12T12:36:23-07:00","n":15,"notes":[{"note":"Climb 2 tip just says Climb 2","v":"0.14.0-beta.15"},{"note":"Between Climbs: mountain + leaderboard rows","v":"0.14.0-beta.14"},{"note":"Fix: dragging a letter onto an empty tray space no longer shifts the other letters","v":"0.14.0-beta.13"},{"note":"Theme pop-up removed on 6-7-8 days (tapping the theme does nothing)","v":"0.14.0-beta.12"},{"note":"How to Play slide 1 says each day has 3 Climbs (6, 7, 8); no theme pop-up before Climb 1 on 6-7-8 days","v":"0.14.0-beta.11"}],"v":"0.14.0-beta.15"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-12T12:59:13-07:00","n":16,"notes":[{"note":"Between Climbs: icon-style mountain","v":"0.14.0-beta.16"},{"note":"Climb 2 tip just says Climb 2","v":"0.14.0-beta.15"},{"note":"Between Climbs: mountain + leaderboard rows","v":"0.14.0-beta.14"},{"note":"Fix: dragging a letter onto an empty tray space no longer shifts the other letters","v":"0.14.0-beta.13"},{"note":"Theme pop-up removed on 6-7-8 days (tapping the theme does nothing)","v":"0.14.0-beta.12"}],"v":"0.14.0-beta.16"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7392,22 +7401,64 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return best || climbExample();
   }
 
-  // 6-7-8 days, between Climbs: the day's three summits (6, 7 and 8 letters). The trail reaches the top
-  // of the one just finished (n) and plants a flag on each one done; the next summit's number is orange.
+  // 6-7-8 days, between Climbs: the day's three peaks drawn like the app icon (ink outlines, orange once climbed with
+  // a white diamond, hatched while still ahead), a dotted switchback trail (faint ahead, ink where walked, the newest
+  // stretch dotting itself in), the white climber dot just under the newest summit, and a yellow flag on each one done.
+  const CRE_PEAKS = [{ a: [84, 58], l: 26, r: 142 }, { a: [176, 38], l: 112, r: 242 }, { a: [272, 14], l: 194, r: 336 }];
+  const CRE_TRAIL = (() => {
+    // switchbacks up a peak's left face, always inside it, from (x0, y0) to the summit
+    const faceX = (t, y) => t.a[0] - (t.a[0] - t.l) * (y - t.a[1]) / (124 - t.a[1]);
+    const zig = (t, x0, y0, legs) => {
+      const out = [[x0, y0]];
+      for (let k = 1; k <= legs; k++) {
+        const y = y0 - (y0 - t.a[1]) * k / (legs + 0.6), fx = faceX(t, y) + 4;
+        out.push([Math.round(k % 2 ? fx + (t.a[0] - fx) * 0.8 : fx), Math.round(y)]);
+      }
+      out.push(t.a);
+      return out;
+    };
+    // where one peak's right face meets the next one's left face
+    const saddle = (p, q) => {
+      const s1 = (124 - p.a[1]) / (p.r - p.a[0]), s2 = (124 - q.a[1]) / (q.l - q.a[0]);
+      const x = (q.a[1] - p.a[1] + s1 * p.a[0] - s2 * q.a[0]) / (s1 - s2);
+      return [Math.round(x), Math.round(p.a[1] + s1 * (x - p.a[0]))];
+    };
+    return CRE_PEAKS.map((t, i) => {
+      if (!i) return zig(t, 40, 124, 4);
+      const p = CRE_PEAKS[i - 1], [sx, sy] = saddle(p, t);
+      return [p.a, [p.a[0] + 3, p.a[1] + 4], [sx, sy - 3]].concat(zig(t, sx + 3, sy - 4, [4, 5][i - 1]).slice(1));
+    });
+  })();
+  let creUid = 0;
   function creMountain(n) {
-    const tops = [[70, 58], [150, 40], [245, 20]];
-    const tp = [[18, 104], [44, 84], [70, 58], [98, 70], [124, 58], [150, 40], [182, 52], [214, 38], [245, 20]];
-    const path = (a) => a.map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
-    const line = 'fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"';
-    return '<svg viewBox="0 -16 300 126" preserveAspectRatio="none">' +
-      '<path d="M0 110 L70 58 L100 74 L150 40 L185 56 L245 20 L300 70 V110 Z" fill="var(--rd-m2)"/>' +
-      '<path d="M0 110 L40 92 L95 100 L150 84 L205 96 L260 80 L300 92 V110 Z" fill="var(--rd-m3)"/>' +
-      '<path d="' + path(tp) + '" ' + line + ' stroke="var(--rd-muted)" stroke-width="2" stroke-dasharray="2 4"/>' +
-      '<path d="' + path(tp.slice(0, n * 3)) + '" ' + line + ' stroke="var(--rd-climb)" stroke-width="2.6"/>' +
-      tops.slice(0, n).map(([x, y]) => '<g transform="translate(' + x + " " + y + ')"><path d="M0 0 V-14" stroke="var(--rd-ink)" stroke-width="1.6"/>' +
-        '<path d="M0 -14 h9 l-2.4 3 2.4 3 H0z" fill="var(--rd-gold)" stroke="#121212" stroke-width="1"/></g>').join("") +
-      tops.map(([x, y], i) => '<text x="' + x + '" y="' + (y - 20) + '" text-anchor="middle" fill="' + (i === n ? "var(--rd-climb)" : "var(--rd-muted)") + '">' + (6 + i) + "</text>").join("") +
-      "</svg>";
+    const id = "cre" + (++creUid), ink = "var(--rd-ink)", paper = "var(--rd-bg)";
+    const tri = (t) => "M" + t.a + " L" + t.r + ",124 L" + t.l + ",124 Z";
+    const pathOf = (pts) => pts.map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
+    const now = CRE_TRAIL[n - 1];
+    const len = Math.ceil(now.reduce((a, p, i) => i ? a + Math.hypot(p[0] - now[i - 1][0], p[1] - now[i - 1][1]) : 0, 0));
+    let s = '<svg viewBox="-4 -14 348 142" aria-hidden="true"><defs>' +
+      '<pattern id="' + id + 'h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="' + ink + '" stroke-width="1" opacity=".22"/></pattern>' +
+      '<mask id="' + id + 'm" maskUnits="userSpaceOnUse" x="-20" y="-40" width="400" height="200"><path class="draw" style="stroke-dasharray:' + len + ";--len:" + len + '" d="' + pathOf(now) +
+      '" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></mask></defs>';
+    [2, 1, 0].forEach((i) => {   // back to front
+      const t = CRE_PEAKS[i], up = i < n, x = t.a[0], y = t.a[1], k = [0.75, 0.9, 1][i];
+      s += '<path d="' + tri(t) + '" fill="' + (up ? "#e8871e" : paper) + '" stroke="' + ink + '" stroke-width="2.4" stroke-linejoin="round"/>';
+      if (!up) s += '<path d="' + tri(t) + '" fill="url(#' + id + 'h)"/>';
+      else s += '<path d="M' + x + " " + (y + 5 * k) + " L" + (x - 4.5 * k) + " " + (y + 11 * k) + " L" + x + " " + (y + 17 * k) + " L" + (x + 4.5 * k) + " " + (y + 11 * k) +
+        ' Z" fill="' + paper + '" stroke="' + ink + '" stroke-width="1.6" stroke-linejoin="round"/>';
+    });
+    s += '<path d="M6 124 H334" stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"/>';
+    const dots = (d, extra) => '<path d="' + d + '" fill="none" stroke="' + ink + '" stroke-width="2.6" stroke-dasharray="0.1 6" stroke-linecap="round" stroke-linejoin="round"' + extra + "/>";
+    s += dots(pathOf([].concat(...CRE_TRAIL)), ' opacity=".28"');
+    if (n > 1) s += dots(pathOf([].concat(...CRE_TRAIL.slice(0, n - 1))), "");
+    s += dots(pathOf(now), ' mask="url(#' + id + 'm)"');
+    CRE_PEAKS.slice(0, n).forEach((t, i) => {
+      const x = t.a[0], y = t.a[1], fresh = i === n - 1;
+      s += "<g" + (fresh ? ' class="rise"' : "") + '><path d="M' + x + " " + y + " V" + (y - 15) + '" stroke="' + ink + '" stroke-width="1.7" stroke-linecap="round"/>' +
+        "<path" + (fresh ? ' class="wave"' : "") + ' d="M' + (x + 0.8) + " " + (y - 15) + ' h10 l-2.6 3.2 2.6 3.2 h-10 z" fill="var(--rd-gold)" stroke="' + ink + '" stroke-width="1" stroke-linejoin="round"/></g>';
+    });
+    const me = now[now.length - 2];
+    return s + '<circle class="pop" cx="' + me[0] + '" cy="' + me[1] + '" r="4.6" fill="' + paper + '" stroke="' + ink + '" stroke-width="2"/></svg>';
   }
 
   // A climb (round) has ended — completed all 6 rungs, or struck out / gave up.
