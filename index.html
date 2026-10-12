@@ -3065,7 +3065,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-12T10:41:44-07:00","n":8,"notes":[{"note":"New players start clean: no Meet Routes, thank-you tour, launch note or NEW dot meant for existing players","v":"0.14.0-beta.8"},{"note":"Fix: a theme word you can't actually play (POTTERS after POTTER) no longer counts toward most points or shows in Routes","v":"0.14.0-beta.7"},{"note":"Forks everywhere: How to Play + theme card name forks; new Forks trophies; Perfect days; tighter speed trophies","v":"0.14.0-beta.6"},{"note":"6-7-8 from Oct 10: launch note + announcement, theme flags on the mountain, Climb 1/2/3 card","v":"0.14.0-beta.5"},{"note":"Home: today's theme is the headline; Trail / Ridge / Summit removed","v":"0.14.0-beta.4"}],"v":"0.14.0-beta.8"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-12T10:52:11-07:00","n":9,"notes":[{"note":"Launch build: 6-7-8 starts Oct 13 on top of the live calendar; every fork playable","v":"0.14.0-beta.9"},{"note":"New players start clean: no Meet Routes, thank-you tour, launch note or NEW dot meant for existing players","v":"0.14.0-beta.8"},{"note":"Fix: a theme word you can't actually play (POTTERS after POTTER) no longer counts toward most points or shows in Routes","v":"0.14.0-beta.7"},{"note":"Forks everywhere: How to Play + theme card name forks; new Forks trophies; Perfect days; tighter speed trophies","v":"0.14.0-beta.6"},{"note":"6-7-8 from Oct 10: launch note + announcement, theme flags on the mountain, Climb 1/2/3 card","v":"0.14.0-beta.5"}],"v":"0.14.0-beta.9"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7123,7 +7123,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const newRules = (t) => !!t && newRulesOn(t.base);
   // The 6-7-8 format (three Climbs peaking at 6, 7 and 8 letters, 3+ forks in the trail a day) starts with this day's
   // daily, for every player in every time zone. Earlier days keep their old look; the launch note waits for it too.
-  const FORMAT_DAY = "2026-10-10";
+  const FORMAT_DAY = "2026-10-13";
   const newFormat = (t) => !!t && t.base >= FORMAT_DAY;
   // Is w a theme word? Anything on the theme's list (theme-words.js) counts,
   // on any rung, plus the calendar's own theme words for climb i.
