@@ -1512,14 +1512,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   @keyframes cre-shine { 0% { opacity: 0; transform: skewX(-20deg) translateX(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: skewX(-20deg) translateX(190px); } }
   #cre-mt .sunup { animation: cre-sun 1.4s cubic-bezier(.2, .7, .3, 1) calc(var(--walk, 0s) + 1.9s) both; }
   @keyframes cre-sun { from { transform: translate(0, 70px); } to { transform: none; } }
-  .cre-banner { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%) scale(0); background: var(--rd-gold); color: #121212;
+  .cre-banner { display: table; margin: 10px auto 0; transform: scale(0); background: var(--rd-gold); color: #121212;
     font-family: var(--slab); font-weight: 700; font-size: 1.02rem; padding: 6px 18px; border-radius: 999px; white-space: nowrap; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22); pointer-events: none; }
   .cre-banner.on { animation: cre-banner .5s cubic-bezier(.3, 1.6, .5, 1) both; }
-  @keyframes cre-banner { from { transform: translateX(-50%) scale(0); } to { transform: translateX(-50%) scale(1); } }
+  @keyframes cre-banner { from { transform: scale(0); } to { transform: scale(1); } }
   #cre-fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
   @media (prefers-reduced-motion: reduce) {
     #cre-mt .hop, #cre-mt .shine, #cre-mt .sunup { animation: none; }
-    .cre-banner.on { animation: none; transform: translateX(-50%); }
+    .cre-banner.on { animation: none; transform: none; }
   }
   @keyframes cre-fill { from { opacity: 0; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { #cre-mt .fillin { animation: none; } }
@@ -3182,7 +3182,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T15:18:32-07:00","n":6,"notes":[{"note":"Share sends a link with your picture; the climber walks the trail","v":"0.15.0-beta.6"},{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"},{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"},{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"}],"v":"0.15.0-beta.6"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T15:25:44-07:00","n":7,"notes":[{"note":"Perfect day banner sits under the times","v":"0.15.0-beta.7"},{"note":"Share sends a link with your picture; the climber walks the trail","v":"0.15.0-beta.6"},{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"},{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"}],"v":"0.15.0-beta.7"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
