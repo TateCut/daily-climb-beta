@@ -2402,7 +2402,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M21.2 58.4 L26 50 L31.4 57.8 L28.4 56 L26 59.6 L23.6 56.6 Z" fill="#ffffff"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M96 46.5 L102 36 L108.75 45.75 L105 43.5 L102 48 L99 44.25 Z" fill="#ffffff"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M56 28 L64 14 L73 27 L68 24 L64 30 L60 25 Z" fill="#ffffff"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g><path d="M10 82 C18 78 28 72 38 64" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="39" cy="63" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
       </svg>
       <p class="hs-title">Daily <span class="clb">Climb</span></p>
-      <p class="hs-tag" id="home-tagline"><span class="clb">Climb</span> one word at a time and find the day's theme.</p>
+      <p class="hs-tag" id="home-tagline"><span class="clb">Climb</span> one word at a time. On-theme words score extra.</p>
       <div class="home-play" id="dailycard-hero">
         <button class="primary" id="btn-daily-play" type="button">Play</button>
         <p class="note" id="daily-meta" hidden></p>
@@ -3182,7 +3182,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T15:25:44-07:00","n":7,"notes":[{"note":"Perfect day banner sits under the times","v":"0.15.0-beta.7"},{"note":"Share sends a link with your picture; the climber walks the trail","v":"0.15.0-beta.6"},{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"},{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"}],"v":"0.15.0-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T15:38:26-07:00","n":8,"notes":[{"note":"New home tagline: On-theme words score extra","v":"0.15.0-beta.8"},{"note":"Perfect day banner sits under the times","v":"0.15.0-beta.7"},{"note":"Share sends a link with your picture; the climber walks the trail","v":"0.15.0-beta.6"},{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"}],"v":"0.15.0-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -8371,7 +8371,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const rows = [[1, "summitsam", 19, "4:12"], [2, "Juniper", 18, "5:03"], [3, "You", 17, "5:41", 1], [4, "pebble", 17, "6:20"], [5, "trailmix", 16, "4:58"], [6, "Bex", 15, "7:45"]];
     const who = [[1, "summitsam"], [2, "Juniper"], [3, "You", 1], [5, "trailmix"], [6, "Bex"], [8, "goatfoot"], [11, "Nico"]];
     return '<div class="wn-sc wn-home">' + $(".hs-logo").outerHTML + '<div class="wn-ttl">Daily <span class="clb">Climb</span></div>' +
-      '<div class="wn-tag"><span class="clb">Climb</span> one word at a time and find the day\x27s theme.</div><div class="wn-play">See today\x27s results</div>' +
+      '<div class="wn-tag"><span class="clb">Climb</span> one word at a time. On-theme words score extra.</div><div class="wn-play">See today\x27s results</div>' +
       '<div class="wn-adv">Adventure Mode<small>Can you beat every <span class="clb">Climb</span>?</small></div></div>' +
       '<div class="wn-sc wn-board off"><div class="wn-bh"><span>&lsaquo; Home</span><b>Daily <span class="clb">Climb</span></b><span></span></div>' +
       '<div class="wn-tabs"><span>Standings</span><span>Routes</span></div>' +
