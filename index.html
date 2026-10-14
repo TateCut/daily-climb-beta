@@ -1504,13 +1504,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #screen-climb-roundend.f678 #cre-mt { display: block; align-self: center; width: min(68%, 240px); }
   #cre-mt { --pk-sand: #3a2f26; }
   html.light #cre-mt { --pk-sand: #f4e6d4; }
-  #cre-mt .fillin { animation: cre-fill .7s ease-out .3s both; }
+  #cre-mt .fillin { animation: cre-fill .7s ease-out calc(var(--walk, 0s) + .3s) both; }
   #cre-mt { position: relative; }
   #cre-mt .hop { animation: cre-hop .38s ease-out .8s both; }
   @keyframes cre-hop { 0% { transform: translate(-14px, 22px); } 55% { transform: translate(-7px, -4px); } 100% { transform: none; } }
-  #cre-mt .shine { animation: cre-shine .9s ease-in-out 1.3s both; }
+  #cre-mt .shine { animation: cre-shine .9s ease-in-out calc(var(--walk, 0s) + 1.3s) both; }
   @keyframes cre-shine { 0% { opacity: 0; transform: skewX(-20deg) translateX(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: skewX(-20deg) translateX(190px); } }
-  #cre-mt .sunup { animation: cre-sun 1.4s cubic-bezier(.2, .7, .3, 1) 1.9s both; }
+  #cre-mt .sunup { animation: cre-sun 1.4s cubic-bezier(.2, .7, .3, 1) calc(var(--walk, 0s) + 1.9s) both; }
   @keyframes cre-sun { from { transform: translate(0, 70px); } to { transform: none; } }
   .cre-banner { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%) scale(0); background: var(--rd-gold); color: #121212;
     font-family: var(--slab); font-weight: 700; font-size: 1.02rem; padding: 6px 18px; border-radius: 999px; white-space: nowrap; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22); pointer-events: none; }
@@ -1529,9 +1529,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   @keyframes cre-draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
   #cre-mt .pop { transform-box: fill-box; transform-origin: center; animation: cre-pop .4s cubic-bezier(.3, 1.7, .5, 1) .95s both; }
   @keyframes cre-pop { from { transform: scale(0); } to { transform: none; } }
-  #cre-mt .rise { transform-box: fill-box; transform-origin: 0% 100%; animation: cre-rise .45s cubic-bezier(.3, 1.6, .5, 1) 1.2s both; }
+  #cre-mt .rise { transform-box: fill-box; transform-origin: 0% 100%; animation: cre-rise .45s cubic-bezier(.3, 1.6, .5, 1) calc(var(--walk, 0s) + 1.2s) both; }
   @keyframes cre-rise { from { transform: scaleY(0); } to { transform: none; } }
-  #cre-mt .wave { transform-box: fill-box; transform-origin: 0% 50%; animation: cre-wave 2.4s ease-in-out 1.7s infinite; }
+  #cre-mt .wave { transform-box: fill-box; transform-origin: 0% 50%; animation: cre-wave 2.4s ease-in-out calc(var(--walk, 0s) + 1.7s) infinite; }
   @keyframes cre-wave { 0%, 100% { transform: none; } 50% { transform: skewY(-6deg) scaleX(.9); } }
   @media (prefers-reduced-motion: reduce) { #cre-mt .draw, #cre-mt .pop, #cre-mt .rise, #cre-mt .wave { animation: none; } }
   #screen-climb-roundend.f678 #cre-rows { display: flex; align-self: stretch; gap: 10px; text-align: left; }
@@ -1992,6 +1992,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .hs-tag { margin: 10px 0 0; font-family: var(--slab); font-weight: 400; font-size: 1.4rem; line-height: 1.25; max-width: 13.5em; text-wrap: balance; }
   #screen-home .home-play { margin-top: 26px; width: auto; }
   #screen-home .home-play button.primary { width: auto; min-width: 214px; white-space: nowrap; padding: 14px 24px; border-radius: 999px; font-size: 1.05rem; font-weight: 600; background: var(--hs-btn); color: var(--hs-btn-ink); box-shadow: none; }
+  .hs-share { margin-top: 12px; width: 214px; height: 44px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
+    font: 600 0.95rem var(--franklin); display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
+  .hs-share[hidden] { display: none; }
+  .hs-share svg { width: 15px; height: 15px; }
+  .hs-share .clb { color: var(--hs-climb); }
   .hs-adv { margin-top: 12px; width: 214px; min-height: 50px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
     justify-content: center; padding: 6px 18px; text-align: center; }
   .hs-adv .shelfrow-txt { align-items: center; }
@@ -2125,7 +2130,21 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .pc-frames i { width: 36px; height: 44px; border-radius: 7px; border: 2px solid #121212; }
   .pc-frames small { font-weight: 600; font-size: 0.64rem; color: var(--rd-muted); }
   .pc-share { margin: 4px 16px 14px; height: 48px; border-radius: 999px; flex: none; }
-  /* the simple share: Picture | Text */
+  /* the share sheet: your link card, Share (the link), and "Send as picture" */
+  .sh-one { display: flex; flex-direction: column; gap: 14px; padding: 6px 16px 20px; }
+  .sh-card1 { border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); aspect-ratio: 1200 / 630; background: #f4d3a6; }
+  .sh-card1 img { display: block; width: 100%; height: 100%; }
+  .sh-go { height: 48px; border-radius: 999px; border: 0; background: var(--rd-btn); color: var(--rd-btn-ink); font: 700 1rem var(--franklin); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .sh-go:disabled { opacity: 0.55; cursor: default; }
+  .sh-go svg { width: 16px; height: 16px; }
+  .sh-aspic { align-self: center; border: 0; background: none; color: var(--rd-ink); font: 700 0.88rem var(--franklin); display: inline-flex; align-items: center; gap: 6px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 8px; }
+  .sh-aspic svg { width: 15px; height: 15px; }
+  /* the leaderboard: a mini Share pill in your own row */
+  #daily-board-list .lb-name.has-share { display: flex; align-items: center; justify-content: space-between; gap: 5px; padding-right: 6px; }
+  #daily-board-list .lb-name.has-share > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-share { flex: none; display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 999px; border: 0; background: var(--rd-btn); color: var(--rd-btn-ink); font: 700 0.68rem var(--franklin); cursor: pointer; }
+  .lb-share svg { width: 10px; height: 10px; }
+  /* the simple share: Picture | Text (before p133) */
   .sh-duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 6px 16px 18px; }
   .sh-card { border: 1.5px solid var(--rd-line); border-radius: 16px; padding: 10px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 9px; }
   .sh-card b { font-size: 1rem; }
@@ -2388,6 +2407,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="primary" id="btn-daily-play" type="button">Play</button>
         <p class="note" id="daily-meta" hidden></p>
       </div>
+      <button class="hs-share" id="btn-home-share" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg><span>Share today's <span class="clb">Climb</span></span></button>
       <button class="shelfrow" id="btn-daily-compact" type="button" hidden>
         <span class="shelfrow-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24">
@@ -3101,9 +3121,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   <div class="pc-sheet" id="share-sheet" role="dialog" aria-modal="true" aria-label="Share your Climb" hidden>
     <div class="pc-panel">
       <div class="pc-bar"><button class="pc-x" id="btn-share-x" type="button" aria-label="Close">&times;</button><b>Share your <span class="clb">Climb</span></b><span></span></div>
-      <div class="sh-duo">
-        <div class="sh-card"><div class="sh-prev"><img id="share-img" alt="Your Daily Climb picture"></div><b>Picture</b><button class="sh-btn p" id="btn-share-pic" type="button">Share</button></div>
-        <div class="sh-card"><div class="sh-prev sh-txt" id="share-txt"></div><b>Text</b><button class="sh-btn p" id="btn-share-txt" type="button">Share</button></div>
+      <div class="sh-one">
+        <div class="sh-card1"><img id="share-img" alt="Your Daily Climb picture"></div>
+        <button class="sh-go" id="btn-share-link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg><span>Share</span></button>
+        <button class="sh-aspic" id="btn-share-pic" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg><span>Send as picture</span></button>
       </div>
     </div>
   </div>
@@ -3161,7 +3182,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T12:32:41-07:00","n":5,"notes":[{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"},{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"},{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"},{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"}],"v":"0.15.0-beta.5"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T15:18:32-07:00","n":6,"notes":[{"note":"Share sends a link with your picture; the climber walks the trail","v":"0.15.0-beta.6"},{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"},{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"},{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"}],"v":"0.15.0-beta.6"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3607,6 +3628,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     ready: !!db,
     get uid() { return uid; },
     get hasAuth() { return !!uid; },
+    // Proof of who's signed in, for share.thedailyclimb.com (it only takes pictures from players).
+    async idToken() { try { return auth && auth.currentUser ? await auth.currentUser.getIdToken() : null; } catch (e) { return null; } },
 
     // Fire-and-forget analytics event (Google Analytics for Firebase). A
     // no-op until THREE21_FIREBASE_CONFIG.measurementId is filled in — see
@@ -7489,6 +7512,36 @@ $1{ display: flex; gap: 8px; width: 100%; }
     { a: [102, 36], l: 74, r: 128, k: 0.75, tone: "#f6b46a" },
     { a: [64, 14], l: 28, r: 102, k: 1, tone: "#e8871e" },
   ];
+  // The climber's trail, one leg per Climb, in the peaks' units. Layers, back to front: small peak, A, medium peak,
+  // B, tall peak, C, so on B the climber is hidden behind the tall peak. Each leg ends just under its summit.
+  const CRE_LEGS = [
+    [[8, 83, "C"], [20, 78, "C"], [27, 68, "C"], [26, 57]],
+    [[26, 57, "B"], [38, 66, "B"], [52, 75, "B"], [95, 75, "B"], [101, 78, "B"], [110, 66, "B"], [106, 52, "B"], [102, 43]],
+    [[102, 43, "B"], [92, 56, "B"], [84, 66, "B"], [50, 72, "B"], [34, 71, "C"], [44, 62, "C"], [52, 48, "C"], [58, 34, "C"], [64, 21]],
+  ].map((pts) => {
+    // a smooth curve through the points (Catmull-Rom), sampled into a list of points with the distance walked so far
+    const P = (i) => pts[Math.max(0, Math.min(pts.length - 1, i))], out = [{ x: pts[0][0], y: pts[0][1], s: 0, l: pts[0][2] }];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = P(i - 1), b = P(i), c = P(i + 1), d = P(i + 2);
+      const c1 = [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6], c2 = [c[0] - (d[0] - b[0]) / 6, c[1] - (d[1] - b[1]) / 6];
+      for (let k = 1; k <= 24; k++) {
+        const t = k / 24, u = 1 - t, last = out[out.length - 1];
+        const x = u * u * u * b[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * c[0];
+        const y = u * u * u * b[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * c[1];
+        out.push({ x: x, y: y, s: last.s + Math.hypot(x - last.x, y - last.y), l: b[2] });
+      }
+    }
+    return out;
+  });
+  // Where the climber is f of the way along leg i: [x, y, layer].
+  function creAt(i, f) {
+    const pts = CRE_LEGS[i], L = pts[pts.length - 1].s, s = Math.max(0, Math.min(1, f)) * L;
+    let k = 1; while (k < pts.length - 1 && pts[k].s < s) k++;
+    const a = pts[k - 1], b = pts[k], t = b.s > a.s ? (s - a.s) / (b.s - a.s) : 0;
+    return [a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, b.l];
+  }
+  // How long the walk up leg i takes, in ms (the longer legs take longer, within limits).
+  const creWalkMs = (i) => Math.max(1300, Math.min(2600, CRE_LEGS[i][CRE_LEGS[i].length - 1].s * 14));
   // Every point in Climb i: reached the top and found every theme word there was.
   function crePerfect(i) {
     const t = dailyTheme, words = roundWords[i] || [], ladder = (t && t.climbs[i] && t.climbs[i].c) || [];
@@ -7514,37 +7567,51 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (day) defs += '<clipPath id="' + id + 'k"><rect x="-30" y="-60" width="192" height="144"/></clipPath>' +
       '<radialGradient id="' + id + 's"><stop offset="0" stop-color="#fff2c8"/><stop offset=".55" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffb266" stop-opacity="0"/></radialGradient>';
     const sun = day ? '<g clip-path="url(#' + id + 'k)"><g class="sunup"><circle cx="64" cy="40" r="46" fill="url(#' + id + 's)"/><circle cx="64" cy="40" r="15" fill="#fff4d6"/></g></g>' : "";
-    let body = "";
+    const body = [];
     CRE_PEAKS.forEach((p, i) => {   // drawn small, medium, then the tall one in front
       const d = tri(p), now = i === fresh;
+      body[i] = "";
       if (i < n && crePerfect(i)) {
         const kf = Math.max(p.k, 0.9), fy = p.a[1] - 18 * kf - 2;   // flags stay big enough to read on the small peaks
-        body += '<path d="' + d + '" fill="' + paper + '"/>' +
+        body[i] += '<path d="' + d + '" fill="' + paper + '"/>' +
           (now ? '<g clip-path="url(#' + id + 'r)"><path d="' + d + '" fill="' + p.tone + '" stroke="none"/></g>' +
                  '<g clip-path="url(#' + id + 't)"><rect class="shine" x="-40" y="-20" width="26" height="130" fill="url(#' + id + 'g)" stroke="none" opacity="0"/></g>'
                : '<path d="' + d + '" fill="' + p.tone + '" stroke="none"/>') +
           '<path d="' + d + '" fill="none"/>' + snow(p, "#ffffff") +
           "<g" + (now ? ' class="rise"' : "") + ' stroke-width="3"><path d="M' + p.a[0] + " " + p.a[1] + " V" + fy + '" fill="none"/><path' + (now ? ' class="wave"' : "") + ' d="M' + p.a[0] + " " + fy +
           " L" + (p.a[0] + 16 * kf + 2) + " " + (fy + 5 * kf) + " L" + p.a[0] + " " + (fy + 10 * kf) + ' Z" fill="#f6c90e"/></g>';
-      } else if (i < n) body += '<path d="' + d + '" fill="var(--pk-sand)"/>' + snow(p, paper);
-      else body += '<path d="' + d + '" fill="' + paper + '"/><path d="' + d + '" fill="url(#' + id + 'h)" stroke="none"/><path d="' + d + '" fill="none" opacity=".55"/>';
+      } else if (i < n) body[i] += '<path d="' + d + '" fill="var(--pk-sand)"/>' + snow(p, paper);
+      else body[i] += '<path d="' + d + '" fill="' + paper + '"/><path d="' + d + '" fill="url(#' + id + 'h)" stroke="none"/><path d="' + d + '" fill="none" opacity=".55"/>';
     });
-    const me = [fp.a[0] - 7 * fp.k - 3, fp.a[1] + 14 * fp.k + 4];
+    // the trail: a dot every 5 units, only where it climbs; the newest leg's dots wait for the climber (creWalk)
+    const lay = { A: "", B: "", C: "" };
+    for (let i = 0; i <= fresh; i++) {
+      const L = CRE_LEGS[i][CRE_LEGS[i].length - 1].s;
+      for (let s5 = 5; s5 < L; s5 += 5) {
+        const pt = creAt(i, s5 / L);
+        if (creAt(i, (s5 + 0.6) / L)[1] >= pt[1]) continue;   // going down or level: no dot
+        lay[pt[2]] += '<circle' + (i === fresh ? ' class="tdot" data-at="' + (s5 / L).toFixed(4) + '" opacity="0"' : "") + ' cx="' + pt[0].toFixed(1) + '" cy="' + pt[1].toFixed(1) + '" r="1.25" fill="' + ink + '"/>';
+      }
+    }
+    const st = fresh >= 0 ? creAt(fresh, 0) : [8, 83, "C"];
+    lay[st[2]] += '<circle class="climber" cx="' + st[0].toFixed(1) + '" cy="' + st[1].toFixed(1) + '" r="5.5" fill="' + paper + '" stroke="' + ink + '" stroke-width="3.2"/>';
+    const walk = fresh >= 0 && !reduceMotion ? (300 + creWalkMs(fresh)) / 1000 : 0;
     // each finished Climb's time under its peak (the share picture puts them in the same place)
     const splits = CRE_PEAKS.map((p, i) => i < n && climbMs[i] > 0
       ? '<text' + (i === fresh ? ' class="fillin"' : "") + ' x="' + p.a[0] + '" y="100" text-anchor="middle" font-size="10" font-weight="800" fill="' + ink + '" style="font-family: var(--franklin); font-variant-numeric: tabular-nums">' + fmtDuration(climbMs[i]) + "</text>"
       : "").join("");
-    return '<svg viewBox="0 -14 132 118" aria-hidden="true"><defs>' + defs + "</defs>" + sun + splits +
-      '<g stroke="' + ink + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">' + body + "</g>" +
-      '<path d="M8 82 C' + ((8 + me[0]) / 2) + " 80 " + (me[0] - 6) + " " + (me[1] + 14) + " " + me[0] + " " + me[1] + '" fill="none" stroke="' + ink + '" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>' +
-      '<circle class="' + (freshPerfect ? "hop" : "pop") + '" cx="' + me[0] + '" cy="' + me[1] + '" r="5.5" fill="' + paper + '" stroke="' + ink + '" stroke-width="3.2"/></svg>' +
+    const g = (x) => '<g stroke="' + ink + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">' + x + "</g>";
+    return '<svg viewBox="0 -14 132 118" aria-hidden="true" style="--walk: ' + walk + 's"><defs>' + defs + "</defs>" + sun + splits +
+      g(body[0]) + '<g class="lA">' + lay.A + "</g>" + g(body[1]) + '<g class="lB">' + lay.B + "</g>" + g(body[2]) + '<g class="lC">' + lay.C + "</g></svg>" +
       (day ? '<div class="cre-banner">Perfect day!</div>' : "");
   }
   // The summit moment, once the picture is on screen: the fill rises, then a chime, a buzz and streamers from the
   // summit as the flag goes up; on a perfect day the finale follows (sun, confetti rain, banner, bigger chime).
   function creCelebrate(n) {
     const box = $("#cre-mt"), fresh = n - 1;
-    if (!box || fresh < 0 || !crePerfect(fresh)) return;
+    if (!box || fresh < 0) return;
+    const walk = creWalk(box, fresh);
+    if (!crePerfect(fresh)) return;
     const day = n === 3 && [0, 1, 2].every(crePerfect), banner = box.querySelector(".cre-banner");
     const grow = box.querySelectorAll(".cre-riser animate");
     if (reduceMotion) {
@@ -7552,9 +7619,36 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (banner) banner.classList.add("on");
       return;
     }
-    setTimeout(() => grow.forEach((a) => a.beginElement()), 150);
-    setTimeout(() => { FX.play("summit"); buzz([18, 60, 18]); creConfetti("ribbon", fresh); }, 1200);
-    if (day) setTimeout(() => { FX.play("perfectday"); buzz([30, 50, 30, 50, 60]); if (banner) banner.classList.add("on"); creConfetti("rain"); }, 1900);
+    setTimeout(() => grow.forEach((a) => a.beginElement()), walk + 150);
+    setTimeout(() => { FX.play("summit"); buzz([18, 60, 18]); creConfetti("ribbon", fresh); }, walk + 1200);
+    if (day) setTimeout(() => { FX.play("perfectday"); buzz([30, 50, 30, 50, 60]); if (banner) banner.classList.add("on"); creConfetti("rain"); }, walk + 1900);
+  }
+  // The climber walks leg i: from the last summit (or the start) to the newest one, the trail's dots appearing behind
+  // them, and slipping behind a peak where the trail goes round the back. Returns the ms until they arrive.
+  function creWalk(box, i) {
+    const svg = box.querySelector("svg"), me = svg && svg.querySelector(".climber");
+    if (!me) return 0;
+    const lay = { A: svg.querySelector(".lA"), B: svg.querySelector(".lB"), C: svg.querySelector(".lC") };
+    const dots = [...svg.querySelectorAll(".tdot")].map((d) => [+d.dataset.at, d]);
+    const ms = creWalkMs(i), ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    const put = (f) => {
+      const p = creAt(i, f);
+      if (me.parentNode !== lay[p[2]]) lay[p[2]].appendChild(me);
+      const bob = f > 0 && f < 1 ? -Math.abs(Math.sin(f * Math.PI * 12)) * 1.2 : 0;   // a little step bounce
+      me.setAttribute("cx", p[0].toFixed(2)); me.setAttribute("cy", (p[1] + bob).toFixed(2));
+      dots.forEach(([at, d]) => { if (f >= at) d.setAttribute("opacity", "1"); });
+    };
+    if (reduceMotion) { put(1); return 0; }
+    const t0 = performance.now() + 300;
+    const step = () => {
+      if (!me.isConnected) return;
+      const f = ease(Math.max(0, Math.min(1, (performance.now() - t0) / ms)));
+      put(f);
+      if (f < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    setTimeout(() => { if (me.isConnected) put(1); }, 300 + ms + 100);   // land even if frames were skipped
+    return 300 + ms;
   }
   // Streamers from a summit, or confetti raining from the top of the screen.
   let creParts = [], creLoop = 0;
@@ -8548,7 +8642,17 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#daily-board-you").textContent = "You finished " + ordinal(mine + 1);
       if (newFormat(boardTheme) && dayBase(dayKey) === dayBase(dailyKeyOf())) {
         pcardCtx = { me: me, theme: boardTheme, day: dayBase(dayKey) };
-        $("#btn-share-card").hidden = false;
+        const myName = list.querySelector('.lb-row.me .lb-name');
+        if (myName && !myName.querySelector(".lb-share")) {
+          const label = document.createElement("span");
+          label.textContent = myName.textContent;
+          const pill = document.createElement("button");
+          pill.type = "button"; pill.className = "lb-share";
+          pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>' + "Share";
+          pill.addEventListener("click", (ev) => { ev.stopPropagation(); openShareSheet(); });   // not the row's tap
+          myName.replaceChildren(label, pill);
+          myName.classList.add("has-share");
+        }
       }
       $("#daily-board-foot").textContent = "";
     }
@@ -9189,6 +9293,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const meta = $("#daily-meta");
     if (!btn) return;
     meta.hidden = !isDev(); // the only note left under Play is the dev-mode reminder
+    $("#btn-home-share").hidden = true;
     if (isDev()) {
       btn.textContent = "Play (dev replay)";
       meta.textContent = "Dev mode — replay enabled. " + capFirst(dailyResetText()) + ".";
@@ -9204,6 +9309,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (playedToday) btn.textContent = "See today's results";
     else if (canResume) btn.textContent = "Resume today's game";
     else btn.textContent = "Play";
+    $("#btn-home-share").hidden = !(playedToday && newFormat(themedDay(today)));
     meta.textContent = capFirst(dailyResetText()) + ".";
     $("#daily-compact-meta").textContent = "Completed — see today's standings";
     $("#next-daily").hidden = $("#next-daily-gap").hidden = !playedToday;
@@ -9481,28 +9587,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const p = c.day.split("-").map(Number);
     const date = new Date(p[0], p[1] - 1, p[2], 12).toLocaleDateString(undefined, { month: "short", day: "numeric" });
     const th = t.theme || { name: "" };
-    return { fills: fills, times: times, total: fmtDuration(me.solveMs || 0), date: date, emoji: th.emoji || "", theme: th.name || "" };
+    return { fills: fills, times: times, total: fmtDuration(me.solveMs || 0), date: date, theme: th.name || "", name: shownName(me.name), day: c.day };
   }
-  function shareText(m) {
-    const lines = ["Daily Climb \u00B7 " + m.date + (m.emoji ? " " + m.emoji : "")];
-    m.fills.forEach((on, i) => lines.push((on ? "\u{1F6A9}" : "\u26AA") + (m.times ? " " + m.times[i] : "")));
-    lines.push("\u23F1\uFE0F " + m.total, "thedailyclimb.com");
-    return lines.join("\n");
+  const SHARE_SL = '"Zilla Slab", Georgia, serif', SHARE_SN = '"Libre Franklin", -apple-system, "Segoe UI", Roboto, sans-serif';
+  async function shareFonts() {
+    try { await Promise.all([document.fonts.load('700 78px "Zilla Slab"'), document.fonts.load('800 30px "Libre Franklin"'), document.fonts.load('600 30px "Libre Franklin"')]); } catch (e) {}
   }
-  // The picture: 960 x 1020 (the mockup's 320 x 340, tripled).
-  async function drawSharePic(m) {
-    const W = 960, H = 1020, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
-    const x = cv.getContext("2d"), INK = "#121212";
-    try { await Promise.all([document.fonts.load('700 78px "Zilla Slab"'), document.fonts.load('800 30px "Libre Franklin"')]); } catch (e) {}
-    const SL = '"Zilla Slab", Georgia, serif', SN = '"Libre Franklin", -apple-system, "Segoe UI", Roboto, sans-serif';
-    x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
-    x.textAlign = "left"; x.font = "700 78px " + SL;
-    const wd = x.measureText("Daily ").width, wc = x.measureText("Climb").width, x0 = W / 2 - (wd + wc) / 2;
-    x.fillStyle = INK; x.fillText("Daily ", x0, 138); x.fillStyle = "#c25e08"; x.fillText("Climb", x0 + wd, 138);
-    x.textAlign = "center"; x.fillStyle = "#5a4a3c"; x.font = "600 39px " + SN;
-    x.fillText(m.date + " \u00B7 " + (m.emoji ? m.emoji + " " : "") + m.theme, W / 2, 204);
-    // the peaks, in the logo's own units (0..132 wide), scaled up
-    x.save(); x.translate(120, 258); x.scale(5.49, 5.49);
+  // The three peaks, filled or not, with each Climb's time under its peak, in the logo's units (0..132 wide).
+  function sharePeaks(x, m, tx, ty, sc) {
+    const INK = "#121212";
+    x.save(); x.translate(tx, ty); x.scale(sc, sc);
     x.lineJoin = "round"; x.lineCap = "round"; x.strokeStyle = INK;
     const poly = (pts, fill, lw) => { x.beginPath(); pts.forEach((pt, i) => (i ? x.lineTo(pt[0], pt[1]) : x.moveTo(pt[0], pt[1]))); x.closePath(); if (fill) { x.fillStyle = fill; x.fill(); } x.lineWidth = lw || 4; x.stroke(); };
     CRE_PEAKS.forEach((pk, i) => {
@@ -9516,60 +9610,126 @@ $1{ display: flex; gap: 8px; width: 100%; }
       }
     });
     x.beginPath(); x.moveTo(0, 84); x.lineTo(132, 84); x.lineWidth = 4; x.stroke();
-    if (m.times) {   // each Climb's time under its peak
-      x.fillStyle = INK; x.font = "800 10px " + SN; x.textAlign = "center";
+    if (m.times) {
+      x.fillStyle = INK; x.font = "800 10px " + SHARE_SN; x.textAlign = "center";
       CRE_PEAKS.forEach((pk, i) => x.fillText(m.times[i], pk.a[0], 100));
     }
     x.restore();
-    x.fillStyle = INK; x.font = "800 84px " + SN; x.textAlign = "center";
-    x.fillText("\u23F1 " + m.total, W / 2, 954);
+  }
+  // "Tate · Oct 14 · Food", the name in bold ink, centred on cx.
+  function shareNameLine(x, m, cx, y, px) {
+    const rest = " · " + m.date + " · " + m.theme;
+    x.font = "800 " + px + "px " + SHARE_SN; const wn = x.measureText(m.name).width;
+    x.font = "600 " + px + "px " + SHARE_SN; const wr = x.measureText(rest).width;
+    const x0 = cx - (wn + wr) / 2;
+    x.textAlign = "left";
+    x.font = "800 " + px + "px " + SHARE_SN; x.fillStyle = "#121212"; x.fillText(m.name, x0, y);
+    x.font = "600 " + px + "px " + SHARE_SN; x.fillStyle = "#5a4a3c"; x.fillText(rest, x0 + wn, y);
+  }
+  function shareTitle(x, cx, y, px) {
+    x.textAlign = "left"; x.font = "700 " + px + "px " + SHARE_SL;
+    const wd = x.measureText("Daily ").width, wc = x.measureText("Climb").width, x0 = cx - (wd + wc) / 2;
+    x.fillStyle = "#121212"; x.fillText("Daily ", x0, y); x.fillStyle = "#c25e08"; x.fillText("Climb", x0 + wd, y);
+  }
+  // The picture ("Send as picture"): 960 x 1092 (the mockup's 320 x 364, tripled).
+  async function drawSharePic(m) {
+    const W = 960, H = 1092, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const x = cv.getContext("2d");
+    await shareFonts();
+    x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
+    shareTitle(x, W / 2, 138, 78);
+    shareNameLine(x, m, W / 2, 204, 39);
+    sharePeaks(x, m, 120, 258, 5.49);
+    x.fillStyle = "#121212"; x.font = "800 84px " + SHARE_SN; x.textAlign = "center";
+    x.fillText("⏱ " + m.total, W / 2, 954);
+    x.fillStyle = "#8a6f55"; x.font = "700 33px " + SHARE_SN;
+    x.fillText("thedailyclimb.com", W / 2, 1044);
     return cv;
   }
-  let shareCanvas = null, shareTextNow = "";
+  // The link card (what a shared link shows as its preview): 1200 x 630, peaks on the left, the rest on the right.
+  async function drawShareCard(m) {
+    const W = 1200, H = 630, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const x = cv.getContext("2d");
+    await shareFonts();
+    x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
+    sharePeaks(x, m, 48, 108, 4.08);
+    shareTitle(x, 876, 198, 81);
+    shareNameLine(x, m, 876, 270, 34);
+    x.fillStyle = "#121212"; x.font = "800 102px " + SHARE_SN; x.textAlign = "center";
+    x.fillText("⏱ " + m.total, 876, 438);
+    return cv;
+  }
+  const toPng = (cv) => new Promise((r) => cv.toBlob(r, "image/png"));
+  // The link: the card goes up to share.thedailyclimb.com while the sheet is open, so Share is ready by the time
+  // it's tapped (phones only open the share sheet straight from a tap).
+  const SHARE_API = "https://share.thedailyclimb.com/api/share";
+  let shareLink = null, sharePicFile = null, shareOpenId = 0;
+  async function uploadShareCard(m, blob) {
+    const headers = { "Content-Type": "image/png", "X-Title": encodeURIComponent(m.name + "’s Daily Climb · " + m.total), "X-Day": m.day };
+    try { const tok = window.MatchDB && window.MatchDB.idToken ? await window.MatchDB.idToken() : null; if (tok) headers.Authorization = "Bearer " + tok; } catch (e) {}
+    const r = await fetch(SHARE_API, { method: "POST", headers: headers, body: blob });
+    if (!r.ok) throw new Error("share " + r.status);
+    return (await r.json()).url;
+  }
   async function openShareSheet() {
     if (!pcardCtx) return;
-    const m = shareModel();
-    shareTextNow = shareText(m);
-    $("#share-txt").textContent = shareTextNow;
-    $("#btn-share-txt").textContent = "Share";
+    const id = ++shareOpenId, m = shareModel(), go = $("#btn-share-link");
+    shareLink = null; sharePicFile = null;
+    go.disabled = true; go.lastChild.textContent = "Share";
+    $("#btn-share-pic").lastChild.textContent = "Send as picture";
     $("#share-sheet").hidden = false;
-    shareCanvas = await drawSharePic(m);
-    $("#share-img").src = shareCanvas.toDataURL("image/png");
     trackEv("share_open", { perfect: m.fills.filter(Boolean).length });
+    const card = await drawShareCard(m);
+    if (id !== shareOpenId) return;
+    $("#share-img").src = card.toDataURL("image/png");
+    const [cardBlob, picBlob] = await Promise.all([toPng(card), drawSharePic(m).then(toPng)]);
+    if (id !== shareOpenId) return;
+    if (picBlob) sharePicFile = new File([picBlob], "daily-climb.png", { type: "image/png" });
+    try { shareLink = await uploadShareCard(m, cardBlob); } catch (e) { shareLink = "https://thedailyclimb.com"; }
+    if (id !== shareOpenId) return;
+    go.disabled = false;
   }
-  function closeShareSheet() { $("#share-sheet").hidden = true; }
+  function closeShareSheet() { shareOpenId++; $("#share-sheet").hidden = true; }
+  // Share: the link (its preview is your picture).
+  async function shareShareLink() {
+    if (!shareLink) return;
+    trackEv("share_link", {});
+    if (navigator.share) {
+      try { await navigator.share({ url: shareLink }); } catch (e) {}
+      return;
+    }
+    // No share sheet here (most computers): copy the link instead.
+    let ok = false;
+    try { await navigator.clipboard.writeText(shareLink); ok = true; } catch (e) {}
+    const lab = $("#btn-share-link").lastChild;
+    lab.textContent = ok ? "Link copied" : shareLink;
+    setTimeout(() => { lab.textContent = "Share"; }, 2500);
+  }
+  // Send as picture: the picture itself, with the site's address.
   async function shareSharePic() {
-    if (!shareCanvas) return;
-    const blob = await new Promise((r) => shareCanvas.toBlob(r, "image/png"));
-    if (!blob) return;
-    const text = "Can you beat me? https://thedailyclimb.com";
+    if (!sharePicFile) return;
     trackEv("share_picture", {});
-    const file = new File([blob], "daily-climb.png", { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], text: text }); } catch (e) {}
+    if (navigator.canShare && navigator.canShare({ files: [sharePicFile] })) {
+      try { await navigator.share({ files: [sharePicFile], text: "https://thedailyclimb.com" }); } catch (e) {}
       return;
     }
     // No share sheet with pictures here (most computers): save the picture instead.
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "daily-climb.png";
+    const a = document.createElement("a"); a.href = URL.createObjectURL(sharePicFile); a.download = "daily-climb.png";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    $("#btn-share-pic").textContent = "Saved";
-    setTimeout(() => { $("#btn-share-pic").textContent = "Share"; }, 2000);
+    const lab = $("#btn-share-pic").lastChild;
+    lab.textContent = "Saved";
+    setTimeout(() => { lab.textContent = "Send as picture"; }, 2000);
   }
-  async function copyShareText() {
-    trackEv("share_text", {});
-    // the phone's share sheet with the text, like the picture; copying is the fallback
-    if (navigator.share) {
-      try { await navigator.share({ text: shareTextNow }); return; } catch (e) { if (e && e.name === "AbortError") return; }
-    }
-    let ok = false;
-    try { await navigator.clipboard.writeText(shareTextNow); ok = true; } catch (e) {}
-    if (!ok) {   // older browsers: select it so a long-press copy works
-      const r = document.createRange(); r.selectNodeContents($("#share-txt"));
-      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
-    }
-    $("#btn-share-txt").textContent = ok ? "Copied!" : "Selected";
-    setTimeout(() => { $("#btn-share-txt").textContent = "Share"; }, 2000);
+  // Home's "Share today's Climb": your entry for today, then the same sheet.
+  async function homeShare() {
+    const today = dailyKeyOf();
+    let me = null;
+    try { if (dbReady()) me = await window.MatchDB.getDailyEntrant(today); } catch (e) {}
+    const t = themedDay(today);
+    if (!me || !t) { showDailyBoard(today, { live: true }); return; }
+    pcardCtx = { me: rescoreEntrant(me, t), theme: t, day: dayBase(today) };
+    openShareSheet();
   }
 
   // ===== Share your player card =====
@@ -10201,7 +10361,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-share-x").addEventListener("click", closeShareSheet);
   $("#share-sheet").addEventListener("click", (e) => { if (e.target === $("#share-sheet")) closeShareSheet(); });
   $("#btn-share-pic").addEventListener("click", shareSharePic);
-  $("#btn-share-txt").addEventListener("click", copyShareText);
+  $("#btn-share-link").addEventListener("click", shareShareLink);
+  $("#btn-home-share").addEventListener("click", homeShare);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#share-sheet").hidden) closeShareSheet(); });
   $("#btn-pcard-x").addEventListener("click", closePcard);
   $("#pcard").addEventListener("click", (e) => { if (e.target === $("#pcard")) closePcard(); });
@@ -12021,6 +12182,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // this device (persisted), ?dev=0 turns it back off. Users never see it.
     try {
       const q = new URLSearchParams(location.search);
+      // From a shared link (share.thedailyclimb.com sends people here with ?s=<id>): count it, then tidy the address.
+      if (q.has("s")) {
+        const sid = (q.get("s") || "").slice(0, 16);
+        setTimeout(() => trackEv("share_visit", { s: sid }), 1500);
+        q.delete("s");
+        history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+      }
       if (q.has("dev")) {
         if (q.get("dev") === "0") localStorage.removeItem("three21.dev");
         else localStorage.setItem("three21.dev", "1");
