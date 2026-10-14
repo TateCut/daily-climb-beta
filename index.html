@@ -1501,7 +1501,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #screen-climb-roundend.f678 h2 { font-size: 1.7rem !important; }
   #screen-climb-roundend.f678 #cre-box, #screen-climb-roundend.f678 #cre-theme, #screen-climb-roundend.f678 #cre-sub,
   #screen-climb-roundend.f678 #cre-word, #screen-climb-roundend.f678 #cre-def { display: none !important; }
-  #screen-climb-roundend.f678 #cre-mt { display: block; align-self: stretch; }
+  #screen-climb-roundend.f678 #cre-mt { display: block; align-self: center; width: min(68%, 240px); }
+  #cre-mt { --pk-sand: #3a2f26; }
+  html.light #cre-mt { --pk-sand: #f4e6d4; }
+  #cre-mt .fillin { animation: cre-fill .7s ease-out .3s both; }
+  @keyframes cre-fill { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { #cre-mt .fillin { animation: none; } }
   #cre-mt svg { display: block; width: 100%; height: auto; overflow: visible; }
   /* the newest stretch of trail dots itself in, the climber pops in, then the newest flag goes up */
   #cre-mt .draw { animation: cre-draw 1s cubic-bezier(.5, .1, .3, 1) .25s both; }
@@ -2186,28 +2191,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <linearGradient id="tg-summit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2f8ff"/><stop offset=".5" stop-color="#8fd8f5"/><stop offset="1" stop-color="#5b8fd6"/></linearGradient>
         <linearGradient id="tg-special" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb866"/><stop offset="1" stop-color="#c2620e"/></linearGradient>
       </defs>
-      <symbol id="summit-mark" viewBox="0 0 120 92">
-        <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-          <path d="M6 84 L34 42 L52 66 L74 26 L98 60 L114 84 Z" fill="#f6b46a"/>
-          <path d="M52 66 L74 26 L98 60 L114 84 L40 84 Z" fill="#e8871e"/>
-          <path d="M66 40 L74 26 L83 39 L78 36 L74 42 L70 37 Z" fill="#ffffff"/>
-          <path d="M28 51 L34 42 L40 50 L36 48 L33 53 Z" fill="#ffffff"/>
-          <path d="M74 26 L74 6" fill="none"/><path d="M74 6 L92 11 L74 17 Z" fill="#f6c90e"/>
-        </g>
-        <path d="M18 80 C30 74 44 70 56 60" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
-        <circle cx="56" cy="60" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
+      <symbol id="summit-mark" viewBox="0 -10 132 100">
+        <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M21.2 58.4 L26 50 L31.4 57.8 L28.4 56 L26 59.6 L23.6 56.6 Z" fill="#ffffff"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M96 46.5 L102 36 L108.75 45.75 L105 43.5 L102 48 L99 44.25 Z" fill="#ffffff"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M56 28 L64 14 L73 27 L68 24 L64 30 L60 25 Z" fill="#ffffff"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g><path d="M10 82 C18 78 28 72 38 64" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="39" cy="63" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
       </symbol>
     </svg>
-    <svg class="brandmark" viewBox="0 0 120 92" aria-hidden="true">
-      <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-        <path d="M6 84 L34 42 L52 66 L74 26 L98 60 L114 84 Z" fill="#f6b46a"/>
-        <path d="M52 66 L74 26 L98 60 L114 84 L40 84 Z" fill="#e8871e"/>
-        <path d="M66 40 L74 26 L83 39 L78 36 L74 42 L70 37 Z" fill="#ffffff"/>
-        <path d="M28 51 L34 42 L40 50 L36 48 L33 53 Z" fill="#ffffff"/>
-        <path d="M74 26 L74 6" fill="none"/><path d="M74 6 L92 11 L74 17 Z" fill="#f6c90e"/>
-      </g>
-      <path d="M18 80 C30 74 44 70 56 60" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
-      <circle cx="56" cy="60" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
+    <svg class="brandmark" viewBox="0 -10 132 100" aria-hidden="true">
+      <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M21.2 58.4 L26 50 L31.4 57.8 L28.4 56 L26 59.6 L23.6 56.6 Z" fill="#ffffff"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M96 46.5 L102 36 L108.75 45.75 L105 43.5 L102 48 L99 44.25 Z" fill="#ffffff"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M56 28 L64 14 L73 27 L68 24 L64 30 L60 25 Z" fill="#ffffff"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g><path d="M10 82 C18 78 28 72 38 64" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="39" cy="63" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
     </svg>
     <h1>Daily <span class="brand-k">Climb</span></h1>
     <div class="daily-timer" id="daily-timer" hidden><span id="daily-timer-val">0:00</span></div>
@@ -2365,16 +2354,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
         </div>
       </div>
       <div class="home-gap hs-gap-top"></div>
-      <svg class="hs-logo" viewBox="0 0 120 92" aria-hidden="true">
-        <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-          <path d="M6 84 L34 42 L52 66 L74 26 L98 60 L114 84 Z" fill="#f6b46a"/>
-          <path d="M52 66 L74 26 L98 60 L114 84 L40 84 Z" fill="#e8871e"/>
-          <path d="M66 40 L74 26 L83 39 L78 36 L74 42 L70 37 Z" fill="#ffffff"/>
-          <path d="M28 51 L34 42 L40 50 L36 48 L33 53 Z" fill="#ffffff"/>
-          <path d="M74 26 L74 6" fill="none"/><path d="M74 6 L92 11 L74 17 Z" fill="#f6c90e"/>
-        </g>
-        <path d="M18 80 C30 74 44 70 56 60" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>
-        <circle cx="56" cy="60" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
+      <svg class="hs-logo" viewBox="0 -10 132 100" aria-hidden="true">
+        <g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M21.2 58.4 L26 50 L31.4 57.8 L28.4 56 L26 59.6 L23.6 56.6 Z" fill="#ffffff"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M96 46.5 L102 36 L108.75 45.75 L105 43.5 L102 48 L99 44.25 Z" fill="#ffffff"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M56 28 L64 14 L73 27 L68 24 L64 30 L60 25 Z" fill="#ffffff"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g><path d="M10 82 C18 78 28 72 38 64" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="39" cy="63" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/>
       </svg>
       <p class="hs-title">Daily <span class="clb">Climb</span></p>
       <p class="hs-tag" id="home-tagline"><span class="clb">Climb</span> one word at a time and find the day's theme.</p>
@@ -2885,7 +2866,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   <div class="install-scrim" id="install-scrim" hidden></div>
   <div class="install-sheet" id="install-sheet" role="dialog" aria-modal="true" aria-labelledby="install-title" hidden>
     <div class="install-head">
-      <div class="install-appicon"><svg viewBox="0 0 120 92" aria-hidden="true"><use href="#summit-mark"/></svg></div>
+      <div class="install-appicon"><svg viewBox="0 -10 132 100" aria-hidden="true"><use href="#summit-mark"/></svg></div>
       <div>
         <h3 id="install-title">Add Daily Climb to your Home Screen</h3>
         <p class="install-sub" id="install-sub"></p>
@@ -2906,7 +2887,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
        install / notifications blocked. -->
   <div class="install-sheet" id="reminder-sheet" role="dialog" aria-modal="true" aria-labelledby="reminder-title" hidden>
     <div class="install-head">
-      <div class="install-appicon"><svg viewBox="0 0 120 92" aria-hidden="true"><use href="#summit-mark"/></svg></div>
+      <div class="install-appicon"><svg viewBox="0 -10 132 100" aria-hidden="true"><use href="#summit-mark"/></svg></div>
       <div>
         <h3 id="reminder-title"></h3>
         <p class="install-sub" id="reminder-sub"></p>
@@ -3146,7 +3127,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T08:30:04-07:00","n":0,"notes":[{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.0"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T11:38:29-07:00","n":1,"notes":[{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.1"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7462,64 +7443,43 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return best || climbExample();
   }
 
-  // 6-7-8 days, between Climbs: the day's three peaks drawn like the app icon (ink outlines, orange once climbed with
-  // a white diamond, hatched while still ahead), a dotted switchback trail (faint ahead, ink where walked, the newest
-  // stretch dotting itself in), the white climber dot just under the newest summit, and a yellow flag on each one done.
-  const CRE_PEAKS = [{ a: [84, 58], l: 26, r: 142 }, { a: [176, 38], l: 112, r: 242 }, { a: [272, 14], l: 194, r: 336 }];
-  const CRE_TRAIL = (() => {
-    // switchbacks up a peak's left face, always inside it, from (x0, y0) to the summit
-    const faceX = (t, y) => t.a[0] - (t.a[0] - t.l) * (y - t.a[1]) / (124 - t.a[1]);
-    const zig = (t, x0, y0, legs) => {
-      const out = [[x0, y0]];
-      for (let k = 1; k <= legs; k++) {
-        const y = y0 - (y0 - t.a[1]) * k / (legs + 0.6), fx = faceX(t, y) + 4;
-        out.push([Math.round(k % 2 ? fx + (t.a[0] - fx) * 0.8 : fx), Math.round(y)]);
-      }
-      out.push(t.a);
-      return out;
-    };
-    // where one peak's right face meets the next one's left face
-    const saddle = (p, q) => {
-      const s1 = (124 - p.a[1]) / (p.r - p.a[0]), s2 = (124 - q.a[1]) / (q.l - q.a[0]);
-      const x = (q.a[1] - p.a[1] + s1 * p.a[0] - s2 * q.a[0]) / (s1 - s2);
-      return [Math.round(x), Math.round(p.a[1] + s1 * (x - p.a[0]))];
-    };
-    return CRE_PEAKS.map((t, i) => {
-      if (!i) return zig(t, 40, 124, 4);
-      const p = CRE_PEAKS[i - 1], [sx, sy] = saddle(p, t);
-      return [p.a, [p.a[0] + 3, p.a[1] + 4], [sx, sy - 3]].concat(zig(t, sx + 3, sy - 4, [4, 5][i - 1]).slice(1));
-    });
-  })();
+  // 6-7-8 days, between Climbs: the logo's three peaks as the day's progress. Climb 1 is the small peak (left),
+  // Climb 2 the medium one (right), Climb 3 the tall one (middle, in front). A peak fills orange and gets a flag only
+  // when you got every point in that Climb; climbed but not perfect = sand; still ahead = hatched. The climber sits
+  // under the summit you just finished, and the newest perfect peak fills in and raises its flag.
+  const CRE_PEAKS = [
+    { a: [26, 50], l: 4, r: 50, k: 0.6, tone: "#f6b46a" },
+    { a: [102, 36], l: 74, r: 128, k: 0.75, tone: "#f6b46a" },
+    { a: [64, 14], l: 28, r: 102, k: 1, tone: "#e8871e" },
+  ];
+  // Every point in Climb i: reached the top and found every theme word there was.
+  function crePerfect(i) {
+    const t = dailyTheme, words = roundWords[i] || [], ladder = (t && t.climbs[i] && t.climbs[i].c) || [];
+    return !!t && ladder.length > 0 && words.length >= ladder.length && words.length + themeHits(t, i, words).length >= climbMaxPoints(t, i);
+  }
   let creUid = 0;
   function creMountain(n) {
     const id = "cre" + (++creUid), ink = "var(--rd-ink)", paper = "var(--rd-bg)";
-    const tri = (t) => "M" + t.a + " L" + t.r + ",124 L" + t.l + ",124 Z";
-    const pathOf = (pts) => pts.map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
-    const now = CRE_TRAIL[n - 1];
-    const len = Math.ceil(now.reduce((a, p, i) => i ? a + Math.hypot(p[0] - now[i - 1][0], p[1] - now[i - 1][1]) : 0, 0));
-    let s = '<svg viewBox="-4 -14 348 142" aria-hidden="true"><defs>' +
-      '<pattern id="' + id + 'h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="' + ink + '" stroke-width="1" opacity=".22"/></pattern>' +
-      '<mask id="' + id + 'm" maskUnits="userSpaceOnUse" x="-20" y="-40" width="400" height="200"><path class="draw" style="stroke-dasharray:' + len + ";--len:" + len + '" d="' + pathOf(now) +
-      '" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></mask></defs>';
-    [2, 1, 0].forEach((i) => {   // back to front
-      const t = CRE_PEAKS[i], up = i < n, x = t.a[0], y = t.a[1], k = [0.75, 0.9, 1][i];
-      s += '<path d="' + tri(t) + '" fill="' + (up ? "#e8871e" : paper) + '" stroke="' + ink + '" stroke-width="2.4" stroke-linejoin="round"/>';
-      if (!up) s += '<path d="' + tri(t) + '" fill="url(#' + id + 'h)"/>';
-      else s += '<path d="M' + x + " " + (y + 5 * k) + " L" + (x - 4.5 * k) + " " + (y + 11 * k) + " L" + x + " " + (y + 17 * k) + " L" + (x + 4.5 * k) + " " + (y + 11 * k) +
-        ' Z" fill="' + paper + '" stroke="' + ink + '" stroke-width="1.6" stroke-linejoin="round"/>';
+    const snow = (p, fill) => { const x = p.a[0], y = p.a[1], k = p.k;
+      return '<path d="M' + (x - 8 * k) + " " + (y + 14 * k) + " L" + x + " " + y + " L" + (x + 9 * k) + " " + (y + 13 * k) + " L" + (x + 4 * k) + " " + (y + 10 * k) +
+        " L" + x + " " + (y + 16 * k) + " L" + (x - 4 * k) + " " + (y + 11 * k) + ' Z" fill="' + fill + '"/>'; };
+    let body = "";
+    CRE_PEAKS.forEach((p, i) => {   // drawn small, medium, then the tall one in front
+      const d = "M" + p.l + " 84 L" + p.a[0] + " " + p.a[1] + " L" + p.r + " 84 Z", fresh = i === n - 1;
+      if (i < n && crePerfect(i)) {
+        const kf = Math.max(p.k, 0.9), fy = p.a[1] - 18 * kf - 2;   // flags stay big enough to read on the small peaks
+        body += '<path d="' + d + '" fill="' + paper + '"/><path' + (fresh ? ' class="fillin"' : "") + ' d="' + d + '" fill="' + p.tone + '" stroke="none"/><path d="' + d + '" fill="none"/>' + snow(p, "#ffffff") +
+          "<g" + (fresh ? ' class="rise"' : "") + ' stroke-width="3"><path d="M' + p.a[0] + " " + p.a[1] + " V" + fy + '" fill="none"/><path d="M' + p.a[0] + " " + fy + " L" + (p.a[0] + 16 * kf + 2) + " " + (fy + 5 * kf) +
+          " L" + p.a[0] + " " + (fy + 10 * kf) + ' Z" fill="#f6c90e"/></g>';
+      } else if (i < n) body += '<path d="' + d + '" fill="var(--pk-sand)"/>' + snow(p, paper);
+      else body += '<path d="' + d + '" fill="' + paper + '"/><path d="' + d + '" fill="url(#' + id + 'h)" stroke="none"/><path d="' + d + '" fill="none" opacity=".55"/>';
     });
-    s += '<path d="M6 124 H334" stroke="' + ink + '" stroke-width="2.4" stroke-linecap="round"/>';
-    const dots = (d, extra) => '<path d="' + d + '" fill="none" stroke="' + ink + '" stroke-width="2.6" stroke-dasharray="0.1 6" stroke-linecap="round" stroke-linejoin="round"' + extra + "/>";
-    s += dots(pathOf([].concat(...CRE_TRAIL)), ' opacity=".28"');
-    if (n > 1) s += dots(pathOf([].concat(...CRE_TRAIL.slice(0, n - 1))), "");
-    s += dots(pathOf(now), ' mask="url(#' + id + 'm)"');
-    CRE_PEAKS.slice(0, n).forEach((t, i) => {
-      const x = t.a[0], y = t.a[1], fresh = i === n - 1;
-      s += "<g" + (fresh ? ' class="rise"' : "") + '><path d="M' + x + " " + y + " V" + (y - 15) + '" stroke="' + ink + '" stroke-width="1.7" stroke-linecap="round"/>' +
-        "<path" + (fresh ? ' class="wave"' : "") + ' d="M' + (x + 0.8) + " " + (y - 15) + ' h10 l-2.6 3.2 2.6 3.2 h-10 z" fill="var(--rd-gold)" stroke="' + ink + '" stroke-width="1" stroke-linejoin="round"/></g>';
-    });
-    const me = now[now.length - 2];
-    return s + '<circle class="pop" cx="' + me[0] + '" cy="' + me[1] + '" r="4.6" fill="' + paper + '" stroke="' + ink + '" stroke-width="2"/></svg>';
+    const cur = CRE_PEAKS[Math.max(0, n - 1)], me = [cur.a[0] - 7 * cur.k - 3, cur.a[1] + 14 * cur.k + 4];
+    return '<svg viewBox="0 -14 132 104" aria-hidden="true"><defs><pattern id="' + id + 'h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+      '<line x1="0" y1="0" x2="0" y2="5" stroke="' + ink + '" stroke-width="1" opacity=".22"/></pattern></defs>' +
+      '<g stroke="' + ink + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">' + body + "</g>" +
+      '<path d="M8 82 C' + ((8 + me[0]) / 2) + " 80 " + (me[0] - 6) + " " + (me[1] + 14) + " " + me[0] + " " + me[1] + '" fill="none" stroke="' + ink + '" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>' +
+      '<circle class="pop" cx="' + me[0] + '" cy="' + me[1] + '" r="5.5" fill="' + paper + '" stroke="' + ink + '" stroke-width="3.2"/></svg>';
   }
 
   // A climb (round) has ended — completed all 6 rungs, or struck out / gave up.
@@ -9490,7 +9450,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let pcardLogo = null;
   function pcardLogoImg() {
     if (pcardLogo) return pcardLogo;
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 92"><g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M6 84 L34 42 L52 66 L74 26 L98 60 L114 84 Z" fill="#f6b46a"/><path d="M52 66 L74 26 L98 60 L114 84 L40 84 Z" fill="#e8871e"/><path d="M66 40 L74 26 L83 39 L78 36 L74 42 L70 37 Z" fill="#ffffff"/><path d="M28 51 L34 42 L40 50 L36 48 L33 53 Z" fill="#ffffff"/><path d="M74 26 L74 6" fill="none"/><path d="M74 6 L92 11 L74 17 Z" fill="#f6c90e"/></g><path d="M18 80 C30 74 44 70 56 60" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="56" cy="60" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/></svg>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 132 100"><g stroke="#121212" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M21.2 58.4 L26 50 L31.4 57.8 L28.4 56 L26 59.6 L23.6 56.6 Z" fill="#ffffff"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M96 46.5 L102 36 L108.75 45.75 L105 43.5 L102 48 L99 44.25 Z" fill="#ffffff"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M56 28 L64 14 L73 27 L68 24 L64 30 L60 25 Z" fill="#ffffff"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g><path d="M10 82 C18 78 28 72 38 64" fill="none" stroke="#121212" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="39" cy="63" r="6" fill="#ffffff" stroke="#121212" stroke-width="3.5"/></svg>';
     pcardLogo = new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); });
     return pcardLogo;
   }
