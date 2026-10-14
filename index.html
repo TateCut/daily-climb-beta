@@ -3146,7 +3146,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T08:26:10-07:00","n":2,"notes":[{"note":"Hotfix: Oct 14 Food words + leaderboard time","v":"0.15.0-beta.2"},{"note":"Share your player card","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.0","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.2"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T08:30:04-07:00","n":0,"notes":[{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10980,6 +10980,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // (sw.js caches other files cache-first, so a notes file could go stale).
   // Each release shows from its date on (the player's own day), so notes can ship ahead of the change they describe.
   const PATCH_NOTES = [
+    { v: "0.14.1", date: "2026-10-14", title: "Little fixes",
+      notes: [
+        ["fix", "If a Climb ends early, your leaderboard time now includes the time spent on the word you were on, so it matches your clock."],
+      ] },
     { v: "0.14.0", date: "2026-10-13", title: "A new shape for the daily",
       notes: [
         ["new", "Every daily is now three Climbs that peak at 6, 7 and 8 letters, the same length every day. Trail, Ridge and Summit are retired."],
