@@ -1505,6 +1505,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #cre-mt { --pk-sand: #3a2f26; }
   html.light #cre-mt { --pk-sand: #f4e6d4; }
   #cre-mt .fillin { animation: cre-fill .7s ease-out .3s both; }
+  #cre-mt { position: relative; }
+  #cre-mt .hop { animation: cre-hop .38s ease-out .8s both; }
+  @keyframes cre-hop { 0% { transform: translate(-14px, 22px); } 55% { transform: translate(-7px, -4px); } 100% { transform: none; } }
+  #cre-mt .shine { animation: cre-shine .9s ease-in-out 1.3s both; }
+  @keyframes cre-shine { 0% { opacity: 0; transform: skewX(-20deg) translateX(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: skewX(-20deg) translateX(190px); } }
+  #cre-mt .sunup { animation: cre-sun 1.4s cubic-bezier(.2, .7, .3, 1) 1.9s both; }
+  @keyframes cre-sun { from { transform: translate(0, 70px); } to { transform: none; } }
+  .cre-banner { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%) scale(0); background: var(--rd-gold); color: #121212;
+    font-family: var(--slab); font-weight: 700; font-size: 1.02rem; padding: 6px 18px; border-radius: 999px; white-space: nowrap; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22); pointer-events: none; }
+  .cre-banner.on { animation: cre-banner .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+  @keyframes cre-banner { from { transform: translateX(-50%) scale(0); } to { transform: translateX(-50%) scale(1); } }
+  #cre-fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+  @media (prefers-reduced-motion: reduce) {
+    #cre-mt .hop, #cre-mt .shine, #cre-mt .sunup { animation: none; }
+    .cre-banner.on { animation: none; transform: translateX(-50%); }
+  }
   @keyframes cre-fill { from { opacity: 0; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { #cre-mt .fillin { animation: none; } }
   #cre-mt svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -3127,7 +3143,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T11:38:29-07:00","n":1,"notes":[{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.1"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T12:00:11-07:00","n":2,"notes":[{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"},{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.2"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4244,6 +4260,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       over:    () => arp([392, 330, 262], 0.11, 0.18, 0.45),
       board:   () => tone({ type: "sine", from: 660, to: 990, dur: 0.2, gain: 0.35 }),
       streak:  () => arp([784, 1047, 1319], 0.06, 0.1, 0.4),
+      summit:  () => arp([784, 1175], 0.09, 0.5, 0.4),
+      perfectday: () => arp([659, 784, 988, 1319], 0.11, 0.55, 0.42),
     };
     return {
       play: (name) => { if (on && cues[name]) { unlock(); cues[name](); } },
@@ -7446,7 +7464,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // 6-7-8 days, between Climbs: the logo's three peaks as the day's progress. Climb 1 is the small peak (left),
   // Climb 2 the medium one (right), Climb 3 the tall one (middle, in front). A peak fills orange and gets a flag only
   // when you got every point in that Climb; climbed but not perfect = sand; still ahead = hatched. The climber sits
-  // under the summit you just finished, and the newest perfect peak fills in and raises its flag.
+  // under the summit you just finished. A Climb you just perfected gets the summit moment (creCelebrate).
   const CRE_PEAKS = [
     { a: [26, 50], l: 4, r: 50, k: 0.6, tone: "#f6b46a" },
     { a: [102, 36], l: 74, r: 128, k: 0.75, tone: "#f6b46a" },
@@ -7460,26 +7478,93 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let creUid = 0;
   function creMountain(n) {
     const id = "cre" + (++creUid), ink = "var(--rd-ink)", paper = "var(--rd-bg)";
+    const fresh = n - 1, freshPerfect = fresh >= 0 && crePerfect(fresh), day = n === 3 && [0, 1, 2].every(crePerfect);
+    const fp = CRE_PEAKS[Math.max(0, fresh)];
     const snow = (p, fill) => { const x = p.a[0], y = p.a[1], k = p.k;
       return '<path d="M' + (x - 8 * k) + " " + (y + 14 * k) + " L" + x + " " + y + " L" + (x + 9 * k) + " " + (y + 13 * k) + " L" + (x + 4 * k) + " " + (y + 10 * k) +
         " L" + x + " " + (y + 16 * k) + " L" + (x - 4 * k) + " " + (y + 11 * k) + ' Z" fill="' + fill + '"/>'; };
+    const tri = (p) => "M" + p.l + " 84 L" + p.a[0] + " " + p.a[1] + " L" + p.r + " 84 Z";
+    let defs = '<pattern id="' + id + 'h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="' + ink + '" stroke-width="1" opacity=".22"/></pattern>';
+    if (freshPerfect) defs +=
+      // the fill rising from the base, the shine's path, and the sky the sun rises in
+      '<clipPath id="' + id + 'r"><rect class="cre-riser" x="0" y="86" width="132" height="0">' +
+      '<animate attributeName="y" from="86" to="' + (fp.a[1] - 3) + '" dur="0.75s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".2 .7 .3 1"/>' +
+      '<animate attributeName="height" from="0" to="' + (86 - fp.a[1] + 3) + '" dur="0.75s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".2 .7 .3 1"/></rect></clipPath>' +
+      '<clipPath id="' + id + 't"><path d="' + tri(fp) + '"/></clipPath>' +
+      '<linearGradient id="' + id + 'g" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>';
+    if (day) defs += '<clipPath id="' + id + 'k"><rect x="-30" y="-60" width="192" height="144"/></clipPath>' +
+      '<radialGradient id="' + id + 's"><stop offset="0" stop-color="#fff2c8"/><stop offset=".55" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffb266" stop-opacity="0"/></radialGradient>';
+    const sun = day ? '<g clip-path="url(#' + id + 'k)"><g class="sunup"><circle cx="64" cy="40" r="46" fill="url(#' + id + 's)"/><circle cx="64" cy="40" r="15" fill="#fff4d6"/></g></g>' : "";
     let body = "";
     CRE_PEAKS.forEach((p, i) => {   // drawn small, medium, then the tall one in front
-      const d = "M" + p.l + " 84 L" + p.a[0] + " " + p.a[1] + " L" + p.r + " 84 Z", fresh = i === n - 1;
+      const d = tri(p), now = i === fresh;
       if (i < n && crePerfect(i)) {
         const kf = Math.max(p.k, 0.9), fy = p.a[1] - 18 * kf - 2;   // flags stay big enough to read on the small peaks
-        body += '<path d="' + d + '" fill="' + paper + '"/><path' + (fresh ? ' class="fillin"' : "") + ' d="' + d + '" fill="' + p.tone + '" stroke="none"/><path d="' + d + '" fill="none"/>' + snow(p, "#ffffff") +
-          "<g" + (fresh ? ' class="rise"' : "") + ' stroke-width="3"><path d="M' + p.a[0] + " " + p.a[1] + " V" + fy + '" fill="none"/><path d="M' + p.a[0] + " " + fy + " L" + (p.a[0] + 16 * kf + 2) + " " + (fy + 5 * kf) +
-          " L" + p.a[0] + " " + (fy + 10 * kf) + ' Z" fill="#f6c90e"/></g>';
+        body += '<path d="' + d + '" fill="' + paper + '"/>' +
+          (now ? '<g clip-path="url(#' + id + 'r)"><path d="' + d + '" fill="' + p.tone + '" stroke="none"/></g>' +
+                 '<g clip-path="url(#' + id + 't)"><rect class="shine" x="-40" y="-20" width="26" height="130" fill="url(#' + id + 'g)" stroke="none" opacity="0"/></g>'
+               : '<path d="' + d + '" fill="' + p.tone + '" stroke="none"/>') +
+          '<path d="' + d + '" fill="none"/>' + snow(p, "#ffffff") +
+          "<g" + (now ? ' class="rise"' : "") + ' stroke-width="3"><path d="M' + p.a[0] + " " + p.a[1] + " V" + fy + '" fill="none"/><path' + (now ? ' class="wave"' : "") + ' d="M' + p.a[0] + " " + fy +
+          " L" + (p.a[0] + 16 * kf + 2) + " " + (fy + 5 * kf) + " L" + p.a[0] + " " + (fy + 10 * kf) + ' Z" fill="#f6c90e"/></g>';
       } else if (i < n) body += '<path d="' + d + '" fill="var(--pk-sand)"/>' + snow(p, paper);
       else body += '<path d="' + d + '" fill="' + paper + '"/><path d="' + d + '" fill="url(#' + id + 'h)" stroke="none"/><path d="' + d + '" fill="none" opacity=".55"/>';
     });
-    const cur = CRE_PEAKS[Math.max(0, n - 1)], me = [cur.a[0] - 7 * cur.k - 3, cur.a[1] + 14 * cur.k + 4];
-    return '<svg viewBox="0 -14 132 104" aria-hidden="true"><defs><pattern id="' + id + 'h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-      '<line x1="0" y1="0" x2="0" y2="5" stroke="' + ink + '" stroke-width="1" opacity=".22"/></pattern></defs>' +
+    const me = [fp.a[0] - 7 * fp.k - 3, fp.a[1] + 14 * fp.k + 4];
+    return '<svg viewBox="0 -14 132 104" aria-hidden="true"><defs>' + defs + "</defs>" + sun +
       '<g stroke="' + ink + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">' + body + "</g>" +
       '<path d="M8 82 C' + ((8 + me[0]) / 2) + " 80 " + (me[0] - 6) + " " + (me[1] + 14) + " " + me[0] + " " + me[1] + '" fill="none" stroke="' + ink + '" stroke-width="2.4" stroke-dasharray="1 6" stroke-linecap="round"/>' +
-      '<circle class="pop" cx="' + me[0] + '" cy="' + me[1] + '" r="5.5" fill="' + paper + '" stroke="' + ink + '" stroke-width="3.2"/></svg>';
+      '<circle class="' + (freshPerfect ? "hop" : "pop") + '" cx="' + me[0] + '" cy="' + me[1] + '" r="5.5" fill="' + paper + '" stroke="' + ink + '" stroke-width="3.2"/></svg>' +
+      (day ? '<div class="cre-banner">Perfect day!</div>' : "");
+  }
+  // The summit moment, once the picture is on screen: the fill rises, then a chime, a buzz and streamers from the
+  // summit as the flag goes up; on a perfect day the finale follows (sun, confetti rain, banner, bigger chime).
+  function creCelebrate(n) {
+    const box = $("#cre-mt"), fresh = n - 1;
+    if (!box || fresh < 0 || !crePerfect(fresh)) return;
+    const day = n === 3 && [0, 1, 2].every(crePerfect), banner = box.querySelector(".cre-banner");
+    const grow = box.querySelectorAll(".cre-riser animate");
+    if (reduceMotion) {
+      grow.forEach((a) => { a.setAttribute("dur", "0.001s"); a.beginElement(); });
+      if (banner) banner.classList.add("on");
+      return;
+    }
+    setTimeout(() => grow.forEach((a) => a.beginElement()), 150);
+    setTimeout(() => { FX.play("summit"); buzz([18, 60, 18]); creConfetti("ribbon", fresh); }, 1200);
+    if (day) setTimeout(() => { FX.play("perfectday"); buzz([30, 50, 30, 50, 60]); if (banner) banner.classList.add("on"); creConfetti("rain"); }, 1900);
+  }
+  // Streamers from a summit, or confetti raining from the top of the screen.
+  let creParts = [], creLoop = 0;
+  function creConfetti(kind, i) {
+    const COLORS = ["#e8871e", "#f6c90e", "#f6b46a", "#c25e08", "#fff3d6"];
+    if (kind === "ribbon") {
+      const svg = $("#cre-mt svg"); if (!svg) return;
+      const r = svg.getBoundingClientRect(), sc = r.width / 132, p = CRE_PEAKS[i], x = r.left + p.a[0] * sc, y = r.top + (p.a[1] + 14) * sc;
+      for (let k = 0; k < 26; k++) {
+        const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.4, sp = 3.6 * (0.5 + Math.random() * 0.7);
+        creParts.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 0.09, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, w: 3, h: 12 + Math.random() * 6, c: COLORS[k % 5], life: 0, max: 110 });
+      }
+    } else {
+      for (let k = 0; k < 90; k++) creParts.push({ x: Math.random() * innerWidth, y: -10 - Math.random() * 140, vx: (Math.random() - 0.5) * 0.6, vy: 1 + Math.random() * 1.5, g: 0.01,
+        rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.2, w: 5, h: 9, c: COLORS[k % 5], life: 0, max: 260 });
+    }
+    if (!creLoop) creLoop = requestAnimationFrame(creFrame);
+  }
+  function creFrame() {
+    let cv = document.getElementById("cre-fx");
+    if (!cv) { cv = document.createElement("canvas"); cv.id = "cre-fx"; document.body.appendChild(cv); }
+    const dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+    if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    creParts = creParts.filter((p) => ++p.life < p.max && p.y < H + 40);
+    creParts.forEach((p) => {
+      p.vy += p.g; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - p.life / p.max); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+    });
+    if (creParts.length) creLoop = requestAnimationFrame(creFrame);
+    else { creLoop = 0; cv.remove(); }
   }
 
   // A climb (round) has ended — completed all 6 rungs, or struck out / gave up.
@@ -7576,6 +7661,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
     if (f678) {
       $("#cre-mt").innerHTML = creMountain(round);
+      creCelebrate(round);
       renderRoundsBlock($("#cre-rows"), roundWords.slice(0, round), dailyTheme);
       [...$("#cre-rows").children].forEach((r, i) => r.classList.toggle("fold", i < round - 1));
     }
