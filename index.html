@@ -3103,7 +3103,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <div class="pc-bar"><button class="pc-x" id="btn-share-x" type="button" aria-label="Close">&times;</button><b>Share your <span class="clb">Climb</span></b><span></span></div>
       <div class="sh-duo">
         <div class="sh-card"><div class="sh-prev"><img id="share-img" alt="Your Daily Climb picture"></div><b>Picture</b><button class="sh-btn p" id="btn-share-pic" type="button">Share</button></div>
-        <div class="sh-card"><div class="sh-prev sh-txt" id="share-txt"></div><b>Text</b><button class="sh-btn" id="btn-share-txt" type="button">Copy</button></div>
+        <div class="sh-card"><div class="sh-prev sh-txt" id="share-txt"></div><b>Text</b><button class="sh-btn p" id="btn-share-txt" type="button">Share</button></div>
       </div>
     </div>
   </div>
@@ -3161,7 +3161,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T12:24:26-07:00","n":3,"notes":[{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"},{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"},{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.3"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T12:28:55-07:00","n":4,"notes":[{"note":"Text shares too","v":"0.15.0-beta.4"},{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"},{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"},{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.4"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9527,7 +9527,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const m = shareModel();
     shareTextNow = shareText(m);
     $("#share-txt").textContent = shareTextNow;
-    $("#btn-share-txt").textContent = "Copy";
+    $("#btn-share-txt").textContent = "Share";
     $("#share-sheet").hidden = false;
     shareCanvas = await drawSharePic(m);
     $("#share-img").src = shareCanvas.toDataURL("image/png");
@@ -9554,6 +9554,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   async function copyShareText() {
     trackEv("share_text", {});
+    // the phone's share sheet with the text, like the picture; copying is the fallback
+    if (navigator.share) {
+      try { await navigator.share({ text: shareTextNow }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+    }
     let ok = false;
     try { await navigator.clipboard.writeText(shareTextNow); ok = true; } catch (e) {}
     if (!ok) {   // older browsers: select it so a long-press copy works
@@ -9561,7 +9565,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
     }
     $("#btn-share-txt").textContent = ok ? "Copied!" : "Selected";
-    setTimeout(() => { $("#btn-share-txt").textContent = "Copy"; }, 2000);
+    setTimeout(() => { $("#btn-share-txt").textContent = "Share"; }, 2000);
   }
 
   // ===== Share your player card =====
