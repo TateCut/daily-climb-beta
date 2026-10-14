@@ -3146,7 +3146,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-13T10:56:07-07:00","n":1,"notes":[{"note":"Share your player card","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.0","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.1"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T08:26:10-07:00","n":2,"notes":[{"note":"Hotfix: Oct 14 Food words + leaderboard time","v":"0.15.0-beta.2"},{"note":"Share your player card","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.0","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.2"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3297,7 +3297,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     submitDaily: async function (day, r) {
       db.dailies[day] = Object.assign({ uid: UID, name: r.name || "Player", total: r.total || 0, strikes: r.strikes || 0, solveMs: r.solveMs || 0,
         hintUsed: !!r.hintUsed, roundWords: r.roundWords || [], finishedAt: Date.now() },
-        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {});
+        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {});
       save();
     },
     getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
@@ -4030,6 +4030,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         ...(r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}),
         // 6-7-8 days: forks in the trail where the theme word was played (the Forks trophies)
         ...(r.forks != null ? { forks: r.forks } : {}),
+        ...(r.twv ? { twv: r.twv } : {}),   // theme word list version (the nightly job's Oct 14 fix reads it)
       });
     },
     // dailies/{day}/progress/{uid} — where a player has got to in today's daily, updated as they
@@ -7019,6 +7020,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // tools/stats/finalize.mjs.
   // A daily score: a point per word, plus a bonus point per theme word found.
   const entrantPoints = (e) => (e.total || 0) + (e.themeWords || 0);
+  // Bonus points recounted from the words a player played, with the current theme word list, so a word added to
+  // the list later (a fix) scores for everyone who played it, not only for people who finish afterwards.
+  function rescoreEntrant(e, t) {
+    if (!t || !newRules(t) || !e || !Array.isArray(e.roundWords) || !e.roundWords.length) return e;
+    const tw = e.roundWords.reduce((a, words, i) => a + themeHits(t, i, words).length, 0);
+    return tw === (e.themeWords || 0) ? e : Object.assign({}, e, { themeWords: tw });
+  }
   function dailyCmp(a, b) {
     return (entrantPoints(b) - entrantPoints(a)) ||
       ((a.solveMs || 0) - (b.solveMs || 0)) ||
@@ -7522,6 +7530,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     clearDropTarget();
     defToken++;
     roundWords[round - 1] = currentRoundWords.slice();
+    // A Climb that ends early (out of strikes, or forfeited) still counts the time spent on the word you were on,
+    // so stopping never makes the leaderboard time faster than the clock.
+    if (!completed && stageShownAt) { const t = wordSolveMs(); solveMs += t; climbMs[round - 1] = (climbMs[round - 1] || 0) + t; stageShownAt = 0; }
     const f678 = mode === "daily" && newFormat(dailyTheme);   // 6-7-8 days get the mountain + leaderboard rows
     $("#screen-climb-roundend").classList.toggle("f678", f678);
     pauseDailyTimer();   // the clock waits on the between-Climbs screen
@@ -8351,7 +8362,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           name: storedName || playerName || "Player",
           total: totalRungs, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords,
           hintUsed: hintUsed,
-          ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id } : {}),
+          ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
           ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
         });
         await window.MatchDB.bumpStreak(day, prevDay);
@@ -8398,7 +8409,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function renderDailyBoard(entrants, dayKey, opts) {
     opts = opts || {};
     const myUid = window.MatchDB && window.MatchDB.uid;
-    const done = entrants.slice().sort(cmpForDay(dayKey));
+    const dayT = themedDay(dayKey);
+    const done = entrants.map((e) => rescoreEntrant(e, dayT)).sort(cmpForDay(dayKey));
     $("#daily-board-head .h-score").textContent = newRulesOn(dayBase(dayKey)) ? "Points" : "Words";
     const list = $("#daily-board-list");
     // A live board re-renders as people finish: keep whichever row was open.
