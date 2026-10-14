@@ -2125,6 +2125,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .pc-frames i { width: 36px; height: 44px; border-radius: 7px; border: 2px solid #121212; }
   .pc-frames small { font-weight: 600; font-size: 0.64rem; color: var(--rd-muted); }
   .pc-share { margin: 4px 16px 14px; height: 48px; border-radius: 999px; flex: none; }
+  /* the simple share: Picture | Text */
+  .sh-duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 6px 16px 18px; }
+  .sh-card { border: 1.5px solid var(--rd-line); border-radius: 16px; padding: 10px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  .sh-card b { font-size: 1rem; }
+  .sh-prev { width: 100%; aspect-ratio: 320 / 340; border-radius: 10px; overflow: hidden; }
+  .sh-prev img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .sh-txt { background: var(--rd-tile); color: var(--rd-tile-ink); font: 600 0.72rem/1.55 -apple-system, "Segoe UI", Roboto, sans-serif; padding: 9px 10px; white-space: pre; text-align: left; }
+  .sh-btn { align-self: stretch; height: 40px; border-radius: 999px; border: 1.5px solid var(--rd-ink); background: none; color: var(--rd-ink); font: 700 0.9rem var(--franklin); cursor: pointer; }
+  .sh-btn.p { background: var(--rd-btn); border-color: var(--rd-btn); color: var(--rd-btn-ink); }
   .tr-pop-kick { color: var(--rd-climb); }
   /* Calendar. */
   .cal-mhead b { font-family: var(--slab); font-size: 1.25rem; font-weight: 700; }
@@ -3089,6 +3098,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
     </div>
   </div>
   <!-- Trophy unlocked! (queued; shown on home / board / profile screens) -->
+  <div class="pc-sheet" id="share-sheet" role="dialog" aria-modal="true" aria-label="Share your Climb" hidden>
+    <div class="pc-panel">
+      <div class="pc-bar"><button class="pc-x" id="btn-share-x" type="button" aria-label="Close">&times;</button><b>Share your <span class="clb">Climb</span></b><span></span></div>
+      <div class="sh-duo">
+        <div class="sh-card"><div class="sh-prev"><img id="share-img" alt="Your Daily Climb picture"></div><b>Picture</b><button class="sh-btn p" id="btn-share-pic" type="button">Share</button></div>
+        <div class="sh-card"><div class="sh-prev sh-txt" id="share-txt"></div><b>Text</b><button class="sh-btn" id="btn-share-txt" type="button">Copy</button></div>
+      </div>
+    </div>
+  </div>
   <div class="pc-sheet" id="pcard" role="dialog" aria-modal="true" aria-label="Your card" hidden>
     <div class="pc-panel">
       <div class="pc-bar"><button class="pc-x" id="btn-pcard-x" type="button" aria-label="Close">&times;</button><b>Your card</b><span></span></div>
@@ -3143,7 +3161,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T12:00:11-07:00","n":2,"notes":[{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"},{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.2"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T12:24:26-07:00","n":3,"notes":[{"note":"Simple share: Picture or Text","v":"0.15.0-beta.3"},{"note":"The summit moment (Sunrise)","v":"0.15.0-beta.2"},{"note":"Three-peak logo + filled peaks between Climbs","v":"0.15.0-beta.1"},{"note":"Synced with live v0.14.1","v":"0.15.0-beta.0"}],"v":"0.15.0-beta.3"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3294,7 +3312,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     submitDaily: async function (day, r) {
       db.dailies[day] = Object.assign({ uid: UID, name: r.name || "Player", total: r.total || 0, strikes: r.strikes || 0, solveMs: r.solveMs || 0,
         hintUsed: !!r.hintUsed, roundWords: r.roundWords || [], finishedAt: Date.now() },
-        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {});
+        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {});
       save();
     },
     getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
@@ -4028,6 +4046,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         // 6-7-8 days: forks in the trail where the theme word was played (the Forks trophies)
         ...(r.forks != null ? { forks: r.forks } : {}),
         ...(r.twv ? { twv: r.twv } : {}),   // theme word list version (the nightly job's Oct 14 fix reads it)
+        ...(Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}),   // each Climb's time (the share picture)
       });
     },
     // dailies/{day}/progress/{uid} — where a player has got to in today's daily, updated as they
@@ -8409,6 +8428,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           total: totalRungs, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords,
           hintUsed: hintUsed,
           ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
+          ...(newFormat(dailyTheme) ? { climbMs: Array.from({ length: 3 }, (_, i) => Math.round(climbMs[i] || 0)) } : {}),
           ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
         });
         await window.MatchDB.bumpStreak(day, prevDay);
@@ -9443,6 +9463,107 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return "closes in " + Math.round(h / 24) + "d";
   }
 
+  // ===== The simple share: three peaks, filled or not, and your times =====
+  // Every point in Climb i (reached the top and found every theme word), from a finished entry's words.
+  function climbPerfectFrom(t, i, words) {
+    const ladder = (t && t.climbs[i] && t.climbs[i].c) || [];
+    words = words || [];
+    return ladder.length > 0 && words.length >= ladder.length && words.length + themeHits(t, i, words).length >= climbMaxPoints(t, i);
+  }
+  function shareModel() {
+    const c = pcardCtx, me = c.me, t = c.theme;
+    const fills = [0, 1, 2].map((i) => climbPerfectFrom(t, i, (me.roundWords || [])[i]));
+    const times = Array.isArray(me.climbMs) && me.climbMs.some((x) => x > 0) ? me.climbMs.map((x) => fmtDuration(x)) : null;
+    const p = c.day.split("-").map(Number);
+    const date = new Date(p[0], p[1] - 1, p[2], 12).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const th = t.theme || { name: "" };
+    return { fills: fills, times: times, total: fmtDuration(me.solveMs || 0), date: date, emoji: th.emoji || "", theme: th.name || "" };
+  }
+  function shareText(m) {
+    const lines = ["Daily Climb \u00B7 " + m.date + (m.emoji ? " " + m.emoji : "")];
+    m.fills.forEach((on, i) => lines.push((on ? "\u{1F6A9}" : "\u26AA") + (m.times ? " " + m.times[i] : "")));
+    lines.push("\u23F1\uFE0F " + m.total, "thedailyclimb.com");
+    return lines.join("\n");
+  }
+  // The picture: 960 x 1020 (the mockup's 320 x 340, tripled).
+  async function drawSharePic(m) {
+    const W = 960, H = 1020, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const x = cv.getContext("2d"), INK = "#121212";
+    try { await Promise.all([document.fonts.load('700 78px "Zilla Slab"'), document.fonts.load('800 30px "Libre Franklin"')]); } catch (e) {}
+    const SL = '"Zilla Slab", Georgia, serif', SN = '"Libre Franklin", -apple-system, "Segoe UI", Roboto, sans-serif';
+    x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
+    x.textAlign = "left"; x.font = "700 78px " + SL;
+    const wd = x.measureText("Daily ").width, wc = x.measureText("Climb").width, x0 = W / 2 - (wd + wc) / 2;
+    x.fillStyle = INK; x.fillText("Daily ", x0, 138); x.fillStyle = "#c25e08"; x.fillText("Climb", x0 + wd, 138);
+    x.textAlign = "center"; x.fillStyle = "#5a4a3c"; x.font = "600 39px " + SN;
+    x.fillText(m.date + " \u00B7 " + (m.emoji ? m.emoji + " " : "") + m.theme, W / 2, 204);
+    // the peaks, in the logo's own units (0..132 wide), scaled up
+    x.save(); x.translate(120, 258); x.scale(5.49, 5.49);
+    x.lineJoin = "round"; x.lineCap = "round"; x.strokeStyle = INK;
+    const poly = (pts, fill, lw) => { x.beginPath(); pts.forEach((pt, i) => (i ? x.lineTo(pt[0], pt[1]) : x.moveTo(pt[0], pt[1]))); x.closePath(); if (fill) { x.fillStyle = fill; x.fill(); } x.lineWidth = lw || 4; x.stroke(); };
+    CRE_PEAKS.forEach((pk, i) => {
+      const on = m.fills[i], ax = pk.a[0], ay = pk.a[1], k = pk.k;
+      poly([[pk.l, 84], [ax, ay], [pk.r, 84]], on ? pk.tone : "#f4e6d4");
+      poly([[ax - 8 * k, ay + 14 * k], [ax, ay], [ax + 9 * k, ay + 13 * k], [ax + 4 * k, ay + 10 * k], [ax, ay + 16 * k], [ax - 4 * k, ay + 11 * k]], "#ffffff");
+      if (on) {
+        const kf = Math.max(k, 0.9), fy = ay - 18 * kf - 2;
+        x.beginPath(); x.moveTo(ax, ay); x.lineTo(ax, fy); x.lineWidth = 3; x.stroke();
+        poly([[ax, fy], [ax + 16 * kf + 2, fy + 5 * kf], [ax, fy + 10 * kf]], "#f6c90e", 3);
+      }
+    });
+    x.beginPath(); x.moveTo(0, 84); x.lineTo(132, 84); x.lineWidth = 4; x.stroke();
+    if (m.times) {   // each Climb's time under its peak
+      x.fillStyle = INK; x.font = "800 10px " + SN; x.textAlign = "center";
+      CRE_PEAKS.forEach((pk, i) => x.fillText(m.times[i], pk.a[0], 100));
+    }
+    x.restore();
+    x.fillStyle = INK; x.font = "800 84px " + SN; x.textAlign = "center";
+    x.fillText("\u23F1 " + m.total, W / 2, 954);
+    return cv;
+  }
+  let shareCanvas = null, shareTextNow = "";
+  async function openShareSheet() {
+    if (!pcardCtx) return;
+    const m = shareModel();
+    shareTextNow = shareText(m);
+    $("#share-txt").textContent = shareTextNow;
+    $("#btn-share-txt").textContent = "Copy";
+    $("#share-sheet").hidden = false;
+    shareCanvas = await drawSharePic(m);
+    $("#share-img").src = shareCanvas.toDataURL("image/png");
+    trackEv("share_open", { perfect: m.fills.filter(Boolean).length });
+  }
+  function closeShareSheet() { $("#share-sheet").hidden = true; }
+  async function shareSharePic() {
+    if (!shareCanvas) return;
+    const blob = await new Promise((r) => shareCanvas.toBlob(r, "image/png"));
+    if (!blob) return;
+    const text = "Can you beat me? https://thedailyclimb.com";
+    trackEv("share_picture", {});
+    const file = new File([blob], "daily-climb.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], text: text }); } catch (e) {}
+      return;
+    }
+    // No share sheet with pictures here (most computers): save the picture instead.
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "daily-climb.png";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $("#btn-share-pic").textContent = "Saved";
+    setTimeout(() => { $("#btn-share-pic").textContent = "Share"; }, 2000);
+  }
+  async function copyShareText() {
+    trackEv("share_text", {});
+    let ok = false;
+    try { await navigator.clipboard.writeText(shareTextNow); ok = true; } catch (e) {}
+    if (!ok) {   // older browsers: select it so a long-press copy works
+      const r = document.createRange(); r.selectNodeContents($("#share-txt"));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+    $("#btn-share-txt").textContent = ok ? "Copied!" : "Selected";
+    setTimeout(() => { $("#btn-share-txt").textContent = "Copy"; }, 2000);
+  }
+
   // ===== Share your player card =====
   let pcardCtx = null;   // { me, theme, day }: today's finished entry on the board, or null
   const PCARD_KEY = "dc.card";
@@ -10068,7 +10189,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-climb-again").addEventListener("click", startClimb);
   $("#btn-climb-home").addEventListener("click", goHome);
   $("#btn-cre-next").addEventListener("click", climbRoundEndContinue);
-  $("#btn-share-card").addEventListener("click", openPcard);
+  $("#btn-share-card").addEventListener("click", openShareSheet);
+  $("#btn-share-x").addEventListener("click", closeShareSheet);
+  $("#share-sheet").addEventListener("click", (e) => { if (e.target === $("#share-sheet")) closeShareSheet(); });
+  $("#btn-share-pic").addEventListener("click", shareSharePic);
+  $("#btn-share-txt").addEventListener("click", copyShareText);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#share-sheet").hidden) closeShareSheet(); });
   $("#btn-pcard-x").addEventListener("click", closePcard);
   $("#pcard").addEventListener("click", (e) => { if (e.target === $("#pcard")) closePcard(); });
   $("#btn-pcard-share").addEventListener("click", sharePcard);
