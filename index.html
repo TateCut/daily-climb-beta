@@ -13,6 +13,14 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Zilla+Slab:wght@400;500;700&display=swap">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f4d3a6">
+<meta name="description" content="A daily word ladder: Climb one word at a time. On-theme words score extra. Three Climbs a day.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Daily Climb">
+<meta property="og:title" content="Daily Climb">
+<meta property="og:description" content="Climb one word at a time. On-theme words score extra. Three Climbs a day.">
+<meta property="og:url" content="https://thedailyclimb.com/">
+<meta property="og:image" content="https://thedailyclimb.com/icon-512.png">
+<meta name="twitter:card" content="summary">
 <script>
   // Light mode unless the player picked dark (the moon on the home screen). Set before paint.
   try { if (localStorage.getItem("dc.theme") !== "dark") document.documentElement.classList.add("light"); }
@@ -3182,7 +3190,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T15:38:26-07:00","n":8,"notes":[{"note":"New home tagline: On-theme words score extra","v":"0.15.0-beta.8"},{"note":"Perfect day banner sits under the times","v":"0.15.0-beta.7"},{"note":"Share sends a link with your picture; the climber walks the trail","v":"0.15.0-beta.6"},{"note":"Time splits between Climbs","v":"0.15.0-beta.5"},{"note":"Text shares too","v":"0.15.0-beta.4"}],"v":"0.15.0-beta.8"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T15:54:13-07:00","n":0,"notes":[{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -11062,6 +11070,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // and puts a dot on ☰ until it's read; all of them live in the Announcements sheet.
   // replay: "routes" adds a link that plays that update's intro again.
   const ANN_ALL = [
+    { id: "share", date: "2026-10-14", title: "Share your Climb",
+      body: "Sharing your results is here. After you finish the daily, tap **Share** in your row on the leaderboard, or **Share today's Climb** on the home screen.\n\n" +
+        "**A link with your picture.** Friends get a link that shows your three peaks, your time on each Climb and your total. Tapping it opens Daily Climb, so they can take on the same puzzle.\n\n" +
+        "**No spoilers.** Your picture never shows your words. A peak gets a flag when you got every point in that Climb.\n\n" +
+        "Texting someone whose phone doesn't show link previews? Tap **Send as picture** to send the picture itself." },
     { id: "shape", date: FORMAT_DAY, title: "A new shape for the daily", note: true,
       body: "Every Climb now peaks at 6, 7 and 8 letters: the same length every day, with more variety. Trail, Ridge and Summit are retired.\n\n" +
         "**Forks in the trail.** Every Daily Climb has 3+ steps that fit two words. Take the theme word for a bonus point.",
@@ -11321,6 +11334,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // (sw.js caches other files cache-first, so a notes file could go stale).
   // Each release shows from its date on (the player's own day), so notes can ship ahead of the change they describe.
   const PATCH_NOTES = [
+    { v: "0.15.0", date: "2026-10-14", title: "Share your Climb",
+      notes: [
+        ["new", "Share your result. After the daily, tap Share in your row on the leaderboard, or Share today's Climb on the home screen. Friends get a link that shows your peaks, your time on each Climb and your total, and tapping it opens Daily Climb. Send as picture sends the picture itself."],
+        ["new", "A peak fills in orange and gets a flag when you get every point in that Climb, with a chime and streamers at the summit, and a sunrise on a perfect day."],
+        ["new", "Between Climbs, your climber walks the trail to the next summit, and each Climb's time sits under its peak."],
+        ["imp", "A new logo and app icon: three peaks."],
+        ["imp", "The home screen now says how the theme works: on-theme words score extra."],
+      ] },
     { v: "0.14.1", date: "2026-10-14", title: "Little fixes",
       notes: [
         ["fix", "If a Climb ends early, your leaderboard time now includes the time spent on the word you were on, so it matches your clock."],
