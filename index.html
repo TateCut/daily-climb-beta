@@ -3190,7 +3190,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-14T15:54:13-07:00","n":0,"notes":[{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.0"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-14T16:03:15-07:00","n":1,"notes":[{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"},{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.1"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -11190,13 +11190,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (annOpenedFrom && annOpenedFrom.focus) annOpenedFrom.focus();
     annOpenedFrom = null;
   }
-  // A brand-new announcement (one without its own intro) opens by itself, once, on the home screen.
+  // A brand-new announcement just puts the dot on ☰ (renderMenuDot); only one with its own intro (a launch note or
+  // a menu tour) opens by itself, once, on the home screen.
   function maybeAnnouncement() {
+    renderMenuDot();   // the profile may have loaded since home first drew the dot
     const top = annList()[0];
     if (!top || top.replay || !announcementUnread() || !tutorialSeen || updateWaiting || screens.home.hidden) return;
     if (!$("#whatsnew").hidden || !$("#howto-card").hidden || !$("#trophy-pop").hidden || anySheetOpen() || !$("#tour-layer").hidden) return;
     if (top.note) { if (!noteShown(top.id)) openShapeNote(true); return; }
-    if (top.tour) startMenuTour(true); else showAnnouncements(true);
+    if (top.tour) startMenuTour(true);
   }
 
   // ---- The 6-7-8 launch note: two pages, once, on the home screen ----
