@@ -3293,7 +3293,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T15:44:34-07:00","n":19,"notes":[{"note":"Home buttons all one size","v":"0.15.2-beta.19"},{"note":"Weekly Leaderboard intro + announcement","v":"0.15.2-beta.18"},{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"}],"v":"0.15.2-beta.19"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T15:48:27-07:00","n":20,"notes":[{"note":"Weekly board starts Oct 13","v":"0.15.2-beta.20"},{"note":"Home buttons all one size","v":"0.15.2-beta.19"},{"note":"Weekly Leaderboard intro + announcement","v":"0.15.2-beta.18"},{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"}],"v":"0.15.2-beta.20"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3381,32 +3381,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
       return true;
     });
   }
-  // You, on days before this week that you didn't play here: made up, so past weeks have you on them.
-  function fakeMe(day) {
-    var base = String(day).slice(0, 10), t = fakeToday(), td = new Date(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10), 12);
-    td.setDate(td.getDate() - (td.getDay() + 6) % 7);   // this week's Monday
-    var mon = td.getFullYear() + "-" + String(td.getMonth() + 1).padStart(2, "0") + "-" + String(td.getDate()).padStart(2, "0");
-    if (db.noFakes || base >= mon) return null;
-    var r = seeded(base + "|me"), info = dayInfo(day);
-    if (r() < 0.06 || !info.ladders) return null;   // a missed day now and then
-    var list = String((window.THEME_WORDS || {})[info.theme] || "").split(" ");
-    var isTheme = function (w, c) { return info.themeWords[c].indexOf(w) >= 0 || list.indexOf(w) >= 0; };
-    var e = { uid: UID, name: (db.player && db.player.name) || "Player", total: 0, strikes: Math.floor(r() * 2), solveMs: Math.floor(120000 + r() * 360000),
-      hintUsed: r() < 0.2, roundWords: [], finishedAt: Date.now() - 864e5 };
-    e.roundWords = info.ladders.map(function (ladder, c) {
-      var drop = r() < 0.85 ? 0 : 1, prev = null;
-      return ladder.slice(0, Math.max(1, ladder.length - drop)).map(function (ref) {
-        var opts = fakeOptions(ref).filter(function (w) { return !fakeCheap(prev, w); });
-        var pick = opts.filter(function (w) { return isTheme(w, c); })[0] || ref;
-        prev = pick;
-        return pick;
-      });
-    });
-    e.total = e.roundWords.reduce(function (a, w) { return a + w.length; }, 0);
-    e.themeWords = e.roundWords.reduce(function (k, w, c) { return k + w.filter(function (word) { return isTheme(word, c); }).length; }, 0);
-    e.max = info.max; e.theme = info.theme;
-    return e;
-  }
   function fakeToday() {
     var d = null; try { d = sessionStorage.getItem("three21.devDay"); } catch (x) {}
     if (d) return d;
@@ -3489,7 +3463,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {});
       save();
     },
-    getDailyBoard: async function (day) { var m = mine(day) || fakeMe(day); return fakeBoard(day).concat(m ? [m] : []); },
+    getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
     // The nightly job's summary of recent results (share of most possible points, time), made up from the pretend players.
     getRecentResults: async function (keys) {
       var out = {};
@@ -9184,6 +9158,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const back = (new Date(+p[0], +p[1] - 1, +p[2], 12).getDay() + 6) % 7;
     return shiftDayKey(key, -back);
   }
+  // Weeks count from the 6-7-8 format's first day; earlier days never count, and the first week is as far back as it goes.
+  const WEEK_FROM = FORMAT_DAY;
+  const weekCounts = (k) => dayBase(k) >= WEEK_FROM;
+  const weekBoardFrom = (k) => (weekCounts(k) ? weekBoard(k) : Promise.resolve([]));
+  const firstWeek = (mon) => dayBase(mon) <= dayBase(weekStartOf(WEEK_FROM));
   const shortDay = (key, opts) => { const p = dayBase(key).split("-"); return new Date(+p[0], +p[1] - 1, +p[2], 12).toLocaleDateString(undefined, opts || { weekday: "short", month: "short", day: "numeric" }); };
   // A week is final once its Sunday's daily is over everywhere: midnight at UTC-12, Monday 12:00 UTC.
   function weekIsFinal(sundayKey) {
@@ -9232,7 +9211,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       homeWeekKey = key; homeWeekAt = Date.now();
       const keys = [];
       for (let k = weekStartOf(today); dayBase(k) <= dayBase(today); k = shiftDayKey(k, 1)) if (!(hide && k === today)) keys.push(k);
-      const boards = await Promise.all(keys.map(weekBoard));
+      const boards = await Promise.all(keys.map(weekBoardFrom));
       const pts = new Map(), ms = new Map();
       keys.forEach((k, i) => {
         const t = themedDay(k);
@@ -9264,7 +9243,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (scope === "week") {
       const today = dailyKeyOf();
       weekStart = weekStartOf(today);
-      if (todayHidden() && weekStart === today) weekStart = shiftDayKey(weekStart, -7);   // a Monday before playing: last week
+      if (todayHidden() && weekStart === today && !firstWeek(weekStart)) weekStart = shiftDayKey(weekStart, -7);   // a Monday before playing: last week
       renderWeek();
     }
   }
@@ -9274,6 +9253,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const thisWeek = start === thisMonday;
     $("#wk-range").textContent = shortDay(days[0]) + " – " + shortDay(days[6]);
     $("#wk-next").disabled = thisWeek;
+    $("#wk-prev").disabled = firstWeek(start);
+    $("#wk-prev").style.visibility = firstWeek(start) ? "hidden" : "";
     const final = !thisWeek && weekIsFinal(days[6]);
     $("#wk-final").hidden = !final;
     $("#wk-head").hidden = true;
@@ -9281,7 +9262,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     list.innerHTML = "<p class='note'>Loading…</p>";
     const upTo = days.filter((k) => dayBase(k) <= dayBase(today));
     if (!dbReady()) { list.innerHTML = "<p class='note'>Couldn't load the week.</p>"; return; }
-    const boards = await Promise.all(upTo.map(weekBoard));
+    const boards = await Promise.all(upTo.map(weekBoardFrom));
     if (tok !== weekTok || boardScope !== "week") return;
     const hide = thisWeek && todayHidden();   // today's points, times and places wait until you've played
     const playedToday = new Map();   // uid -> name: who has played today (shown, nothing else)
@@ -9356,7 +9337,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const today = dailyKeyOf();
     let max = 0;
     days.forEach((k, i) => {
-      if (dayBase(k) > dayBase(today) || (k === today && todayHidden())) return;   // no hint of today's most points before you play
+      if (dayBase(k) > dayBase(today) || (k === today && todayHidden()) || !weekCounts(k)) return;   // no hint of today's most points before you play
       max += dayMaxPoints(k);
     });
     const tot = document.createElement("div");
@@ -9366,7 +9347,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const of = document.createElement("span"); of.textContent = "/" + max; tot.lastChild.appendChild(of);
     d.appendChild(tot);
     days.forEach((k, i) => {
-      const line = document.createElement("div"), x = r.days[i], later = dayBase(k) > dayBase(today), t = themedDay(k);
+      const line = document.createElement("div"), x = r.days[i], later = dayBase(k) > dayBase(today) || !weekCounts(k), t = themedDay(k);
       line.className = "wk-day" + (later ? " later" : !x ? " wait" : "");
       line.innerHTML = '<span class="d"></span><span class="th"></span><span class="p"></span><span class="t"></span><span class="pl"></span>';
       const dl = line.querySelector(".d");
@@ -9391,7 +9372,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     row.after(d);
   }
   $("#daily-board-scope").addEventListener("click", (e) => { const b = e.target.closest("button[data-scope]"); if (b && b.dataset.scope !== boardScope) { setBoardScope(b.dataset.scope); if (b.dataset.scope === "week") countFeature("week"); } });
-  $("#wk-prev").addEventListener("click", () => { weekStart = shiftDayKey(weekStart, -7); renderWeek(); });
+  $("#wk-prev").addEventListener("click", () => { if (firstWeek(weekStart)) return; weekStart = shiftDayKey(weekStart, -7); renderWeek(); });
   $("#wk-next").addEventListener("click", () => { const next = shiftDayKey(weekStart, 7); if (dayBase(next) <= dayBase(weekStartOf(dailyKeyOf()))) { weekStart = next; renderWeek(); } });
 
   function setBoardTab(tab) {
