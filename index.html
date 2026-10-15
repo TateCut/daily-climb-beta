@@ -1709,6 +1709,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #forfeit-confirm .ff-card h3 { font-family: var(--slab); font-weight: 700; font-size: 1.4rem; }
   #forfeit-confirm button.ghost.ff-go { height: 48px; border-radius: 999px; background: none; border: 1.5px solid var(--rd-bad); color: var(--rd-bad); font-weight: 600; }
   #forfeit-confirm button.ghost.ff-go .clb { color: inherit; }
+  #forfeit-confirm button.ghost.ff-go.rv { border-color: var(--rd-ink); color: var(--rd-ink); display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+  #forfeit-confirm button.ghost.ff-go.rv svg { width: 16px; height: 16px; }
   /* First-game tips: an ink bubble (gold for the theme tip). */
   .coach { background: var(--rd-ink); color: var(--rd-bg); }
   .coach.down::after { border-top-color: var(--rd-ink); }
@@ -3197,7 +3199,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T07:57:15-07:00","n":5,"notes":[{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"},{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"},{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"}],"v":"0.16.0-beta.5"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T08:03:00-07:00","n":6,"notes":[{"note":"Reveal word asks first; Shuffle packs letters left","v":"0.16.0-beta.6"},{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"},{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"},{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"}],"v":"0.16.0-beta.6"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -5902,8 +5904,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (locked || checking) return;
     const before = trayString(trayCells);
     let best = null, bestScore = Infinity;
+    // the letters packed to the left, shuffled; the spaces left by letters up in your word go to the end
+    const letters = trayCells.filter((c) => c.type === "letter"), gaps = trayCells.filter((c) => c.type !== "letter");
     for (let i = 0; i < 40; i++) {
-      const cand = shuffle(trayCells.slice());
+      const cand = shuffle(letters.slice()).concat(gaps);
       const str = trayString(cand);
       const sc = revealScore(str) + (str === before && before.length > 1 ? 50 : 0);   // and it visibly changes
       if (sc < bestScore) { best = cand; bestScore = sc; if (sc === 0) break; }
@@ -10328,9 +10332,27 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-return").addEventListener("click", returnAll);
   $("#btn-shuffle").addEventListener("click", doShuffle);
   $("#btn-hint").addEventListener("click", useHint);
-  $("#btn-endround").addEventListener("click", () => { if (mode === "daily") revealWord(); else if (isClimb()) openForfeit(); else endRound(); });
+  $("#btn-endround").addEventListener("click", () => { if (mode === "daily") openRevealCheck(); else if (isClimb()) openForfeit(); else endRound(); });
+  // The same check card asks before Reveal word, unless this step is already revealed (putting the word back).
+  let ffReveal = false;
+  function openRevealCheck() {
+    if (locked || checking || screens.play.hidden) return;
+    if (revealAt && revealAt.r === round && revealAt.s === climbStage) { revealWord(); return; }
+    ffReveal = true;
+    $("#ff-title").textContent = "Reveal this word?";
+    $("#ff-body").textContent = "It won't score any points.";
+    const go = $("#btn-ff-go");
+    go.classList.add("rv");
+    go.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>' + "Reveal word";
+    $("#forfeit-confirm").hidden = false;
+    setTimeout(() => $("#btn-ff-keep").focus(), 50);
+  }
   function openForfeit() {
     if (locked || checking || screens.play.hidden) return;
+    ffReveal = false;
+    $("#ff-title").innerHTML = 'Forfeit this <span class="clb">Climb</span>?';
+    $("#btn-ff-go").classList.remove("rv");
+    $("#btn-ff-go").innerHTML = 'Forfeit <span class="clb">Climb</span>';
     const n = currentRoundWords.length;
     const body = $("#ff-body");
     body.replaceChildren();
@@ -10349,7 +10371,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   function closeForfeit() { $("#forfeit-confirm").hidden = true; }
   $("#btn-ff-keep").addEventListener("click", closeForfeit);
-  $("#btn-ff-go").addEventListener("click", () => { closeForfeit(); endRound(); });
+  $("#btn-ff-go").addEventListener("click", () => { closeForfeit(); if (ffReveal) revealWord(); else endRound(); });
   $("#forfeit-confirm").addEventListener("click", (e) => { if (e.target.id === "forfeit-confirm") closeForfeit(); });
   $("#btn-start").addEventListener("click", startSession);
 
