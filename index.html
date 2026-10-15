@@ -3261,7 +3261,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T13:29:50-07:00","n":13,"notes":[{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"},{"note":"Weekly Leaderboard pill under Play","v":"0.15.2-beta.10"},{"note":"Weekly Leaderboard pill on Home","v":"0.15.2-beta.9"}],"v":"0.15.2-beta.13"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T13:36:09-07:00","n":14,"notes":[{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"},{"note":"Weekly Leaderboard pill under Play","v":"0.15.2-beta.10"}],"v":"0.15.2-beta.14"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3349,6 +3349,32 @@ $1{ display: flex; gap: 8px; width: 100%; }
       return true;
     });
   }
+  // You, on days before this week that you didn't play here: made up, so past weeks have you on them.
+  function fakeMe(day) {
+    var base = String(day).slice(0, 10), t = fakeToday(), td = new Date(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10), 12);
+    td.setDate(td.getDate() - (td.getDay() + 6) % 7);   // this week's Monday
+    var mon = td.getFullYear() + "-" + String(td.getMonth() + 1).padStart(2, "0") + "-" + String(td.getDate()).padStart(2, "0");
+    if (db.noFakes || base >= mon) return null;
+    var r = seeded(base + "|me"), info = dayInfo(day);
+    if (r() < 0.06 || !info.ladders) return null;   // a missed day now and then
+    var list = String((window.THEME_WORDS || {})[info.theme] || "").split(" ");
+    var isTheme = function (w, c) { return info.themeWords[c].indexOf(w) >= 0 || list.indexOf(w) >= 0; };
+    var e = { uid: UID, name: (db.player && db.player.name) || "Player", total: 0, strikes: Math.floor(r() * 2), solveMs: Math.floor(120000 + r() * 360000),
+      hintUsed: r() < 0.2, roundWords: [], finishedAt: Date.now() - 864e5 };
+    e.roundWords = info.ladders.map(function (ladder, c) {
+      var drop = r() < 0.85 ? 0 : 1, prev = null;
+      return ladder.slice(0, Math.max(1, ladder.length - drop)).map(function (ref) {
+        var opts = fakeOptions(ref).filter(function (w) { return !fakeCheap(prev, w); });
+        var pick = opts.filter(function (w) { return isTheme(w, c); })[0] || ref;
+        prev = pick;
+        return pick;
+      });
+    });
+    e.total = e.roundWords.reduce(function (a, w) { return a + w.length; }, 0);
+    e.themeWords = e.roundWords.reduce(function (k, w, c) { return k + w.filter(function (word) { return isTheme(word, c); }).length; }, 0);
+    e.max = info.max; e.theme = info.theme;
+    return e;
+  }
   function fakeToday() {
     var d = null; try { d = sessionStorage.getItem("three21.devDay"); } catch (x) {}
     if (d) return d;
@@ -3431,7 +3457,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {});
       save();
     },
-    getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
+    getDailyBoard: async function (day) { var m = mine(day) || fakeMe(day); return fakeBoard(day).concat(m ? [m] : []); },
     // The nightly job's summary of recent results (share of most possible points, time), made up from the pretend players.
     getRecentResults: async function (keys) {
       var out = {};
@@ -10117,7 +10143,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const x = r.days[i], t = themedDay(k);
         if (!x) return { letter: shortDay(k, { weekday: "narrow" }), pts: null, fills: [false, false, false] };
         const e = x.e || {};
-        const fills = newFormat(t) ? [0, 1, 2].map((ci) => climbPerfectFrom(t, ci, (e.roundWords || [])[ci], entrantReveals(e, ci))) : [false, false, false];
+        const fills = t && t.climbs ? [0, 1, 2].map((ci) => climbPerfectFrom(t, ci, (e.roundWords || [])[ci], entrantReveals(e, ci))) : [false, false, false];
         return { letter: shortDay(k, { weekday: "narrow" }), pts: x.pts, fills: fills };
       }),
     };
