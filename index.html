@@ -1740,6 +1740,41 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .lb-tabs[hidden] { display: none; }
   .lb-tabs button { height: 34px; border: 0; border-radius: 999px; background: none; color: var(--rd-ink); font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
   .lb-tabs button.on { background: var(--rd-ink); color: var(--rd-bg); }
+  #daily-board-tabs button { display: flex; align-items: center; justify-content: center; gap: 7px; }
+  #daily-board-tabs button svg { width: 15px; height: 15px; flex: none; }
+  /* This week */
+  #screen-daily-board.week :is(#daily-board-tabs, #daily-board-sub, #daily-board-theme, #daily-board-sum, #daily-board-mtn, #daily-board-head, #daily-board-list, #daily-board-routes, #daily-board-foot, #btn-reminder, #btn-daily-board-flip) { display: none !important; }
+  .lb-week { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .lb-week[hidden] { display: none; }
+  .wk-step { display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; text-align: center; }
+  .wk-arrow { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--rd-ink); background: none; color: var(--rd-ink); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+  .wk-arrow:disabled { opacity: 0.25; cursor: default; }
+  .wk-range b { font-weight: 700; font-size: 0.9rem; }
+  .wk-range small { display: block; font-size: 0.72rem; color: var(--rd-muted); font-weight: 600; }
+  .wk-final { display: inline-block; margin-left: 6px; background: var(--rd-ink); color: var(--rd-bg); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 999px; vertical-align: 2px; }
+  #wk-you { text-align: center; font-family: var(--slab); font-weight: 700; font-size: 1.35rem; }
+  #wk-you:empty { display: none; }
+  #wk-list .lb-rank, #wk-head .h-rank { min-width: 2.2rem; text-align: center; }
+  #wk-list .lb-row > .lb-name, #wk-head .h-name { flex: 1; min-width: 0; text-align: left; }
+  #wk-list .lb-days, #wk-head .h-days { min-width: 2.8rem; text-align: center; }
+  #wk-list .lb-score, #wk-head .h-score { min-width: 3rem; text-align: center; }
+  #wk-list { margin-top: -10px; }
+  .lb-days { display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-weight: 700; font-size: 0.86rem; }
+  .lb-days i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .lb-days i.done { background: var(--rd-climb); }
+  .lb-days i.wait { border: 1.5px solid var(--rd-muted); }
+  .wk-trophy { margin-left: 5px; }
+  .wk-detail { padding: 8px 4px 12px; border-bottom: 1px solid var(--rd-line); display: flex; flex-direction: column; gap: 4px; text-align: left; }
+  .wk-tot { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--slab); font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
+  .wk-tot b { font-family: var(--franklin); font-size: 1.2rem; } .wk-tot b span { color: var(--rd-muted); font-weight: 600; font-size: 0.9rem; }
+  .wk-day { display: grid; grid-template-columns: 2.8rem 1fr 3.6rem 3.2rem 2.6rem; align-items: center; column-gap: 6px; font-size: 0.86rem; padding: 4px 0; }
+  .wk-day .d { font-weight: 800; } .wk-day .d small { display: block; font-weight: 600; color: var(--rd-muted); font-size: 0.66rem; }
+  .wk-day .th { color: var(--rd-muted); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wk-day .p { text-align: right; font-weight: 800; } .wk-day .p span { color: var(--rd-muted); font-weight: 600; }
+  .wk-day .t { text-align: right; color: var(--rd-muted); font-variant-numeric: tabular-nums; } .wk-day .pl { text-align: right; font-weight: 700; font-size: 0.8rem; }
+  .wk-day.wait .p, .wk-day.wait .pl { color: var(--rd-muted); font-weight: 600; }
+  .wk-day.later { opacity: 0.4; }
+  .wk-day.best { background: color-mix(in srgb, var(--rd-gold) 30%, transparent); border-radius: 6px; padding-inline: 5px; margin-inline: -5px; }
   .lb-tabs button:focus-visible, .lb-routes-pill:focus-visible { outline: 2px solid var(--rd-climb); outline-offset: 2px; }
   #screen-daily-board.routes :is(#daily-board-theme, #daily-board-sum, #daily-board-mtn, #daily-board-head, #daily-board-list, #daily-board-foot, #btn-reminder) { display: none !important; }
   .lb-routes { width: 100%; flex: none; overflow: visible; display: flex; flex-direction: column; gap: 12px; text-align: left; }
@@ -2611,8 +2646,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <!-- DAILY CLIMB: leaderboard -->
     <section id="screen-daily-board" hidden>
       <div class="scr-head"><button class="backpill" id="btn-daily-board-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl" id="daily-board-title">Daily Climb</h2><span class="dailycard-streak" id="daily-board-streak" hidden></span></div>
+      <div class="lb-tabs" id="daily-board-scope" role="tablist" aria-label="Today or this week" hidden>
+        <button type="button" role="tab" data-scope="day" class="on">Today</button><button type="button" role="tab" data-scope="week">This week</button>
+      </div>
       <div class="lb-tabs" id="daily-board-tabs" role="tablist" aria-label="Leaderboard view" hidden>
-        <button type="button" role="tab" data-tab="standings">Standings</button><button type="button" role="tab" data-tab="routes">Routes</button>
+        <button type="button" role="tab" data-tab="standings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V9h6v12M3 21v-7h6M15 21v-5h6v5M2 21h20"/></svg><span>Standings</span></button><button type="button" role="tab" data-tab="routes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M7 19h6a3 3 0 0 0 0-6h-2a3 3 0 0 1 0-6h6" stroke-dasharray="2.5 2.5"/></svg><span>Routes</span></button>
       </div>
       <p class="note" id="daily-board-sub"></p>
       <div class="lb-theme" id="daily-board-theme" hidden><div class="lb-theme-k">Theme</div><div class="lb-theme-n" id="daily-board-theme-name"></div></div>
@@ -2623,6 +2661,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <div class="lb-routes" id="daily-board-routes" hidden>
         <div class="lb-routes-climbs" id="routes-climbs"></div>
         <div class="lb-routes-steps" id="routes-steps"></div>
+      </div>
+      <div class="lb-week" id="daily-board-week" hidden>
+        <div class="wk-step">
+          <button class="wk-arrow" id="wk-prev" type="button" aria-label="Previous week">&lsaquo;</button>
+          <div class="wk-range"><b id="wk-range"></b><span class="wk-final" id="wk-final" hidden>FINAL</span><small id="wk-when"></small></div>
+          <button class="wk-arrow" id="wk-next" type="button" aria-label="Next week">&rsaquo;</button>
+        </div>
+        <div class="lbsum-you" id="wk-you"></div>
+        <div class="lb-head" id="wk-head"><span class="h-rank">Rank</span><span class="h-name">Player</span><span class="h-days">Days</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
+        <div class="lb-list" id="wk-list"></div>
       </div>
       <p class="note" id="daily-board-foot"></p>
       <button class="reminder-cta" id="btn-reminder" type="button" hidden></button>
@@ -3200,7 +3248,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T11:21:46-07:00","n":2,"notes":[{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"},{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.2"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T12:00:06-07:00","n":3,"notes":[{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"},{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.3"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -8949,6 +8997,152 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let routesData = null;      // { done, myUid } from the board's last render
   let boardRouteClimb = 0;    // which Climb the routes view shows
   let routeOpen = null;       // "step|word" whose players are showing in the pop-up
+  // ---- This week: Monday to Sunday added up (each player's own Monday midnight); most points, then least time ----
+  let boardScope = "day", weekStart = null, weekTok = 0;
+  const weekCache = {};   // finished days' boards (a day older than yesterday doesn't change)
+  // The Monday of the week a day key falls in (same salt).
+  function weekStartOf(key) {
+    const p = dayBase(key).split("-");
+    const back = (new Date(+p[0], +p[1] - 1, +p[2], 12).getDay() + 6) % 7;
+    return shiftDayKey(key, -back);
+  }
+  const shortDay = (key, opts) => { const p = dayBase(key).split("-"); return new Date(+p[0], +p[1] - 1, +p[2], 12).toLocaleDateString(undefined, opts || { weekday: "short", month: "short", day: "numeric" }); };
+  // A week is final once its Sunday's daily is over everywhere: midnight at UTC-12, Monday 12:00 UTC.
+  function weekIsFinal(sundayKey) {
+    const p = dayBase(sundayKey).split("-");
+    return Date.now() >= Date.UTC(+p[0], +p[1] - 1, +p[2] + 1, 12);
+  }
+  // The most points a day could score (old days: words).
+  function dayMaxPoints(key) {
+    const t = themedDay(key);
+    if (t && newRules(t)) return t.climbs.reduce((a, _, i) => a + climbMaxPoints(t, i), 0);
+    return dayMaxFor(key);
+  }
+  async function weekBoard(key) {
+    if (weekCache[key]) return weekCache[key];
+    let list = null;
+    try { list = await window.MatchDB.getDailyBoard(key); } catch (e) {}
+    list = list || [];
+    if (dayBase(key) < dayBase(shiftDayKey(dailyKeyOf(), -1))) weekCache[key] = list;
+    return list;
+  }
+  function setBoardScope(scope) {
+    boardScope = scope;
+    $("#screen-daily-board").classList.toggle("week", scope === "week");
+    $("#daily-board-week").hidden = scope !== "week";
+    $("#daily-board-scope").querySelectorAll("button").forEach((b) => {
+      const on = b.dataset.scope === scope;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", String(on));
+    });
+    if (scope === "week") { weekStart = weekStartOf(dailyKeyOf()); renderWeek(); }
+  }
+  async function renderWeek() {
+    const tok = ++weekTok, start = weekStart, today = dailyKeyOf(), thisMonday = weekStartOf(today);
+    const days = [0, 1, 2, 3, 4, 5, 6].map((i) => shiftDayKey(start, i));
+    const thisWeek = start === thisMonday;
+    $("#wk-range").textContent = shortDay(days[0]) + " – " + shortDay(days[6]);
+    $("#wk-when").textContent = thisWeek ? "This week" : start === shiftDayKey(thisMonday, -7) ? "Last week" : "";
+    $("#wk-next").disabled = thisWeek;
+    const final = !thisWeek && weekIsFinal(days[6]);
+    $("#wk-final").hidden = !final;
+    $("#wk-you").textContent = "";
+    $("#wk-head").hidden = true;
+    const list = $("#wk-list");
+    list.innerHTML = "<p class='note'>Loading…</p>";
+    const upTo = days.filter((k) => dayBase(k) <= dayBase(today));
+    if (!dbReady()) { list.innerHTML = "<p class='note'>Couldn't load the week.</p>"; return; }
+    const boards = await Promise.all(upTo.map(weekBoard));
+    if (tok !== weekTok || boardScope !== "week") return;
+    const by = new Map();
+    upTo.forEach((k, di) => {
+      const t = themedDay(k);
+      const done = (boards[di] || []).map((e) => rescoreEntrant(e, t)).sort(cmpForDay(k));
+      done.forEach((e, idx) => {
+        if (!e.uid) return;
+        const p = by.get(e.uid) || { uid: e.uid, name: e.name, pts: 0, ms: 0, days: [] };
+        if (e.name) p.name = e.name;
+        const pts = scoreForDay(k, e);
+        p.pts += pts; p.ms += e.solveMs || 0;
+        p.days[di] = { pts: pts, ms: e.solveMs || 0, place: idx + 1 };
+        by.set(e.uid, p);
+      });
+    });
+    const rows = [...by.values()].sort((a, b) => (b.pts - a.pts) || (a.ms - b.ms));
+    const myUid = window.MatchDB && window.MatchDB.uid;
+    const mine = rows.findIndex((r) => r.uid === myUid);
+    $("#wk-you").textContent = mine < 0 ? "" : (thisWeek && !final ? "You're " : "You finished ") + ordinal(mine + 1) + (thisWeek ? " this week" : "");
+    list.innerHTML = "";
+    $("#wk-head").hidden = !rows.length;
+    if (!rows.length) { list.innerHTML = "<p class='note'>No one's played this week yet.</p>"; return; }
+    const ti = days.indexOf(today);
+    rows.forEach((r, i) => {
+      const row = document.createElement("div");
+      row.className = "lb-row" + (r.uid === myUid ? " me" : "");
+      const played = r.days.filter(Boolean).length;
+      row.innerHTML = '<div class="lb-rank"></div><div class="lb-name"></div><div class="lb-days"></div><div class="lb-score"></div><div class="lb-time"></div>';
+      row.querySelector(".lb-rank").textContent = i + 1;
+      const nm = row.querySelector(".lb-name");
+      nm.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
+      if (final && i === 0) { const tr = document.createElement("span"); tr.className = "wk-trophy"; tr.textContent = "🏆"; nm.appendChild(tr); }
+      const dd = row.querySelector(".lb-days");
+      dd.textContent = played;
+      if (thisWeek && ti >= 0) { const dot = document.createElement("i"); dot.className = r.days[ti] ? "done" : "wait"; dd.appendChild(dot); }
+      row.querySelector(".lb-score").textContent = r.pts;
+      row.querySelector(".lb-time").textContent = fmtWeekTime(r.ms);
+      row.addEventListener("click", () => toggleWeekDetail(row, r, days, ti));
+      list.appendChild(row);
+    });
+  }
+  // Totals can pass an hour: h:mm:ss.
+  function fmtWeekTime(ms) {
+    const s = Math.round((ms || 0) / 1000), h = Math.floor(s / 3600);
+    return h ? h + ":" + String(Math.floor(s / 60) % 60).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0") : fmtDuration(ms);
+  }
+  // Tap a player: their week, a line per day.
+  function toggleWeekDetail(row, r, days, ti) {
+    const open = row.nextElementSibling && row.nextElementSibling.classList.contains("wk-detail");
+    document.querySelectorAll("#wk-list .wk-detail").forEach((d) => d.remove());
+    if (open) return;
+    const d = document.createElement("div");
+    d.className = "wk-detail";
+    const today = dailyKeyOf();
+    let max = 0, best = -1;
+    days.forEach((k, i) => {
+      if (dayBase(k) > dayBase(today)) return;
+      max += dayMaxPoints(k);
+      const x = r.days[i];
+      if (x && (best < 0 || x.pts > r.days[best].pts || (x.pts === r.days[best].pts && x.ms < r.days[best].ms))) best = i;
+    });
+    const tot = document.createElement("div");
+    tot.className = "wk-tot";
+    tot.innerHTML = "<span></span><b></b>";
+    tot.firstChild.textContent = days.indexOf(today) >= 0 ? "This week" : "That week";
+    tot.lastChild.append(String(r.pts));
+    const of = document.createElement("span"); of.textContent = "/" + max; tot.lastChild.appendChild(of);
+    d.appendChild(tot);
+    days.forEach((k, i) => {
+      const line = document.createElement("div"), x = r.days[i], later = dayBase(k) > dayBase(today), t = themedDay(k);
+      line.className = "wk-day" + (later ? " later" : !x ? " wait" : "") + (i === best && r.days.filter(Boolean).length > 1 ? " best" : "");
+      line.innerHTML = '<span class="d"></span><span class="th"></span><span class="p"></span><span class="t"></span><span class="pl"></span>';
+      const dl = line.querySelector(".d");
+      dl.textContent = shortDay(k, { weekday: "short" });
+      const sm = document.createElement("small"); sm.textContent = shortDay(k, { month: "short", day: "numeric" }); dl.appendChild(sm);
+      line.querySelector(".th").textContent = !later && t ? t.theme.name : "";
+      if (x) {
+        const p = line.querySelector(".p"); p.textContent = x.pts;
+        const m = document.createElement("span"); m.textContent = "/" + dayMaxPoints(k); p.appendChild(m);
+        line.querySelector(".t").textContent = fmtDuration(x.ms);
+        line.querySelector(".pl").textContent = ordinal(x.place);
+      } else line.querySelector(".p").textContent = "–";
+      d.appendChild(line);
+    });
+    row.after(d);
+  }
+  $("#daily-board-scope").addEventListener("click", (e) => { const b = e.target.closest("button[data-scope]"); if (b && b.dataset.scope !== boardScope) { setBoardScope(b.dataset.scope); if (b.dataset.scope === "week") countFeature("week"); } });
+  $("#wk-prev").addEventListener("click", () => { weekStart = shiftDayKey(weekStart, -7); renderWeek(); });
+  $("#wk-next").addEventListener("click", () => { const next = shiftDayKey(weekStart, 7); if (dayBase(next) <= dayBase(weekStartOf(dailyKeyOf()))) { weekStart = next; renderWeek(); } });
+
   function setBoardTab(tab) {
     $("#screen-daily-board").classList.toggle("routes", tab === "routes");
     $("#daily-board-routes").hidden = tab !== "routes";
@@ -9190,6 +9384,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!boardTheme) sub.append(document.createElement("br"), "3 Climbs · a point per word");
     $("#daily-board-theme").hidden = !boardTheme;
     $("#daily-board-tabs").hidden = !boardTheme;   // routes need the day's ladders (themed days)
+    $("#daily-board-scope").hidden = !isToday;   // This week rides on today's board
+    setBoardScope("day");
     if (boardTheme) $("#daily-board-theme-name").textContent = boardTheme.theme.name;
     $("#daily-board-sum").hidden = true;
 
