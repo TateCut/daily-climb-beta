@@ -3197,7 +3197,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T07:54:24-07:00","n":4,"notes":[{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"},{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"},{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.4"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T07:57:15-07:00","n":5,"notes":[{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"},{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"},{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"}],"v":"0.16.0-beta.5"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4360,6 +4360,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let stageShownAt = 0;
   let hintUsed = false;  // one hint per session
   let revealed = [[], [], []];   // words shown with Reveal word, climb by climb (worth no points)
+  let revealAt = null;           // { r: climb, s: step } where Reveal word was used and the word isn't entered yet
   const revealedIn = (i) => revealed[i] || [];
   // A finished entry's revealed words in Climb i: its reveals are ["1:grain", ...].
   const entrantReveals = (e, i) => ((e && e.reveals) || []).filter((x) => x.startsWith(i + ":")).map((x) => x.slice(String(i).length + 1));
@@ -5026,7 +5027,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         roundWords: roundWords, currentRoundWords: currentRoundWords,
         poolChars: pool.map((t) => t.ch),
         newCount: pool.filter((t) => t.isNew).length,
-        guessesLeft: guessesLeft, wrongGuesses: wrongGuesses, hintUsed: hintUsed, revealed: revealed,
+        guessesLeft: guessesLeft, wrongGuesses: wrongGuesses, hintUsed: hintUsed, revealed: revealed, revealAt: revealAt,
         sessionStrikes: sessionStrikes, solveMs: solveMs, dailyElapsedMs: dailyElapsedNow(),
         themeFound: themeFound, climbMs: climbMs, dailyMisses: dailyMisses,
       }));
@@ -5039,7 +5040,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         mode: mode, matchCode: matchCode, matchSeed: matchSeed, dailyDay: dailyDay,
         difficulty: difficulty, format: format,
         sessionStrikes: sessionStrikes, solveMs: solveMs, dailyElapsedMs: dailyElapsedNow(),
-        round: nextRound, roundWords: roundWords, hintUsed: hintUsed, revealed: revealed, themeFound: themeFound, climbMs: climbMs, dailyMisses: dailyMisses,
+        round: nextRound, roundWords: roundWords, hintUsed: hintUsed, revealed: revealed, revealAt: revealAt, themeFound: themeFound, climbMs: climbMs, dailyMisses: dailyMisses,
       }));
     } catch (e) {}
   }
@@ -5077,6 +5078,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     roundWords = (s.roundWords || []).map((w) => (w || []).slice());
     hintUsed = !!s.hintUsed;
     revealed = [0, 1, 2].map((i) => (Array.isArray(s.revealed) && Array.isArray(s.revealed[i]) ? s.revealed[i].slice() : []));
+    revealAt = s.revealAt && s.revealAt.r ? s.revealAt : null;
     sessionStrikes = s.sessionStrikes || 0;
     solveMs = s.solveMs || 0;
     climbMs = Array.isArray(s.climbMs) ? s.climbMs.slice() : [];
@@ -5155,7 +5157,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     clearResume();
     round = 1;
     roundWords = [];
-    revealed = [[], [], []];
+    revealed = [[], [], []]; revealAt = null;
     hintUsed = false; // one hint per 3-round session
     sessionStrikes = 0;
     solveMs = 0;
@@ -7408,7 +7410,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     climbMs = [];
     dailyMisses = [];
     hintUsed = false;                    // one hint for the whole session
-    revealed = [[], [], []];
+    revealed = [[], [], []]; revealAt = null;
     format = "guesses";                  // 3 strikes, no clock
     playerName = storedName || "You";
     document.querySelectorAll(".tomenu").forEach((el) => { el.hidden = false; });
@@ -7478,7 +7480,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (mode !== "daily" || locked || checking || screens.play.hidden) return;
     const w = revealPick();
     if (!w) return;
-    // its letters drop into the answer row, then it's accepted like a solved word (worth nothing)
+    // where every letter is now, so each can glide from there into its place in the word
+    const before = new Map();
+    document.querySelectorAll("#tray .tile, #answer .tile").forEach((el) => before.set(el.dataset.id, el.getBoundingClientRect()));
     const answered = ans.filter((x) => x !== null);
     let k = 0;
     trayCells = trayCells.map((c) => (c.type === "gap" ? { type: "letter", id: answered[k++] } : c));
@@ -7490,12 +7494,28 @@ $1{ display: flex; gap: 8px; width: 100%; }
       used.add(trayCells[at].id); ans[j] = trayCells[at].id; trayCells[at] = { type: "gap" };
     });
     render(false);
-    (revealed[round - 1] = revealed[round - 1] || []).push(w);
-    trackEv("reveal_word", { climb: round, step: climbStage });
-    climbAccept(w);
+    if (!reduceMotion && !document.hidden) [].forEach.call($("#answer").children, (el, k) => {
+      const r0 = el.dataset && before.get(el.dataset.id);
+      if (!r0) return;
+      const r1 = el.getBoundingClientRect(), dx = r0.left - r1.left, dy = r0.top - r1.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      anim(el, [{ transform: "translate(" + dx + "px, " + dy + "px)" }, { transform: "none" }],
+        { duration: 620, delay: k * 110, easing: "cubic-bezier(.35, .1, .2, 1)", fill: "backwards" });
+    });
+    FX.play("shuffle");
+    msg("");
+    if (!revealAt || revealAt.r !== round || revealAt.s !== climbStage) {
+      revealAt = { r: round, s: climbStage };
+      trackEv("reveal_word", { climb: round, step: climbStage });
+      saveProgress();
+    }
   }
 
   function climbAccept(g) {
+    if (mode === "daily" && revealAt && revealAt.r === round && revealAt.s === climbStage) {
+      (revealed[round - 1] = revealed[round - 1] || []).push(g);
+      revealAt = null;
+    }
     if (stageShownAt) { const t = wordSolveMs(); solveMs += t; climbMs[round - 1] = (climbMs[round - 1] || 0) + t; }
     stageShownAt = 0;   // this word's time is in; the clock holds until the next word appears
     if (mode === "daily") renderDailyTimer();
