@@ -1911,6 +1911,38 @@ $1{ display: flex; gap: 8px; width: 100%; }
     border: 2px solid rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); opacity: 0; transition: left .7s cubic-bezier(.4,0,.2,1), top .7s cubic-bezier(.4,0,.2,1), opacity .3s, transform .15s; }
   .wn-fg.on { opacity: 1; }
   .wn-fg.down { transform: scale(.78); }
+  .wf-home { align-items: center; text-align: center; }
+  .wf-tb { align-self: stretch; display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; }
+  .wf-tb span:last-child { width: 30px; height: 30px; border-radius: 50%; border: 1.6px solid var(--hs-ink); display: grid; place-items: center; font-size: .8rem; font-weight: 700; }
+  .wf-home .hs-logo { width: 92px; margin: 4px 0 0; }
+  .wf-play { width: 210px; height: 46px; border-radius: 999px; background: var(--hs-btn); color: var(--hs-btn-ink); display: grid; place-items: center; font-weight: 700; font-size: 1.05rem; margin-top: 6px; }
+  .wf-pill { width: 210px; min-height: 50px; border-radius: 999px; border: 1.5px solid var(--hs-ink); display: flex; flex-direction: column; justify-content: center; transition: background .15s; }
+  .wf-pill b { font-weight: 600; font-size: .98rem; } .wf-pill small { font-size: .7rem; color: var(--hs-muted); }
+  .wf-k { margin-top: 8px; font-size: .62rem; font-weight: 800; letter-spacing: .16em; color: var(--hs-muted); } .wf-th { font-family: var(--slab); font-weight: 700; font-size: 1.6rem; line-height: 1; }
+  .wf-press { background: color-mix(in srgb, currentColor 10%, transparent) !important; }
+  .wf-wk { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; text-align: center; font-weight: 700; font-size: .84rem; }
+  .wf-wk i { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--rd-ink); display: grid; place-items: center; font-style: normal; font-size: .9rem; }
+  .wf-wk i.off { opacity: .25; }
+  .wf-fin { display: inline-block; margin-left: 5px; background: var(--rd-ink); color: var(--rd-bg); font-size: .55rem; font-weight: 800; letter-spacing: .1em; padding: 2px 6px; border-radius: 999px; vertical-align: 2px; transform: scale(0); transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+  .wf-fin.on { transform: none; }
+  .wf-hd { display: grid; grid-template-columns: 30px 1fr 42px 46px; padding: 0 4px 5px; font-size: .56rem; font-weight: 800; letter-spacing: .1em; color: var(--rd-muted); border-bottom: 1.5px solid var(--rd-ink); }
+  .wf-hd span:nth-child(n+3), .wf-hd span:first-child { text-align: center; }
+  .wf-list { position: relative; flex: 1; }
+  .wf-r { position: absolute; left: 0; right: 0; height: 36px; display: grid; grid-template-columns: 30px 1fr 42px 46px; align-items: center; padding: 0 4px; border-bottom: 1px solid var(--rd-line); transition: top .5s cubic-bezier(.3,.7,.3,1), background .2s, opacity .3s; font-size: .9rem; }
+  .wf-r .rk { text-align: center; color: var(--rd-muted); font-weight: 700; } .wf-r .nm { display: flex; align-items: center; gap: 5px; font-weight: 600; }
+  .wf-r .dy { display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-weight: 700; font-size: .84rem; }
+  .wf-r .dy i { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--rd-muted); } .wf-r .dy i.done { background: var(--rd-climb); border-color: var(--rd-climb); }
+  .wf-r .pt { text-align: center; font-weight: 800; }
+  .wf-r.me { background: var(--rd-tint); border-radius: 8px; border-bottom-color: transparent; } .wf-r.me .rk { color: var(--rd-ink); }
+  .wf-plus { font-size: .7rem; font-weight: 800; color: var(--rd-climb); margin-left: 2px; opacity: 0; transition: opacity .3s; } .wf-plus.on { opacity: 1; }
+  .wf-tro { display: inline-block; transform: scale(0); transition: transform .35s cubic-bezier(.3,1.6,.5,1); } .wf-tro.on { transform: none; }
+  .wf-tro.t2 { filter: grayscale(1) brightness(1.18) contrast(1.05); } .wf-tro.t3 { filter: sepia(1) saturate(3) hue-rotate(-28deg) brightness(.7) contrast(1.2); }
+  .wf-det { position: absolute; left: 0; right: 0; overflow: hidden; height: 0; transition: height .45s cubic-bezier(.3,.7,.3,1); border-bottom: 1px solid var(--rd-line); }
+  .wf-dl { display: grid; grid-template-columns: 40px 1fr 48px 40px; align-items: center; padding: 3px 6px; font-size: .74rem; }
+  .wf-dl b { font-weight: 800; } .wf-dl small { display: block; color: var(--rd-muted); font-weight: 600; font-size: .58rem; }
+  .wf-dl .th { color: var(--rd-muted); } .wf-dl .p { text-align: right; font-weight: 800; } .wf-dl .p span { color: var(--rd-muted); font-weight: 600; } .wf-dl .pl { text-align: right; font-weight: 700; font-size: .7rem; }
+  .wf-dl.later { opacity: .4; }
+  .wf-tot { text-align: right; font-weight: 800; font-size: 1rem; padding: 6px 6px 2px; } .wf-tot span { color: var(--rd-muted); font-weight: 600; font-size: .8rem; }
   .wn-beats { display: flex; gap: 6px; }
   .wn-beats i { width: 22px; height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--hs-ink) 22%, transparent); transition: background .3s; }
   .wn-beats i.on { background: var(--hs-ink); }
@@ -3261,7 +3293,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T15:29:24-07:00","n":17,"notes":[{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"}],"v":"0.15.2-beta.17"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T15:43:06-07:00","n":18,"notes":[{"note":"Weekly Leaderboard intro + announcement","v":"0.15.2-beta.18"},{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"}],"v":"0.15.2-beta.18"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -8566,7 +8598,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Before the first word of a session: the How to play card for a new player,
   // otherwise today's theme card (once a day).
   function startIntro() {
-    if (!tutorialSeen) { markWhatsNewSeen(); openHowto(true); return; }   // new players find Routes on their own board
+    if (!tutorialSeen) { markWhatsNewSeen(); markWeekFilmSeen(); openHowto(true); return; }   // new players find Routes (and the weekly board) on their own
     if (mode === "daily" && newRules(dailyTheme) && !themeCardShown(dailyDay)) openThemeCard();
   }
   // ---- What's new: Routes ----
@@ -8578,10 +8610,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let wnTok = 0;
   function markWhatsNewSeen() { try { localStorage.setItem(WN_KEY, "1"); } catch (e) {} }
   function whatsNewSeen() { try { return localStorage.getItem(WN_KEY) === "1"; } catch (e) { return true; } }
+  // The weekly leaderboard's intro: once, from its announcement's date.
+  const WK_KEY = "dc.new.week";
+  const WK_CAPS = ["Find it on the home screen, right under Play", "Your daily points add up, Monday to Sunday", "Tap anyone to see their week", "When the week ends, the top three earn a trophy"];
+  function markWeekFilmSeen() { try { localStorage.setItem(WK_KEY, "1"); } catch (e) {} }
+  function weekFilmSeen() { try { return localStorage.getItem(WK_KEY) === "1"; } catch (e) { return true; } }
+  const weekFilmDue = () => annList().some((a) => a.replay === "week") && !weekFilmSeen();
+  let wnKind = "routes";
   function maybeWhatsNew() {
-    if (whatsNewSeen() || !tutorialSeen || updateWaiting || screens.home.hidden) return;
+    if (!tutorialSeen || updateWaiting || screens.home.hidden) return;
     if (!$("#howto-card").hidden || !$("#trophy-pop").hidden || anySheetOpen()) return;
-    openWhatsNew();
+    if (!whatsNewSeen()) openWhatsNew();
+    else if (weekFilmDue()) openWhatsNew("week");
   }
   function wnFilm() {
     const steps = [[["hear", 58], ["hare", 42, "you"], ["rhea", 0]], [["heart", 67, "you"], ["earth", 33], ["hater", 0]],
@@ -8602,10 +8642,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
       '</div><div class="wn-pop"><b>RATCHET · 7 PLAYERS</b>' + who.map(([r, n, me]) => "<div" + (me ? ' class="me"' : "") + "><em>" + r + "</em>" + n + "</div>").join("") + "</div></div>" +
       '<div class="wn-fg"></div>';
   }
-  function openWhatsNew() {
-    markWhatsNewSeen();
+  function openWhatsNew(kind) {
+    wnKind = kind === "week" ? "week" : "routes";
+    if (wnKind === "week") markWeekFilmSeen(); else markWhatsNewSeen();
+    $("#wn-title").textContent = wnKind === "week" ? "Weekly Leaderboard" : "Meet Routes";
     const film = $("#wn-film");
-    film.innerHTML = wnFilm();
+    film.innerHTML = wnKind === "week" ? wkFilm() : wnFilm();
+    renderMenuDot();
     const box = $("#whatsnew");
     box.hidden = false;
     box.classList.remove("in"); void box.offsetWidth; box.classList.add("in");
@@ -8618,7 +8661,76 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#whatsnew").hidden = true;
     $("#wn-film").replaceChildren();
   }
+  // The week film: Home -> the weekly board -> a player's week -> last week, FINAL, trophies. Made-up players.
+  const WF_THIS = [["Nova", 74, 4, 1], ["Lark", 70, 4, 1], ["Marco", 61, 3, 0], ["Otis", 58, 4, 1], ["You", 52, 3, 0, 1], ["Bea", 41, 3, 1], ["Theo", 33, 2, 0], ["Wren", 30, 2, 1]];
+  const WF_LAST = [["Wren", 118, 7], ["Nova", 112, 7], ["You", 109, 6, 0, 1], ["Lark", 104, 7], ["Marco", 99, 6], ["Otis", 95, 7], ["Bea", 80, 5], ["Theo", 71, 5]];
+  const WF_NOVA = [["Mon", "Space", 19, 21, "1st"], ["Tue", "Garden", 18, 19, "2nd"], ["Wed", "Music", 18, 20, "1st"], ["Thu", "Weather", 19, 21, "2nd"], ["Fri"], ["Sat"], ["Sun"]];
+  const WF_RH = 36;
+  function wkFilm() {
+    return '<div class="wn-sc wn-home wf-home"><div class="wf-tb"><span>&#9776;</span><span>' + (String(storedName || playerName || "").replace(/[^A-Za-z0-9]/g, "").charAt(0).toUpperCase() || "Y") + "</span></div>" + $(".hs-logo").outerHTML +
+      '<div class="wn-ttl">Daily <span class="clb">Climb</span></div><div class="wn-tag"><span class="clb">Climb</span> one word at a time. On-theme words score extra.</div>' +
+      '<div class="wf-play">Play</div><div class="wf-pill" data-wf="pill"><b>Weekly Leaderboard</b><small>You\x27re 5th</small></div>' +
+      '<div class="wf-pill"><b>Adventure Mode</b><small>Can you beat every <span class="clb">Climb</span>?</small></div><div class="wf-k">TODAY\x27S THEME</div><div class="wf-th">Weather</div></div>' +
+      '<div class="wn-sc wn-board off"><div class="wn-bh"><span>&lsaquo; Home</span><b>Leaderboard</b><span></span></div>' +
+      '<div class="wf-wk"><i data-wf="prev">&lsaquo;</i><span><span data-wf="range">This week</span><span class="wf-fin">FINAL</span></span><i class="off">&rsaquo;</i></div>' +
+      '<div class="wf-hd"><span>RANK</span><span>PLAYER</span><span>DAYS</span><span>POINTS</span></div><div class="wf-list"></div></div><div class="wn-fg"></div>';
+  }
+  function wkRows(film, data, final) {
+    film.querySelector(".wf-list").innerHTML = data.map((p, i) => '<div class="wf-r' + (p[4] ? " me" : "") + '" data-n="' + p[0] + '" style="top:' + i * WF_RH + 'px"><span class="rk">' + (i + 1) + '</span><span class="nm">' + p[0] +
+      (final && i < 3 ? '<span class="wf-tro' + (i ? " t" + (i + 1) : "") + '">🏆</span>' : "") + '</span><span class="dy">' + p[2] + (final ? "" : '<i class="' + (p[3] ? "done" : "") + '"></i>') +
+      '</span><span class="pt"><span class="v">' + p[1] + '</span><span class="wf-plus"></span></span></div>').join("") + '<div class="wf-det"></div>';
+  }
+  async function runWeekFilm(tok) {
+    const S = (ms) => new Promise((ok, no) => setTimeout(() => (tok === wnTok ? ok() : no(0)), ms));
+    const film = $("#wn-film"), cap = $("#wn-cap"), beats = [...document.querySelectorAll("#whatsnew .wn-beats i")];
+    const md = (k) => shortDay(k, { month: "short", day: "numeric" }), mon = weekStartOf(dailyKeyOf()), lastMon = shiftDayKey(mon, -7);
+    const range = (k) => md(k) + " – " + md(shiftDayKey(k, 6));
+    const at = (el) => { const fg = film.querySelector(".wn-fg"); let x = 0, y = 0, n = el; while (n && n !== film) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; } fg.style.left = x + el.offsetWidth / 2 + "px"; fg.style.top = y + el.offsetHeight / 2 + "px"; };
+    const tap = async (el) => { const fg = film.querySelector(".wn-fg"); fg.classList.add("down"); if (el) el.classList.add("wf-press"); await S(240); fg.classList.remove("down"); if (el) el.classList.remove("wf-press"); };
+    const say = async (i) => { cap.classList.add("fade"); await S(220); cap.innerHTML = "<span>" + WK_CAPS[i] + "</span>"; beats.forEach((b, j) => b.classList.toggle("on", j <= i)); cap.classList.remove("fade"); };
+    const row = (nm) => film.querySelector('.wf-r[data-n="' + nm + '"]');
+    for (;;) {
+      film.innerHTML = wkFilm(); wkRows(film, WF_THIS, false);
+      const fg = film.querySelector(".wn-fg"), board = film.querySelector(".wn-board");
+      film.querySelector('[data-wf="range"]').textContent = range(mon);
+      // 1: Home -> the weekly board
+      await say(0); await S(700);
+      fg.classList.add("on"); at(film.querySelector('[data-wf="pill"]')); await S(900); await tap(film.querySelector('[data-wf="pill"]')); await S(120);
+      board.classList.remove("off"); fg.classList.remove("on"); await S(1200);
+      // 2: your points land, you climb from 5th to 3rd
+      await say(1); await S(600);
+      const me = row("You"), plus = me.querySelector(".wf-plus");
+      plus.textContent = "+14"; plus.classList.add("on");
+      me.querySelector(".dy").firstChild.textContent = "4"; me.querySelector(".dy i").classList.add("done");
+      await S(700);
+      me.querySelector(".v").textContent = "66"; plus.classList.remove("on");
+      const order = ["Nova", "Lark", "You", "Marco", "Otis", "Bea", "Theo", "Wren"];
+      order.forEach((nm, i) => { const r = row(nm); r.style.top = i * WF_RH + "px"; r.querySelector(".rk").textContent = i + 1; });
+      await S(2400);
+      // 3: tap the leader, their week opens
+      await say(2);
+      const nova = row("Nova"); fg.classList.add("on"); at(nova); await S(900); await tap(nova);
+      const det = film.querySelector(".wf-det");
+      det.innerHTML = '<div class="wf-tot">74<span>/81</span></div>' + WF_NOVA.map((d, i) => d[1]
+        ? '<div class="wf-dl"><span><b>' + d[0] + "</b><small>" + md(shiftDayKey(mon, i)) + '</small></span><span class="th">' + d[1] + '</span><span class="p">' + d[2] + "<span>/" + d[3] + '</span></span><span class="pl">' + d[4] + "</span></div>"
+        : '<div class="wf-dl later"><span><b>' + d[0] + "</b><small>" + md(shiftDayKey(mon, i)) + '</small></span><span></span><span class="p">–</span><span></span></div>').join("");
+      const h = 30 + WF_NOVA.length * 27;
+      det.style.top = WF_RH + "px"; det.style.height = h + "px";
+      order.slice(1).forEach((nm, i) => { row(nm).style.top = (i + 1) * WF_RH + h + "px"; });
+      await S(500); fg.classList.remove("on"); await S(2600);
+      // 4: last week, FINAL, trophies
+      await say(3);
+      det.style.height = "0px"; order.slice(1).forEach((nm, i) => { row(nm).style.top = (i + 1) * WF_RH + "px"; });
+      const prev = film.querySelector('[data-wf="prev"]'); fg.classList.add("on"); at(prev); await S(900); await tap(prev);
+      film.querySelectorAll(".wf-r").forEach((r) => (r.style.opacity = "0")); await S(260);
+      film.querySelector('[data-wf="range"]').textContent = range(lastMon); wkRows(film, WF_LAST, true);
+      film.querySelector(".wf-fin").classList.add("on"); fg.classList.remove("on"); await S(450);
+      for (const t of film.querySelectorAll(".wf-tro")) { t.classList.add("on"); await S(260); }
+      await S(2600);
+    }
+  }
   async function runWhatsNew(tok) {
+    if (wnKind === "week") return runWeekFilm(tok);
     const S = (ms) => new Promise((ok, no) => setTimeout(() => (tok === wnTok ? ok() : no(0)), ms));
     const film = $("#wn-film"), board = film.querySelector(".wn-board"), fg = film.querySelector(".wn-fg"), cap = $("#wn-cap");
     const beats = [...document.querySelectorAll("#whatsnew .wn-beats i")], pop = film.querySelector(".wn-pop");
@@ -8643,7 +8755,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
   }
   $("#btn-wn-done").addEventListener("click", closeWhatsNew);
-  window.DC_showWhatsNew = () => { if (screens.home.hidden) goHome(); setTimeout(openWhatsNew, 300); };   // beta: see it again
+  window.DC_showWhatsNew = (kind) => { if (screens.home.hidden) goHome(); setTimeout(() => openWhatsNew(kind), 300); };   // beta: see it again ("week" for the weekly one)
   $("#btn-howto-go").addEventListener("click", () => { if (howtoStep < 2) showHowtoStep(howtoStep + 1); else closeHowto(); });
   $("#btn-howto-back").addEventListener("click", () => showHowtoStep(howtoStep - 1));
   $("#btn-howto-x").addEventListener("click", closeHowto);
@@ -11731,6 +11843,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // and puts a dot on ☰ until it's read; all of them live in the Announcements sheet.
   // replay: "routes" adds a link that plays that update's intro again.
   const ANN_ALL = [
+    { id: "week", date: "2026-10-15", title: "The Weekly Leaderboard", replay: "week",
+      body: "Your daily points now add up across the week, Monday to Sunday. When the week ends, the top three earn a trophy.\n\n" +
+        "Tap **Weekly Leaderboard** on the home screen, right under Play." },
     { id: "share", date: "2026-10-14", title: "Share your Climb",
       body: "Sharing your results is here. After you finish the daily, tap **Share** in your row on the leaderboard, or **Share today's Climb** on the home screen.\n\n" +
         "**A link with your picture.** Friends get a link that shows your three peaks, your time on each Climb and your total. Tapping it opens Daily Climb, so they can take on the same puzzle.\n\n" +
@@ -11760,7 +11875,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (seen === top.id) return false;
     const si = ANN_ALL.findIndex((a) => a.id === seen);   // already read a newer one (a later day, on the beta)
     if (si >= 0 && si < ANN_ALL.indexOf(top)) return false;
-    return !(top.replay === "routes" && whatsNewSeen());   // the Routes intro already showed it
+    return !((top.replay === "routes" && whatsNewSeen()) || (top.replay === "week" && weekFilmSeen()));   // its intro already showed it
   }
   function markAnnouncementsSeen() {
     const top = annList()[0]; if (top) try { localStorage.setItem(ANN_KEY, top.id); } catch (e) {}
@@ -11821,9 +11936,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
         r.addEventListener("click", (e) => { e.stopPropagation(); annCloseHow = "replay"; hideAnnSheet(); setTimeout(() => startMenuTour(false), 250); });
         card.appendChild(r);
       }
-      if (a.replay === "routes") {
+      if (a.replay === "routes" || a.replay === "week") {
         const r = document.createElement("button"); r.type = "button"; r.className = "replay"; r.textContent = "Watch the intro again";
-        r.addEventListener("click", (e) => { e.stopPropagation(); annCloseHow = "replay"; hideAnnSheet(); setTimeout(openWhatsNew, 250); });
+        r.addEventListener("click", (e) => { e.stopPropagation(); annCloseHow = "replay"; hideAnnSheet(); setTimeout(() => openWhatsNew(a.replay), 250); });
         card.appendChild(r);
       }
       if (i) card.addEventListener("click", () => card.classList.toggle("open"));
@@ -11872,7 +11987,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // written for existing players (Meet Routes, the thank-you tour, the 6-7-8 launch note) count as seen.
   // Anything announced after that reaches them like everyone else.
   function skipIntrosForNewPlayer() {
-    markWhatsNewSeen();
+    markWhatsNewSeen(); markWeekFilmSeen();
     const top = annList()[0];
     if (top) try { localStorage.setItem(ANN_KEY, top.id); localStorage.setItem(NOTE_KEY, top.id); } catch (e) {}
     renderMenuDot();
