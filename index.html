@@ -3252,7 +3252,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T12:36:15-07:00","n":7,"notes":[{"note":"Gold, silver and bronze trophies on a final week","v":"0.15.2-beta.7"},{"note":"No best-day highlight in a player's week","v":"0.15.2-beta.6"},{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"}],"v":"0.15.2-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T12:38:53-07:00","n":8,"notes":[{"note":"Pretend players miss days and play at different times","v":"0.15.2-beta.8"},{"note":"Gold, silver and bronze trophies on a final week","v":"0.15.2-beta.7"},{"note":"No best-day highlight in a player's week","v":"0.15.2-beta.6"},{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"}],"v":"0.15.2-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3328,7 +3328,23 @@ $1{ display: flex; gap: 8px; width: 100%; }
         e.total = Math.max(3, info.max - Math.floor(r() * r() * 9));
       }
       return e;
+    }).filter(function (e, i) {
+      // like real players: everyone misses a day now and then (some more than others), and today each one plays at
+      // their own time of day (6am to midnight), so some haven't played yet
+      var base = String(day).slice(0, 10);
+      if (seeded(base + "|" + i)() < [0.05, 0.1, 0.15, 0.22, 0.3, 0.45][i % 6]) return false;
+      if (base === fakeToday()) {
+        var at = 6 + 18 * seeded("today|" + i)(), h = new Date().getHours() + new Date().getMinutes() / 60;
+        if (h < at) return false;
+      }
+      return true;
     });
+  }
+  function fakeToday() {
+    var d = null; try { d = sessionStorage.getItem("three21.devDay"); } catch (x) {}
+    if (d) return d;
+    var t = new Date();
+    return t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
   }
   function mine(day) { var d = db.dailies[day]; return d ? copy(d) : null; }
 
