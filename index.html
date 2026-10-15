@@ -1767,6 +1767,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #wk-list .lb-row > .lb-name { display: flex; align-items: center; min-width: 0; }
   #wk-list .lb-row > .lb-name > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #wk-list .wk-trophy { flex: none; }
+  #wk-list .lb-name .lb-share { margin-left: auto; margin-right: 4px; width: 26px; height: 26px; padding: 0; justify-content: center; }
+  #wk-list .lb-name .lb-share svg { width: 13px; height: 13px; }
   .wk-detail { padding: 8px 4px 12px; border-bottom: 1px solid var(--rd-line); display: flex; flex-direction: column; gap: 4px; text-align: left; }
   .wk-tot { display: flex; justify-content: flex-end; align-items: baseline; font-family: var(--slab); font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
   .wk-tot b { font-family: var(--franklin); font-size: 1.2rem; } .wk-tot b span { color: var(--rd-muted); font-weight: 600; font-size: 0.9rem; }
@@ -3259,7 +3261,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T13:12:11-07:00","n":12,"notes":[{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"},{"note":"Weekly Leaderboard pill under Play","v":"0.15.2-beta.10"},{"note":"Weekly Leaderboard pill on Home","v":"0.15.2-beta.9"},{"note":"Pretend players miss days and play at different times","v":"0.15.2-beta.8"}],"v":"0.15.2-beta.12"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T13:29:50-07:00","n":13,"notes":[{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"},{"note":"Weekly Leaderboard pill under Play","v":"0.15.2-beta.10"},{"note":"Weekly Leaderboard pill on Home","v":"0.15.2-beta.9"}],"v":"0.15.2-beta.13"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9148,7 +9150,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         if (e.name) p.name = e.name;
         const pts = scoreForDay(k, e);
         p.pts += pts; p.ms += e.solveMs || 0;
-        p.days[di] = { pts: pts, ms: e.solveMs || 0, place: idx + 1 };
+        p.days[di] = { pts: pts, ms: e.solveMs || 0, place: idx + 1, e: e };
         by.set(e.uid, p);
       });
     });
@@ -9170,6 +9172,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
       label.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
       nm.appendChild(label);
       if (final && i < 3) { const tr = document.createElement("span"); tr.className = "wk-trophy t" + (i + 1); tr.textContent = "🏆"; tr.setAttribute("aria-label", ["Gold", "Silver", "Bronze"][i] + " trophy"); nm.appendChild(tr); }
+      if (final && r.uid === myUid && played) {
+        const pill = document.createElement("button");
+        pill.type = "button"; pill.className = "lb-share";
+        pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>';
+        pill.setAttribute("aria-label", "Share your week");
+        label.textContent = shownName(r.name);
+        const place = i + 1;
+        pill.addEventListener("click", (ev) => { ev.stopPropagation(); openWeekShare(r, days, place); });   // not the row's tap
+        nm.appendChild(pill);
+      }
       const dd = row.querySelector(".lb-days");
       dd.textContent = played;
       if (thisWeek && ti >= 0) { const dot = document.createElement("i"); dot.className = r.days[ti] || playedToday.has(r.uid) ? "done" : "wait"; dd.appendChild(dot); }
@@ -10076,6 +10088,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   async function openShareSheet() {
     if (!pcardCtx) return;
     const id = ++shareOpenId, m = shareModel(), go = $("#btn-share-link");
+    $("#share-sheet .pc-bar b").innerHTML = 'Share your <span class="clb">Climb</span>';
     shareLink = null; sharePicFile = null;
     go.disabled = true; go.lastChild.textContent = "Share";
     $("#btn-share-pic").lastChild.textContent = "Send as picture";
@@ -10092,6 +10105,137 @@ $1{ display: flex; gap: 8px; width: 100%; }
     go.disabled = false;
   }
   function closeShareSheet() { shareOpenId++; $("#share-sheet").hidden = true; }
+
+  // ===== Sharing a finished week =====
+  function weekShareModel(r, days, place) {
+    const md = (k) => shortDay(k, { month: "short", day: "numeric" });
+    const a = md(days[0]), b = md(days[6]), am = a.split(" ")[0], bm = b.split(" ")[0];
+    const range = am === bm ? a + "–" + b.slice(bm.length + 1) : a + "–" + b;
+    return {
+      name: shownName(r.name), range: range, place: place, pts: r.pts, day: days[0],
+      days: days.map((k, i) => {
+        const x = r.days[i], t = themedDay(k);
+        if (!x) return { letter: shortDay(k, { weekday: "narrow" }), pts: null, fills: [false, false, false] };
+        const e = x.e || {};
+        const fills = newFormat(t) ? [0, 1, 2].map((ci) => climbPerfectFrom(t, ci, (e.roundWords || [])[ci], entrantReveals(e, ci))) : [false, false, false];
+        return { letter: shortDay(k, { weekday: "narrow" }), pts: x.pts, fills: fills };
+      }),
+    };
+  }
+  // Three little peaks, filled where that Climb got every point (faded on a day you missed), in the logo's units.
+  function weekPeaks(x, d, tx, ty, sc) {
+    x.save(); x.translate(tx, ty); x.scale(sc, sc);
+    if (d.pts == null) x.globalAlpha = 0.3;
+    x.lineJoin = "round"; x.strokeStyle = "#121212"; x.lineWidth = 6;
+    CRE_PEAKS.forEach((pk, i) => {
+      x.beginPath(); x.moveTo(pk.l, 84); x.lineTo(pk.a[0], pk.a[1]); x.lineTo(pk.r, 84); x.closePath();
+      x.fillStyle = d.fills[i] ? pk.tone : "#f4e6d4"; x.fill(); x.stroke();
+    });
+    x.restore();
+  }
+  // The week: seven marks, each with its points and letter. cols wide each, gap between.
+  function weekRow(x, m, x0, top, col, gap, ptsPx, letPx) {
+    const sc = col / 132;
+    m.days.forEach((d, i) => {
+      const cx = x0 + i * (col + gap), mid = cx + col / 2;
+      weekPeaks(x, d, cx, top - 6 * sc, sc);
+      x.textAlign = "center";
+      x.fillStyle = d.pts == null ? "#8a6f55" : "#121212"; x.font = "800 " + ptsPx + "px " + SHARE_SN;
+      x.fillText(d.pts == null ? "–" : String(d.pts), mid, top + 78 * sc + ptsPx * 1.25);
+      x.fillStyle = "#5a4a3c"; x.font = "700 " + letPx + "px " + SHARE_SN;
+      x.fillText(d.letter, mid, top + 78 * sc + ptsPx * 1.25 + letPx * 1.4);
+    });
+  }
+  // A trophy cup, drawn (emoji differ by phone): gold, silver or bronze. h tall, centred on cx, top at y.
+  function weekTrophy(x, place, cx, y, h) {
+    const fill = ["#f6c90e", "#c9ced6", "#c9803e"][place - 1];
+    if (!fill) return;
+    const s = h / 114;
+    x.save(); x.translate(cx - 50 * s, y); x.scale(s, s);
+    x.lineJoin = "round"; x.lineCap = "round"; x.strokeStyle = "#121212"; x.lineWidth = 6;
+    x.beginPath(); x.moveTo(22, 22); x.bezierCurveTo(2, 22, 2, 54, 26, 56); x.stroke();
+    x.beginPath(); x.moveTo(78, 22); x.bezierCurveTo(98, 22, 98, 54, 74, 56); x.stroke();
+    x.fillStyle = fill;
+    x.beginPath(); x.moveTo(20, 10); x.lineTo(80, 10); x.lineTo(80, 40); x.quadraticCurveTo(80, 72, 50, 74); x.quadraticCurveTo(20, 72, 20, 40); x.closePath(); x.fill(); x.stroke();
+    x.beginPath(); x.rect(44, 74, 12, 18); x.fill(); x.stroke();
+    x.beginPath(); x.rect(28, 92, 44, 16); x.fill(); x.stroke();
+    x.restore();
+  }
+  // "Tate · Oct 5–11", the name in bold ink, centred on cx.
+  function weekNameLine(x, m, cx, y, px) {
+    const rest = " · " + m.range;
+    x.font = "800 " + px + "px " + SHARE_SN; const wn = x.measureText(m.name).width;
+    x.font = "600 " + px + "px " + SHARE_SN; const wr = x.measureText(rest).width;
+    const x0 = cx - (wn + wr) / 2;
+    x.textAlign = "left";
+    x.font = "800 " + px + "px " + SHARE_SN; x.fillStyle = "#121212"; x.fillText(m.name, x0, y);
+    x.font = "600 " + px + "px " + SHARE_SN; x.fillStyle = "#5a4a3c"; x.fillText(rest, x0 + wn, y);
+  }
+  // "🏆 2nd · 112 points": the trophy (top 3 only) and the words, centred together on cx, baseline y.
+  function weekFinish(x, m, cx, y, px) {
+    const txt = ordinal(m.place) + " · " + m.pts + " points";
+    x.font = "900 " + px + "px " + SHARE_SN;
+    const tw = x.measureText(txt).width, th = m.place <= 3 ? px * 1.15 : 0, gap = th ? px * 0.35 : 0;
+    const x0 = cx - (th * 0.88 + gap + tw) / 2;
+    if (th) weekTrophy(x, m.place, x0 + th * 0.44, y - px * 0.98, th);
+    x.textAlign = "left"; x.fillStyle = "#121212";
+    x.fillText(txt, x0 + th * 0.88 + gap, y);
+  }
+  // The link card: 1200 x 630.
+  async function drawWeekCard(m) {
+    const W = 1200, H = 630, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const x = cv.getContext("2d");
+    await shareFonts();
+    x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
+    shareTitle(x, W / 2, 112, 78);
+    weekNameLine(x, m, W / 2, 172, 34);
+    weekRow(x, m, 67, 232, 130, 26, 40, 26);
+    weekFinish(x, m, W / 2, 568, 54);
+    return cv;
+  }
+  // The picture: 960 x 1092, like the daily's.
+  async function drawWeekPic(m) {
+    const W = 960, H = 1092, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const x = cv.getContext("2d");
+    await shareFonts();
+    x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
+    shareTitle(x, W / 2, 138, 78);
+    weekNameLine(x, m, W / 2, 204, 39);
+    weekRow(x, m, 41, 300, 110, 18, 38, 26);
+    if (m.place <= 3) weekTrophy(x, m.place, W / 2, 540, 260);
+    x.fillStyle = "#121212"; x.font = "900 72px " + SHARE_SN; x.textAlign = "center";
+    x.fillText(ordinal(m.place) + " · " + m.pts + " points", W / 2, m.place <= 3 ? 920 : 720);
+    x.fillStyle = "#8a6f55"; x.font = "700 33px " + SHARE_SN;
+    x.fillText("thedailyclimb.com", W / 2, 1044);
+    return cv;
+  }
+  async function openWeekShare(r, days, place) {
+    const id = ++shareOpenId, m = weekShareModel(r, days, place), go = $("#btn-share-link");
+    shareLink = null; sharePicFile = null;
+    $("#share-sheet .pc-bar b").innerHTML = "Share your week";
+    go.disabled = true; go.lastChild.textContent = "Share";
+    $("#btn-share-pic").lastChild.textContent = "Send as picture";
+    $("#share-img").removeAttribute("src");
+    $("#share-sheet").hidden = false;
+    trackEv("share_open", { week: 1, place: place });
+    const card = await drawWeekCard(m);
+    if (id !== shareOpenId) return;
+    $("#share-img").src = card.toDataURL("image/png");
+    const [cardBlob, picBlob] = await Promise.all([toPng(card), drawWeekPic(m).then(toPng)]);
+    if (id !== shareOpenId) return;
+    if (picBlob) sharePicFile = new File([picBlob], "daily-climb-week.png", { type: "image/png" });
+    const title = { name: m.name + "’s week on Daily Climb · " + ordinal(place), total: "", day: m.day };
+    try { shareLink = await uploadWeekCard(title, cardBlob); } catch (e) { shareLink = "https://thedailyclimb.com"; }
+    if (id !== shareOpenId) return;
+    go.disabled = false;
+  }
+  async function uploadWeekCard(t, blob) {
+    const headers = { "Content-Type": "image/png", "X-Title": encodeURIComponent(t.name), "X-Day": t.day };
+    try { const tok = window.MatchDB && window.MatchDB.idToken ? await window.MatchDB.idToken() : null; if (tok) headers.Authorization = "Bearer " + tok; } catch (e) {}
+    const res = await fetch(SHARE_API, { method: "POST", headers: headers, body: blob });
+    if (!res.ok) throw new Error("share " + res.status);
+    return (await res.json()).url;
+  }
   // Share: the link (its preview is your picture).
   async function shareShareLink() {
     if (!shareLink) return;
