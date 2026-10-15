@@ -3197,7 +3197,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T07:43:06-07:00","n":2,"notes":[{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"},{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.2"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T07:50:20-07:00","n":3,"notes":[{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"},{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.3"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -5167,8 +5167,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function dailyElapsedNow() {
     return dailyElapsedMs + (dailyTimerRunning ? Date.now() - dailyTimerStartedAt : 0);
   }
+  // The clock shows exactly the leaderboard time: the solved words' time, plus the word you're on.
+  const dailyShownMs = () => solveMs + (stageShownAt ? wordSolveMs() : 0);
   function renderDailyTimer() {
-    $("#daily-timer-val").textContent = $("#pnav-time").textContent = fmtDuration(dailyElapsedNow());
+    $("#daily-timer-val").textContent = $("#pnav-time").textContent = fmtDuration(dailyShownMs());
   }
   function startDailyTimer() {
     if (dailyTimerRunning) return;
@@ -7493,6 +7495,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   function climbAccept(g) {
     if (stageShownAt) { const t = wordSolveMs(); solveMs += t; climbMs[round - 1] = (climbMs[round - 1] || 0) + t; }
+    stageShownAt = 0;   // this word's time is in; the clock holds until the next word appears
+    if (mode === "daily") renderDailyTimer();
     solved++;
     currentRoundWords.push(g);
     renderAscentMini();
@@ -8591,6 +8595,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const reveals = revealed.flatMap((ws, i) => ws.map((w) => i + ":" + w));
     const helped = hintUsed || reveals.length > 0;   // a reveal also takes away the no-hint badge
     const firstEver = !myDailyLastDay;
+    // Profile + trophies: today counts right away, before the network answers (final place comes tomorrow).
+    setTodayResult(Object.assign({ t: totalRungs, s: sessionStrikes, ms: solveMs, h: helped, at: Date.now() },
+      dailyTheme ? { m: dailyMax(), th: themeBonusSoFar(), tf: themeFound.slice(),
+        tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played), fk: newFormat(dailyTheme) ? forksTaken() : null } : {}));
     const p = (async () => {
       window.MatchDB.track("daily_finish", { rungs: totalRungs, strikes: sessionStrikes });
       saveDailyProgress({ finished: true });
@@ -8612,10 +8620,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
         if (pl) { myDailyStreak = pl.dailyStreak || 0; myDailyLastDay = pl.dailyLastDay || null; myPlayer = pl; }
         cacheProfile();
       } catch (e) {}
-      // Profile + trophies: today counts right away (final place comes tomorrow).
-      setTodayResult(Object.assign({ t: totalRungs, s: sessionStrikes, ms: solveMs, h: helped, at: Date.now() },
-        dailyTheme ? { m: dailyMax(), th: themeBonusSoFar(), tf: themeFound.slice(),
-          tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played), fk: newFormat(dailyTheme) ? forksTaken() : null } : {}));
       if (ok) clearResume();   // posted: nothing left to resume (if it failed, a resume tries again)
     })();
     dailyPost = { day: day, p: p };
@@ -8635,9 +8639,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (totalRungs >= dailyMax() * 2 / 3) setTimeout(() => confetti({ big: totalRungs >= dailyMax() * 0.88 }), 350);
       return;
     }
-    await postDailyResult();
+    // Wait for the save, but never long: on a stalled connection the board opens anyway and the result keeps
+    // saving behind it (the live board adds it when it lands). If it never lands, the resume posts it next time.
+    const go = $("#btn-cre-next");
+    if (go) go.disabled = true;
+    const saved = await Promise.race([postDailyResult().then(() => true), new Promise((r) => setTimeout(() => r(false), 2500))]);
+    if (go) go.disabled = false;
     checkTrophies();
-    clearResume();
+    if (saved) clearResume();
     showDailyBoard(dailyDay, { live: true, justFinished: true });
     if (totalRungs >= dailyMax() * 2 / 3) setTimeout(() => confetti({ big: totalRungs >= dailyMax() * 0.88 }), 350);
   }
