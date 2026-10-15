@@ -3197,7 +3197,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T07:50:20-07:00","n":3,"notes":[{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"},{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.3"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T07:54:24-07:00","n":4,"notes":[{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"},{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"},{"note":"Reveal word replaces Forfeit Climb","v":"0.16.0-beta.2"},{"note":"Announcements only light the dot on the menu","v":"0.16.0-beta.1"},{"note":"Synced with live v0.15.0","v":"0.16.0-beta.0"}],"v":"0.16.0-beta.4"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7199,7 +7199,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       s.textContent = w;
       if (i === words.length - 1) s.className = "wordtrail-last";
       if (mode === "daily" && revealedIn(round - 1).includes(w.toLowerCase())) { s.className = "wordtrail-rev"; s.insertAdjacentHTML("afterbegin", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'); }
-      if ((themed && isThemeWord(dailyTheme, round - 1, w.toLowerCase())) || (mode === "hike" && hikeIsTheme(w.toLowerCase()))) s.classList.add("wordtrail-theme");
+      if ((themed && isThemeWord(dailyTheme, round - 1, w.toLowerCase())) || (mode === "hike" && hikeIsTheme(w.toLowerCase()))) { if (!s.classList.contains("wordtrail-rev")) s.classList.add("wordtrail-theme"); }   // a revealed theme word wasn't found
       trail.appendChild(s);
       trail.appendChild(dots());
     });
@@ -7455,18 +7455,20 @@ $1{ display: flex; gap: 8px; width: 100%; }
     FX.play("drop"); buzz(10);
   }
 
-  // Reveal word: the step's word, everyday not theme (at a fork the theme word stays yours to find).
+  // Reveal word: the step's word. If a theme word fits the step it shows that one (you're skipping the step, and a
+  // revealed word scores nothing either way); otherwise the puzzle's word, else the most everyday word that fits.
   function revealPick() {
     const i = round - 1;
     const ref = climbPuzzle && climbPuzzle.c[climbStage - 1];
     const next = climbPuzzle && climbPuzzle.c[climbStage];
     const nextOpts = next ? (ANA.get(sortStr(next)) || [next]) : null;
     const ok = (w) => !cheapStep(climbPrev, w) && !nameIsBlocked(w) && (!nextOpts || nextOpts.some((x) => !cheapStep(w, x)));
-    const plain = (w) => !isThemeWord(dailyTheme, i, w);
-    if (ref && ok(ref) && plain(ref)) return ref;
+    const fits = (ANA.get(poolKey()) || []).filter(ok);
+    const theme = fits.filter((w) => isThemeWord(dailyTheme, i, w));
+    if (theme.length) return theme.includes(ref) ? ref : theme[0];
+    if (ref && ok(ref)) return ref;
     let best = null, bestRank = Infinity;
-    for (const w of ANA.get(poolKey()) || []) {
-      if (!ok(w) || !plain(w)) continue;
+    for (const w of fits) {
       const r = everydayRank(w);
       if (best === null || r < bestRank) { best = w; bestRank = r; }
     }
@@ -7995,7 +7997,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!newFormat(dailyTheme)) return 0;
     let fk = 0;
     (roundWords || []).forEach((words, i) => (words || []).forEach((w) => {
-      if (!isThemeWord(dailyTheme, i, w)) return;
+      if (!isThemeWord(dailyTheme, i, w) || revealedIn(i).includes(w)) return;   // a revealed theme word wasn't taken
       if ((ANA.get(sortStr(w)) || []).some((x) => x !== w && !isThemeWord(dailyTheme, i, x) && FREQ.has(x) && FREQ.get(x) < 10000)) fk++;
     }));
     return fk;
