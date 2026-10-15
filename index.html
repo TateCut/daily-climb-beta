@@ -2048,6 +2048,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .hs-share { margin-top: 12px; width: 214px; height: 44px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
     font: 600 0.95rem var(--franklin); display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
   .hs-share[hidden] { display: none; }
+  .hs-week { margin-top: 12px; border: 0; background: none; color: var(--hs-ink); font: 700 0.92rem var(--franklin); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 8px; }
+  .hs-week[hidden] { display: none; }
   .hs-share svg { width: 15px; height: 15px; }
   .hs-share .clb { color: var(--hs-climb); }
   .hs-adv { margin-top: 12px; width: 214px; min-height: 50px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
@@ -2480,6 +2482,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           <span id="adventure-progress">Can you beat all 746 Climbs?</span>
         </span>
       </button>
+      <button class="hs-week" id="btn-home-week" type="button" hidden>This week's leaderboard <span aria-hidden="true">&rsaquo;</span></button>
       <!-- The day's details: today's theme, then the day's number and date.
            After playing, how the theme words went and when the next daily arrives. -->
       <div class="today-theme" id="today-theme" hidden>
@@ -3248,7 +3251,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T12:00:06-07:00","n":3,"notes":[{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"},{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.3"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T12:05:43-07:00","n":4,"notes":[{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"},{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.4"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9026,6 +9029,25 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (dayBase(key) < dayBase(shiftDayKey(dailyKeyOf(), -1))) weekCache[key] = list;
     return list;
   }
+  // From Home before today's daily is done: the weekly board alone (no Today | This week switch).
+  function showWeekBoard() {
+    teardownDailyWatch();
+    boardBack = null;
+    $("#btn-daily-board-home").lastChild.textContent = "Home";
+    $("#daily-board-title").textContent = "Leaderboard";
+    const pill = $("#daily-board-streak"), today = dailyKeyOf(), yst = shiftDayKey(today, -1);
+    if (pill) {
+      const alive = myDailyStreak > 0 && (myDailyLastDay === today || myDailyLastDay === yst);
+      pill.textContent = alive ? myDailyStreak + " day" + (myDailyStreak === 1 ? "" : "s") + " 🔥" : "";
+      pill.hidden = !alive;
+    }
+    $("#daily-board-scope").hidden = true;
+    $("#daily-board-tabs").hidden = true;
+    show("dailyboard");
+    setBoardScope("week");
+  }
+  // Today's results stay hidden on the weekly board until you've finished today's daily (no spoilers).
+  const todayHidden = () => !isDev() && myDailyLastDay !== dailyKeyOf();
   function setBoardScope(scope) {
     boardScope = scope;
     $("#screen-daily-board").classList.toggle("week", scope === "week");
@@ -9035,7 +9057,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
       b.classList.toggle("on", on);
       b.setAttribute("aria-selected", String(on));
     });
-    if (scope === "week") { weekStart = weekStartOf(dailyKeyOf()); renderWeek(); }
+    if (scope === "week") {
+      const today = dailyKeyOf();
+      weekStart = weekStartOf(today);
+      if (todayHidden() && weekStart === today) weekStart = shiftDayKey(weekStart, -7);   // a Monday before playing: last week
+      renderWeek();
+    }
   }
   async function renderWeek() {
     const tok = ++weekTok, start = weekStart, today = dailyKeyOf(), thisMonday = weekStartOf(today);
@@ -9054,6 +9081,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!dbReady()) { list.innerHTML = "<p class='note'>Couldn't load the week.</p>"; return; }
     const boards = await Promise.all(upTo.map(weekBoard));
     if (tok !== weekTok || boardScope !== "week") return;
+    const hide = thisWeek && todayHidden();   // today's points, times and places wait until you've played
+    const playedToday = new Map();   // uid -> name: who has played today (shown, nothing else)
+    if (hide) {
+      const ti0 = upTo.indexOf(today);
+      if (ti0 >= 0) { (boards[ti0] || []).forEach((e) => { if (e.uid) playedToday.set(e.uid, e.name || ""); }); boards[ti0] = []; }
+      if (upTo.length > 1) $("#wk-when").textContent = "This week · through " + shortDay(shiftDayKey(today, -1), { weekday: "long" });
+    }
     const by = new Map();
     upTo.forEach((k, di) => {
       const t = themedDay(k);
@@ -9068,6 +9102,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         by.set(e.uid, p);
       });
     });
+    playedToday.forEach((name, uid) => { if (!by.has(uid)) by.set(uid, { uid: uid, name: name, pts: 0, ms: 0, days: [] }); });
     const rows = [...by.values()].sort((a, b) => (b.pts - a.pts) || (a.ms - b.ms));
     const myUid = window.MatchDB && window.MatchDB.uid;
     const mine = rows.findIndex((r) => r.uid === myUid);
@@ -9087,7 +9122,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (final && i === 0) { const tr = document.createElement("span"); tr.className = "wk-trophy"; tr.textContent = "🏆"; nm.appendChild(tr); }
       const dd = row.querySelector(".lb-days");
       dd.textContent = played;
-      if (thisWeek && ti >= 0) { const dot = document.createElement("i"); dot.className = r.days[ti] ? "done" : "wait"; dd.appendChild(dot); }
+      if (thisWeek && ti >= 0) { const dot = document.createElement("i"); dot.className = r.days[ti] || playedToday.has(r.uid) ? "done" : "wait"; dd.appendChild(dot); }
       row.querySelector(".lb-score").textContent = r.pts;
       row.querySelector(".lb-time").textContent = fmtWeekTime(r.ms);
       row.addEventListener("click", () => toggleWeekDetail(row, r, days, ti));
@@ -9109,7 +9144,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const today = dailyKeyOf();
     let max = 0, best = -1;
     days.forEach((k, i) => {
-      if (dayBase(k) > dayBase(today)) return;
+      if (dayBase(k) > dayBase(today) || (k === today && todayHidden())) return;   // no hint of today's most points before you play
       max += dayMaxPoints(k);
       const x = r.days[i];
       if (x && (best < 0 || x.pts > r.days[best].pts || (x.pts === r.days[best].pts && x.ms < r.days[best].ms))) best = i;
@@ -9619,6 +9654,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     else if (canResume) btn.textContent = "Resume today's game";
     else btn.textContent = "Play";
     $("#btn-home-share").hidden = !(playedToday && newFormat(themedDay(today)));
+    $("#btn-home-week").hidden = playedToday || !dbReady();   // after playing, it's a tab on today's board
     meta.textContent = capFirst(dailyResetText()) + ".";
     $("#daily-compact-meta").textContent = "Completed — see today's standings";
     $("#next-daily").hidden = $("#next-daily-gap").hidden = !playedToday;
@@ -10721,6 +10757,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#pcard").hidden) closePcard(); });
 
   $("#btn-adventure-play").addEventListener("click", showCollection);
+  $("#btn-home-week").addEventListener("click", () => { showWeekBoard(); countFeature("week"); });
   $("#btn-collection-home").addEventListener("click", goHome);
   $("#collection-grid").addEventListener("click", (e) => {
     const t = e.target.closest(".collection-tile");
