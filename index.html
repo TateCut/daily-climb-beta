@@ -2082,8 +2082,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .hs-title { margin: 12px 0 0; font-family: var(--slab); font-weight: 700; font-size: 2.85rem; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
   .hs-tag { margin: 10px 0 0; font-family: var(--slab); font-weight: 400; font-size: 1.4rem; line-height: 1.25; max-width: 13.5em; text-wrap: balance; }
   #screen-home .home-play { margin-top: 26px; width: auto; }
-  #screen-home .home-play button.primary { width: auto; min-width: 214px; white-space: nowrap; padding: 14px 24px; border-radius: 999px; font-size: 1.05rem; font-weight: 600; background: var(--hs-btn); color: var(--hs-btn-ink); box-shadow: none; }
-  .hs-share { margin-top: 12px; width: 214px; height: 44px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
+  #screen-home .home-play button.primary { width: auto; min-width: 214px; min-height: 50px; white-space: nowrap; padding: 14px 24px; border-radius: 999px; font-size: 1.05rem; font-weight: 600; background: var(--hs-btn); color: var(--hs-btn-ink); box-shadow: none; }
+  .hs-share { margin-top: 12px; width: 214px; height: 50px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink);
     font: 600 0.95rem var(--franklin); display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
   .hs-share[hidden] { display: none; }
   .hs-week { margin-top: 12px; border: 0; background: none; color: var(--hs-ink); font: 700 0.92rem var(--franklin); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 8px; }
@@ -3293,7 +3293,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T15:43:06-07:00","n":18,"notes":[{"note":"Weekly Leaderboard intro + announcement","v":"0.15.2-beta.18"},{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"}],"v":"0.15.2-beta.18"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T15:44:34-07:00","n":19,"notes":[{"note":"Home buttons all one size","v":"0.15.2-beta.19"},{"note":"Weekly Leaderboard intro + announcement","v":"0.15.2-beta.18"},{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"}],"v":"0.15.2-beta.19"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
