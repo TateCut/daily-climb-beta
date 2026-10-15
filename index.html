@@ -1761,7 +1761,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .lb-days i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
   .lb-days i.done { background: var(--rd-climb); }
   .lb-days i.wait { border: 1.5px solid var(--rd-muted); }
-  .wk-trophy { margin-left: 5px; }
+  .wk-trophy { margin-left: 5px; display: inline-block; }
+  .wk-trophy.t2 { filter: grayscale(1) brightness(1.18) contrast(1.05); }   /* silver */
+  .wk-trophy.t3 { filter: sepia(1) saturate(3) hue-rotate(-28deg) brightness(0.7) contrast(1.2); }   /* bronze */
+  #wk-list .lb-row > .lb-name { display: flex; align-items: center; min-width: 0; }
+  #wk-list .lb-row > .lb-name > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #wk-list .wk-trophy { flex: none; }
   .wk-detail { padding: 8px 4px 12px; border-bottom: 1px solid var(--rd-line); display: flex; flex-direction: column; gap: 4px; text-align: left; }
   .wk-tot { display: flex; justify-content: flex-end; align-items: baseline; font-family: var(--slab); font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
   .wk-tot b { font-family: var(--franklin); font-size: 1.2rem; } .wk-tot b span { color: var(--rd-muted); font-weight: 600; font-size: 0.9rem; }
@@ -3247,7 +3252,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T12:34:01-07:00","n":6,"notes":[{"note":"No best-day highlight in a player's week","v":"0.15.2-beta.6"},{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"}],"v":"0.15.2-beta.6"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T12:36:15-07:00","n":7,"notes":[{"note":"Gold, silver and bronze trophies on a final week","v":"0.15.2-beta.7"},{"note":"No best-day highlight in a player's week","v":"0.15.2-beta.6"},{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"}],"v":"0.15.2-beta.7"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9109,8 +9114,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
       row.innerHTML = '<div class="lb-rank"></div><div class="lb-name"></div><div class="lb-days"></div><div class="lb-score"></div><div class="lb-time"></div>';
       row.querySelector(".lb-rank").textContent = i + 1;
       const nm = row.querySelector(".lb-name");
-      nm.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
-      if (final && i === 0) { const tr = document.createElement("span"); tr.className = "wk-trophy"; tr.textContent = "🏆"; nm.appendChild(tr); }
+      const label = document.createElement("span");
+      label.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
+      nm.appendChild(label);
+      if (final && i < 3) { const tr = document.createElement("span"); tr.className = "wk-trophy t" + (i + 1); tr.textContent = "🏆"; tr.setAttribute("aria-label", ["Gold", "Silver", "Bronze"][i] + " trophy"); nm.appendChild(tr); }
       const dd = row.querySelector(".lb-days");
       dd.textContent = played;
       if (thisWeek && ti >= 0) { const dot = document.createElement("i"); dot.className = r.days[ti] || playedToday.has(r.uid) ? "done" : "wait"; dd.appendChild(dot); }
