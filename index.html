@@ -3261,7 +3261,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T13:36:09-07:00","n":14,"notes":[{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"},{"note":"Weekly Leaderboard pill under Play","v":"0.15.2-beta.10"}],"v":"0.15.2-beta.14"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T13:43:15-07:00","n":15,"notes":[{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"}],"v":"0.15.2-beta.15"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10148,14 +10148,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
       }),
     };
   }
-  // Three little peaks, filled where that Climb got every point (faded on a day you missed), in the logo's units.
+  // Three little peaks, like the daily share's: filled with a flag where that Climb got every point. A missed day is
+  // drawn in faded colours (not see-through, so the middle peak stays in front), in the logo's units.
   function weekPeaks(x, d, tx, ty, sc) {
+    const miss = d.pts == null, INK = miss ? "#b09979" : "#121212";
     x.save(); x.translate(tx, ty); x.scale(sc, sc);
-    if (d.pts == null) x.globalAlpha = 0.3;
-    x.lineJoin = "round"; x.strokeStyle = "#121212"; x.lineWidth = 6;
+    x.lineJoin = "round"; x.lineCap = "round"; x.strokeStyle = INK;
+    const poly = (pts, fill, lw) => { x.beginPath(); pts.forEach((pt, i) => (i ? x.lineTo(pt[0], pt[1]) : x.moveTo(pt[0], pt[1]))); x.closePath(); x.fillStyle = fill; x.fill(); x.lineWidth = lw; x.stroke(); };
     CRE_PEAKS.forEach((pk, i) => {
-      x.beginPath(); x.moveTo(pk.l, 84); x.lineTo(pk.a[0], pk.a[1]); x.lineTo(pk.r, 84); x.closePath();
-      x.fillStyle = d.fills[i] ? pk.tone : "#f4e6d4"; x.fill(); x.stroke();
+      const on = !miss && d.fills[i], ax = pk.a[0], ay = pk.a[1], k = pk.k;
+      poly([[pk.l, 84], [ax, ay], [pk.r, 84]], miss ? "#f4d9b5" : on ? pk.tone : "#f4e6d4", 5);
+      poly([[ax - 8 * k, ay + 14 * k], [ax, ay], [ax + 9 * k, ay + 13 * k], [ax + 4 * k, ay + 10 * k], [ax, ay + 16 * k], [ax - 4 * k, ay + 11 * k]], miss ? "#f6e3c9" : "#ffffff", 4);
+      if (on) {
+        const kf = Math.max(k, 0.9), fy = ay - 18 * kf - 2;
+        x.beginPath(); x.moveTo(ax, ay); x.lineTo(ax, fy); x.lineWidth = 4; x.stroke();
+        poly([[ax, fy], [ax + 16 * kf + 2, fy + 5 * kf], [ax, fy + 10 * kf]], "#f6c90e", 3.5);
+      }
     });
     x.restore();
   }
