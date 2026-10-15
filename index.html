@@ -144,7 +144,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
      everything"). The game screen stays locked: dragging tiles must never move the page. */
   html.noscroll, html.noscroll body { overflow: hidden; overscroll-behavior: none; }
   /* The few inner scrollers draw their bar in the theme's line color. */
-  .lb-list, .lb-routes, .rt-pop, .collection-grid, .def, .patch-list, .pf-scroll { scrollbar-color: var(--line) transparent; scrollbar-width: thin; }
+  .lb-list, .lb-routes, .rt-pop, .collection-grid, .def, .patch-list, .pf-scroll, .ann-list { scrollbar-color: var(--line) transparent; scrollbar-width: thin; }
   /* Tutorial is a fixed card — kill touch-panning so a swipe is never stolen. */
   h1 {
     margin: 0 0 22px;
@@ -1961,8 +1961,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .fb-sheet.sent h3 { font-size: 1.45rem; }
   .fb-sheet.sent .install-sub { max-width: 22em; margin: 6px auto 16px; font-size: 0.86rem; }
   .fb-meta { display: flex; justify-content: space-between; margin: 6px 2px 12px; font-size: 0.72rem; color: var(--rd-muted); }
-  .ann-sheet { max-height: calc(100dvh - 40px); display: flex; flex-direction: column; }
-  .ann-list { margin: 10px 0 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0; }
+  .ann-sheet { max-height: 76vh; max-height: 76dvh; display: flex; flex-direction: column; }
+  .ann-list { margin: 10px 0 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .ann { padding: 11px 13px; border-radius: 12px; background: color-mix(in srgb, var(--rd-ink) 5%, transparent); display: flex; flex-direction: column; gap: 4px; text-align: left; }
   .ann-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--rd-muted); }
   .ann-new { padding: 1px 6px; border-radius: 6px; background: var(--rd-gold); color: var(--rd-gold-ink); letter-spacing: 0.08em; }
@@ -3199,7 +3200,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T08:11:36-07:00","n":7,"notes":[{"note":"Revealed words still move your climber up","v":"0.16.0-beta.7"},{"note":"Reveal word asks first; Shuffle packs letters left","v":"0.16.0-beta.6"},{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"},{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"},{"note":"Clock matches the leaderboard; finishing never stalls","v":"0.16.0-beta.3"}],"v":"0.16.0-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T08:15:42-07:00","n":8,"notes":[{"note":"Announcements scroll, and the sheet is a bit shorter","v":"0.16.0-beta.8"},{"note":"Revealed words still move your climber up","v":"0.16.0-beta.7"},{"note":"Reveal word asks first; Shuffle packs letters left","v":"0.16.0-beta.6"},{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"},{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"}],"v":"0.16.0-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10635,7 +10636,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // the drag itself) — except inside the few elements that scroll themselves.
     document.addEventListener("touchmove", (e) => {
       const t = e.target;
-      if (t && t.closest && t.closest(".lb-list, .lb-routes, .rt-pop, .collection-grid, .def, .patch-list, .pf-scroll")) return;
+      if (t && t.closest && t.closest(".lb-list, .lb-routes, .rt-pop, .collection-grid, .def, .patch-list, .pf-scroll, .ann-list")) return;
       const overCard = t && t.closest && t.closest(".wn, .hts-veil, #theme-card, #forfeit-confirm");
       if (!overCard && !document.documentElement.classList.contains("noscroll")) return;
       if (e.cancelable) e.preventDefault();
