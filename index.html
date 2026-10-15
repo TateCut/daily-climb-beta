@@ -3200,7 +3200,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T08:23:55-07:00","n":9,"notes":[{"note":"Play with a keyboard","v":"0.16.0-beta.9"},{"note":"Announcements scroll, and the sheet is a bit shorter","v":"0.16.0-beta.8"},{"note":"Revealed words still move your climber up","v":"0.16.0-beta.7"},{"note":"Reveal word asks first; Shuffle packs letters left","v":"0.16.0-beta.6"},{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"}],"v":"0.16.0-beta.9"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T08:32:54-07:00","n":0,"notes":[{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -8060,7 +8060,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const words = i === round - 1 ? currentRoundWords : (roundWords[i] || []);
         words.forEach((w, k) => {
           at++;
-          if (!isThemeWord(dailyTheme, i, w)) return;
+          if (!isThemeWord(dailyTheme, i, w) || revealedIn(i).includes(w)) return;   // a revealed theme word wasn't found
           const q = pointAt((at - 0.85) / totalMax);
           const fresh = i === round - 1 && k === words.length - 1 && w === ascentFresh;
           const g = svgEl("g", { class: "af" + (fresh ? " fresh" : ""), transform: "translate(" + q.x.toFixed(1) + " " + q.y.toFixed(1) + ")" }, fl);
@@ -11481,6 +11481,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // (sw.js caches other files cache-first, so a notes file could go stale).
   // Each release shows from its date on (the player's own day), so notes can ship ahead of the change they describe.
   const PATCH_NOTES = [
+    { v: "0.15.1", date: "2026-10-15", title: "Reveal word & Keyboard Integration",
+      notes: [
+        ["new", "Reveal word replaces Forfeit Climb. Stuck on a step? Tap it and the word unscrambles into place, then press Enter to keep climbing. A revealed word is worth no points, and it's marked on the leaderboard."],
+        ["new", "Play with a keyboard on a computer: type your letters, Backspace to take one back, Enter to climb."],
+        ["imp", "Shuffle keeps your letters together on the left."],
+        ["fix", "Your clock and your leaderboard time now match exactly."],
+        ["fix", "On a slow connection, See the leaderboard no longer seems to do nothing, and today shows on your profile right away."],
+        ["fix", "Announcements scroll on iPhone, and the sheet is a little smaller."],
+      ] },
     { v: "0.15.0", date: "2026-10-14", title: "Share your Climb",
       notes: [
         ["new", "Share your result. After the daily, tap Share in your row on the leaderboard, or Share today's Climb on the home screen. Friends get a link that shows your peaks, your time on each Climb and your total, and tapping it opens Daily Climb. Send as picture sends the picture itself."],
