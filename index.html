@@ -3200,7 +3200,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T08:15:42-07:00","n":8,"notes":[{"note":"Announcements scroll, and the sheet is a bit shorter","v":"0.16.0-beta.8"},{"note":"Revealed words still move your climber up","v":"0.16.0-beta.7"},{"note":"Reveal word asks first; Shuffle packs letters left","v":"0.16.0-beta.6"},{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"},{"note":"Reveal word shows the theme word when one fits","v":"0.16.0-beta.4"}],"v":"0.16.0-beta.8"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T08:23:55-07:00","n":9,"notes":[{"note":"Play with a keyboard","v":"0.16.0-beta.9"},{"note":"Announcements scroll, and the sheet is a bit shorter","v":"0.16.0-beta.8"},{"note":"Revealed words still move your climber up","v":"0.16.0-beta.7"},{"note":"Reveal word asks first; Shuffle packs letters left","v":"0.16.0-beta.6"},{"note":"Reveal word unscrambles into your word; you press Enter","v":"0.16.0-beta.5"}],"v":"0.16.0-beta.9"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10407,11 +10407,32 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (themeCardOpenAt && (e.key === "Enter" || e.key === "Escape")) { e.preventDefault(); closeThemeCard(); return; }
     if (!$("#forfeit-confirm").hidden) {
       if (e.key === "Escape" || (e.key === "Enter" && document.activeElement && document.activeElement.id !== "btn-ff-go")) { e.preventDefault(); closeForfeit(); }
-      if (e.key === "Enter" && document.activeElement && document.activeElement.id === "btn-ff-go") { e.preventDefault(); closeForfeit(); endRound(); }
+      if (e.key === "Enter" && document.activeElement && document.activeElement.id === "btn-ff-go") { e.preventDefault(); closeForfeit(); if (ffReveal) revealWord(); else endRound(); }
       return;
     }
+    // Playing with a keyboard: a letter goes up into your word, Backspace sends the last one back, Escape returns
+    // them all, Space shuffles (Enter submits, below).
+    if (!screens.play.hidden && !locked && !checking && !e.ctrlKey && !e.metaKey && !e.altKey &&
+        !(e.target && e.target.closest && e.target.closest("input, textarea, select, [contenteditable]")) && !anySheetOpen()) {
+      const k = e.key;
+      const act = (fn) => { e.preventDefault(); if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur(); fn(); };
+      if (/^[a-z]$/i.test(k)) {
+        const cell = trayCells.find((c) => c.type === "letter" && tileMap[c.id].ch.toLowerCase() === k.toLowerCase());
+        if (cell && ans.indexOf(null) > -1) act(() => clickToAnswer(cell.id));
+        else { e.preventDefault(); FX.play("nope"); }
+        return;
+      }
+      if (k === "Backspace") {
+        let last = -1;
+        ans.forEach((id, i) => { if (id !== null) last = i; });
+        if (last > -1) act(() => toTrayHome(ans[last]));
+        return;
+      }
+      if (k === "Escape") { if (ans.some((id) => id !== null)) act(returnAll); return; }
+      if (k === " ") { act(doShuffle); return; }
+    }
     if (e.key !== "Enter") return;
-    if (!screens.play.hidden) { e.preventDefault(); submit(); }
+    if (!screens.play.hidden) { e.preventDefault(); if (document.activeElement && document.activeElement.tagName === "BUTTON" && document.activeElement.id !== "btn-enter") document.activeElement.blur(); submit(); }
     else if (!screens.roundend.hidden) { e.preventDefault(); roundEndContinue(); }
     else if (!screens.over.hidden) { e.preventDefault(); startSession(); }
     else if (!screens.climbintro.hidden && !$("#btn-climb-start").disabled) { e.preventDefault(); startClimb(); }
