@@ -1772,7 +1772,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .wk-day .t { text-align: right; color: var(--rd-muted); font-variant-numeric: tabular-nums; } .wk-day .pl { text-align: right; font-weight: 700; font-size: 0.8rem; }
   .wk-day.wait .p, .wk-day.wait .pl { color: var(--rd-muted); font-weight: 600; }
   .wk-day.later { opacity: 0.4; }
-  .wk-day.best { background: color-mix(in srgb, var(--rd-gold) 30%, transparent); border-radius: 6px; padding-inline: 5px; margin-inline: -5px; }
   .lb-tabs button:focus-visible, .lb-routes-pill:focus-visible { outline: 2px solid var(--rd-climb); outline-offset: 2px; }
   #screen-daily-board.routes :is(#daily-board-theme, #daily-board-sum, #daily-board-mtn, #daily-board-head, #daily-board-list, #daily-board-foot, #btn-reminder) { display: none !important; }
   .lb-routes { width: 100%; flex: none; overflow: visible; display: flex; flex-direction: column; gap: 12px; text-align: left; }
@@ -3248,7 +3247,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T12:29:26-07:00","n":5,"notes":[{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"}],"v":"0.15.2-beta.5"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T12:34:01-07:00","n":6,"notes":[{"note":"No best-day highlight in a player's week","v":"0.15.2-beta.6"},{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"}],"v":"0.15.2-beta.6"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9134,12 +9133,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const d = document.createElement("div");
     d.className = "wk-detail";
     const today = dailyKeyOf();
-    let max = 0, best = -1;
+    let max = 0;
     days.forEach((k, i) => {
       if (dayBase(k) > dayBase(today) || (k === today && todayHidden())) return;   // no hint of today's most points before you play
       max += dayMaxPoints(k);
-      const x = r.days[i];
-      if (x && (best < 0 || x.pts > r.days[best].pts || (x.pts === r.days[best].pts && x.ms < r.days[best].ms))) best = i;
     });
     const tot = document.createElement("div");
     tot.className = "wk-tot";
@@ -9149,7 +9146,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     d.appendChild(tot);
     days.forEach((k, i) => {
       const line = document.createElement("div"), x = r.days[i], later = dayBase(k) > dayBase(today), t = themedDay(k);
-      line.className = "wk-day" + (later ? " later" : !x ? " wait" : "") + (i === best && r.days.filter(Boolean).length > 1 ? " best" : "");
+      line.className = "wk-day" + (later ? " later" : !x ? " wait" : "");
       line.innerHTML = '<span class="d"></span><span class="th"></span><span class="p"></span><span class="t"></span><span class="pl"></span>';
       const dl = line.querySelector(".d");
       dl.textContent = shortDay(k, { weekday: "short" });
