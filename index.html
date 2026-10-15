@@ -3261,7 +3261,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T14:57:47-07:00","n":16,"notes":[{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"}],"v":"0.15.2-beta.16"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T15:29:24-07:00","n":17,"notes":[{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"}],"v":"0.15.2-beta.17"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -5077,6 +5077,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const LOCKED_SCREENS = new Set(["play", "loading"]);
   function show(name) {
     if (updateWaiting && !BUSY_SCREENS.has(name)) setTimeout(applyUpdateWhenCalm, 300);
+    if (name !== "climbroundend") { try { creStop(); } catch (e) {} }   // a summit moment still to come stays on its own screen (try: show can run before it exists)
     hideChipPopover(); // never leave a word definition floating over the next screen
     if (!$("#rt-pop").hidden) hideRoutePop(); // ...or a Routes "who played it" pop-up
     hideInstallSheet(); // ...or the Add to Home Screen how-to
@@ -7825,9 +7826,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (banner) banner.classList.add("on");
       return;
     }
-    setTimeout(() => grow.forEach((a) => a.beginElement()), walk + 150);
-    setTimeout(() => { FX.play("summit"); buzz([18, 60, 18]); creConfetti("ribbon", fresh); }, walk + 1200);
-    if (day) setTimeout(() => { FX.play("perfectday"); buzz([30, 50, 30, 50, 60]); if (banner) banner.classList.add("on"); creConfetti("rain"); }, walk + 1900);
+    creLater(() => grow.forEach((a) => a.beginElement()), walk + 150);
+    creLater(() => { FX.play("summit"); buzz([18, 60, 18]); creConfetti("ribbon", fresh); }, walk + 1200);
+    if (day) creLater(() => { FX.play("perfectday"); buzz([30, 50, 30, 50, 60]); if (banner) banner.classList.add("on"); creConfetti("rain"); }, walk + 1900);
+  }
+  // The summit moment's timers, so leaving the screen early (a quick Keep Climbing) cancels what hasn't happened yet.
+  let creTimers = [];
+  const creLater = (fn, ms) => { creTimers.push(setTimeout(fn, ms)); };
+  function creStop() {
+    if (!creTimers.length && !creParts.length) return;
+    creTimers.forEach(clearTimeout); creTimers = [];
+    creParts = [];
+    if (creLoop) { cancelAnimationFrame(creLoop); creLoop = 0; }
+    const cv = document.getElementById("cre-fx"); if (cv) cv.remove();
   }
   // The climber walks leg i: from the last summit (or the start) to the newest one, the trail's dots appearing behind
   // them, and slipping behind a peak where the trail goes round the back. Returns the ms until they arrive.
