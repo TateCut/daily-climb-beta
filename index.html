@@ -3200,7 +3200,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T08:32:54-07:00","n":0,"notes":[{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.0"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T11:17:25-07:00","n":1,"notes":[{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"},{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.1"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9809,12 +9809,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!shareLink) return;
     trackEv("share_link", {});
     if (navigator.share) {
-      try { await navigator.share({ url: shareLink }); } catch (e) {}
+      try { await navigator.share({ url: shareLink }); markShare("result"); } catch (e) {}
       return;
     }
     // No share sheet here (most computers): copy the link instead.
     let ok = false;
-    try { await navigator.clipboard.writeText(shareLink); ok = true; } catch (e) {}
+    try { await navigator.clipboard.writeText(shareLink); ok = true; markShare("result"); } catch (e) {}
     const lab = $("#btn-share-link").lastChild;
     lab.textContent = ok ? "Link copied" : shareLink;
     setTimeout(() => { lab.textContent = "Share"; }, 2500);
@@ -9824,13 +9824,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (!sharePicFile) return;
     trackEv("share_picture", {});
     if (navigator.canShare && navigator.canShare({ files: [sharePicFile] })) {
-      try { await navigator.share({ files: [sharePicFile], text: "https://thedailyclimb.com" }); } catch (e) {}
+      try { await navigator.share({ files: [sharePicFile], text: "https://thedailyclimb.com" }); markShare("picture"); } catch (e) {}
       return;
     }
     // No share sheet with pictures here (most computers): save the picture instead.
     const a = document.createElement("a"); a.href = URL.createObjectURL(sharePicFile); a.download = "daily-climb.png";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    markShare("picture");
     const lab = $("#btn-share-pic").lastChild;
     lab.textContent = "Saved";
     setTimeout(() => { lab.textContent = "Send as picture"; }, 2000);
