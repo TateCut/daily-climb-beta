@@ -3261,7 +3261,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T13:43:15-07:00","n":15,"notes":[{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"},{"note":"Weekly board: no peeking in dev mode","v":"0.15.2-beta.11"}],"v":"0.15.2-beta.15"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T14:57:47-07:00","n":16,"notes":[{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"},{"note":"Week picture: flags + solid missed days","v":"0.15.2-beta.15"},{"note":"Made-up past weeks for you","v":"0.15.2-beta.14"},{"note":"Share your week","v":"0.15.2-beta.13"},{"note":"Weekly board: Completed for today","v":"0.15.2-beta.12"}],"v":"0.15.2-beta.16"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9205,7 +9205,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         pill.setAttribute("aria-label", "Share your week");
         label.textContent = shownName(r.name);
         const place = i + 1;
-        pill.addEventListener("click", (ev) => { ev.stopPropagation(); openWeekShare(r, days, place); });   // not the row's tap
+        pill.addEventListener("click", (ev) => { ev.stopPropagation(); openWeekShare(r, days, place, rows); });   // not the row's tap
         nm.appendChild(pill);
       }
       const dd = row.querySelector(".lb-days");
@@ -10133,12 +10133,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function closeShareSheet() { shareOpenId++; $("#share-sheet").hidden = true; }
 
   // ===== Sharing a finished week =====
-  function weekShareModel(r, days, place) {
+  function weekShareModel(r, days, place, rows) {
     const md = (k) => shortDay(k, { month: "short", day: "numeric" });
     const a = md(days[0]), b = md(days[6]), am = a.split(" ")[0], bm = b.split(" ")[0];
     const range = am === bm ? a + "–" + b.slice(bm.length + 1) : a + "–" + b;
+    // The board slice: the top four if you're in the top 3, else the leader and then you with your neighbours.
+    const N = rows.length, me = place - 1;
+    let pick;
+    if (N <= 4 || place <= 3) pick = [0, 1, 2, 3].filter((i) => i < N);
+    else { const st = Math.max(1, Math.min(me - 1, N - 3)); pick = [0, st, st + 1, st + 2]; }
+    const slice = pick.map((i, j) => ({ rank: i + 1, name: shownName(rows[i].name), pts: rows[i].pts, me: i === me, gap: j > 0 && i !== pick[j - 1] + 1 }));
     return {
-      name: shownName(r.name), range: range, place: place, pts: r.pts, day: days[0],
+      name: shownName(r.name), range: range, place: place, pts: r.pts, day: days[0], rows: slice, count: N,
       days: days.map((k, i) => {
         const x = r.days[i], t = themedDay(k);
         if (!x) return { letter: shortDay(k, { weekday: "narrow" }), pts: null, fills: [false, false, false] };
@@ -10195,56 +10201,87 @@ $1{ display: flex; gap: 8px; width: 100%; }
     x.beginPath(); x.rect(28, 92, 44, 16); x.fill(); x.stroke();
     x.restore();
   }
-  // "Tate · Oct 5–11", the name in bold ink, centred on cx.
-  function weekNameLine(x, m, cx, y, px) {
-    const rest = " · " + m.range;
-    x.font = "800 " + px + "px " + SHARE_SN; const wn = x.measureText(m.name).width;
-    x.font = "600 " + px + "px " + SHARE_SN; const wr = x.measureText(rest).width;
-    const x0 = cx - (wn + wr) / 2;
+  // Letter-spaced text (canvas letterSpacing isn't everywhere). align "left" or "right" at X.
+  function weekSpaced(x, str, X, y, sp, align) {
+    const ws = [...str].map((ch) => x.measureText(ch).width), tot = ws.reduce((a, w) => a + w, 0) + sp * (ws.length - 1);
+    let cx = align === "right" ? X - tot : X;
     x.textAlign = "left";
-    x.font = "800 " + px + "px " + SHARE_SN; x.fillStyle = "#121212"; x.fillText(m.name, x0, y);
-    x.font = "600 " + px + "px " + SHARE_SN; x.fillStyle = "#5a4a3c"; x.fillText(rest, x0 + wn, y);
+    [...str].forEach((ch, i) => { x.fillText(ch, cx, y); cx += ws[i] + sp; });
   }
-  // "🏆 2nd · 112 points": the trophy (top 3 only) and the words, centred together on cx, baseline y.
-  function weekFinish(x, m, cx, y, px) {
-    const txt = ordinal(m.place) + " · " + m.pts + " points";
-    x.font = "900 " + px + "px " + SHARE_SN;
-    const tw = x.measureText(txt).width, th = m.place <= 3 ? px * 1.15 : 0, gap = th ? px * 0.35 : 0;
-    const x0 = cx - (th * 0.88 + gap + tw) / 2;
-    if (th) weekTrophy(x, m.place, x0 + th * 0.44, y - px * 0.98, th);
-    x.textAlign = "left"; x.fillStyle = "#121212";
-    x.fillText(txt, x0 + th * 0.88 + gap, y);
+  // WEEKLY STANDINGS, Daily Climb, the dates: left-aligned at X, the block's top at y. Returns its height.
+  function weekHeading(x, m, X, y, kpx, tpx, dpx) {
+    const gap = kpx * 0.4;
+    x.fillStyle = "#5a4a3c"; x.font = "800 " + kpx + "px " + SHARE_SN;
+    weekSpaced(x, "WEEKLY STANDINGS", X, y + kpx * 0.82, kpx * 0.1, "left");
+    const ty = y + kpx + gap + tpx * 0.78;
+    x.font = "700 " + tpx + "px " + SHARE_SL; x.textAlign = "left";
+    const wd = x.measureText("Daily ").width;
+    x.fillStyle = "#121212"; x.fillText("Daily ", X, ty); x.fillStyle = "#c25e08"; x.fillText("Climb", X + wd, ty);
+    x.fillStyle = "#5a4a3c"; x.font = "700 " + dpx + "px " + SHARE_SN;
+    x.fillText(m.range, X, ty + gap + dpx * 1.05);
+    return kpx + gap + tpx * 0.98 + gap + dpx * 1.05;
   }
-  // The link card: 1200 x 630.
+  // The slice of the board: a rule, the rows (a gap mark where rows are skipped), then "13 PLAYERS". Returns the bottom.
+  function weekSlice(x, m, X, Y, W, rowH, px) {
+    x.fillStyle = "#121212"; x.fillRect(X, Y, W, Math.max(3, px * 0.12));
+    let y = Y + Math.max(3, px * 0.12);
+    const padX = px * 0.45, rankW = px * 1.4, nx = X + padX + rankW + px * 0.45;
+    m.rows.forEach((rw) => {
+      if (rw.gap) {
+        x.fillStyle = "#8a6f55"; x.font = "800 " + px * 0.8 + "px " + SHARE_SN; x.textAlign = "center";
+        x.fillText("···", X + W / 2, y + px * 0.62); y += px * 0.8;
+      }
+      if (rw.me) {
+        x.fillStyle = "#fff3e2"; x.beginPath();
+        if (x.roundRect) x.roundRect(X, y + 3, W, rowH - 6, px * 0.4); else x.rect(X, y + 3, W, rowH - 6);
+        x.fill();
+      } else { x.fillStyle = "rgba(18,18,18,0.16)"; x.fillRect(X, y + rowH - 2, W, 2); }
+      const base = y + rowH / 2 + px * 0.36;
+      x.textAlign = "center"; x.font = "800 " + px + "px " + SHARE_SN; x.fillStyle = rw.me ? "#121212" : "#5a4a3c";
+      x.fillText(String(rw.rank), X + padX + rankW / 2, base);
+      x.font = "900 " + px + "px " + SHARE_SN; const pw = x.measureText(String(rw.pts)).width;
+      const th = rw.rank <= 3 ? px * 0.95 : 0, room = X + W - padX - pw - px * 0.8 - nx - (th ? th + px * 0.35 : 0);
+      x.font = (rw.me ? "800 " : "600 ") + px + "px " + SHARE_SN; x.fillStyle = "#121212"; x.textAlign = "left";
+      let name = rw.name;
+      while (name.length > 1 && x.measureText(name).width > room) name = name.slice(0, -1);
+      if (name !== rw.name) name = name.slice(0, -1) + "…";
+      x.fillText(name, nx, base);
+      if (th) weekTrophy(x, rw.rank, nx + x.measureText(name).width + px * 0.35 + th * 0.44, base - px * 0.84, th);
+      x.textAlign = "right"; x.font = "900 " + px + "px " + SHARE_SN; x.fillStyle = "#121212";
+      x.fillText(String(rw.pts), X + W - padX, base);
+      y += rowH;
+    });
+    x.fillStyle = "#8a6f55"; x.font = "800 " + px * 0.7 + "px " + SHARE_SN;
+    weekSpaced(x, m.count + (m.count === 1 ? " PLAYER" : " PLAYERS"), X + W - padX, y + px * 1.1, px * 0.06, "right");
+    return y + px * 1.2;
+  }
+  // The link card: 1200 x 630. Heading left, board right, the week's mountains across the bottom.
   async function drawWeekCard(m) {
     const W = 1200, H = 630, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     const x = cv.getContext("2d");
     await shareFonts();
     x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
-    shareTitle(x, W / 2, 112, 78);
-    weekNameLine(x, m, W / 2, 172, 34);
-    weekRow(x, m, 67, 232, 130, 26, 40, 26);
-    weekFinish(x, m, W / 2, 568, 54);
+    const bottom = weekSlice(x, m, 560, 54, 580, 60, 34);
+    const hh = 36 + 14 + 77 * 0.98 + 14 + 36 * 1.05;
+    weekHeading(x, m, 60, 54 + Math.max(0, (bottom - 54 - hh) / 2), 36, 77, 36);
+    weekRow(x, m, 60, 432, 127, 31, 32, 23);
     return cv;
   }
-  // The picture: 960 x 1092, like the daily's.
+  // The picture: 960 x 1092, stacked: heading, board, mountains, the site.
   async function drawWeekPic(m) {
     const W = 960, H = 1092, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     const x = cv.getContext("2d");
     await shareFonts();
     x.fillStyle = "#f4d3a6"; x.fillRect(0, 0, W, H);
-    shareTitle(x, W / 2, 138, 78);
-    weekNameLine(x, m, W / 2, 204, 39);
-    weekRow(x, m, 41, 300, 110, 18, 38, 26);
-    if (m.place <= 3) weekTrophy(x, m.place, W / 2, 540, 260);
-    x.fillStyle = "#121212"; x.font = "900 72px " + SHARE_SN; x.textAlign = "center";
-    x.fillText(ordinal(m.place) + " · " + m.pts + " points", W / 2, m.place <= 3 ? 920 : 720);
-    x.fillStyle = "#8a6f55"; x.font = "700 33px " + SHARE_SN;
-    x.fillText("thedailyclimb.com", W / 2, 1044);
+    weekHeading(x, m, 60, 78, 40, 86, 40);
+    weekSlice(x, m, 60, 310, 840, 72, 40);
+    weekRow(x, m, 60, 760, 100, 23, 38, 26);
+    x.fillStyle = "#8a6f55"; x.font = "700 33px " + SHARE_SN; x.textAlign = "center";
+    x.fillText("thedailyclimb.com", W / 2, 1040);
     return cv;
   }
-  async function openWeekShare(r, days, place) {
-    const id = ++shareOpenId, m = weekShareModel(r, days, place), go = $("#btn-share-link");
+  async function openWeekShare(r, days, place, rows) {
+    const id = ++shareOpenId, m = weekShareModel(r, days, place, rows), go = $("#btn-share-link");
     shareLink = null; sharePicFile = null;
     $("#share-sheet .pc-bar b").innerHTML = "Share your week";
     go.disabled = true; go.lastChild.textContent = "Share";
@@ -10258,7 +10295,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const [cardBlob, picBlob] = await Promise.all([toPng(card), drawWeekPic(m).then(toPng)]);
     if (id !== shareOpenId) return;
     if (picBlob) sharePicFile = new File([picBlob], "daily-climb-week.png", { type: "image/png" });
-    const title = { name: m.name + "’s week on Daily Climb · " + ordinal(place), total: "", day: m.day };
+    const title = { name: m.name + "’s week on Daily Climb · " + ordinal(place) + " of " + m.count, total: "", day: m.day };
     try { shareLink = await uploadWeekCard(title, cardBlob); } catch (e) { shareLink = "https://thedailyclimb.com"; }
     if (id !== shareOpenId) return;
     go.disabled = false;
