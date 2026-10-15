@@ -3293,7 +3293,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T15:48:27-07:00","n":20,"notes":[{"note":"Weekly board starts Oct 13","v":"0.15.2-beta.20"},{"note":"Home buttons all one size","v":"0.15.2-beta.19"},{"note":"Weekly Leaderboard intro + announcement","v":"0.15.2-beta.18"},{"note":"Quick Keep Climbing: no late summit","v":"0.15.2-beta.17"},{"note":"Week picture: weekly standings","v":"0.15.2-beta.16"}],"v":"0.15.2-beta.20"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T15:52:49-07:00","n":0,"notes":[{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -12093,6 +12093,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // (sw.js caches other files cache-first, so a notes file could go stale).
   // Each release shows from its date on (the player's own day), so notes can ship ahead of the change they describe.
   const PATCH_NOTES = [
+    { v: "0.16.0", date: "2026-10-15", title: "Weekly Leaderboard",
+      notes: [
+        ["new", "The Weekly Leaderboard. Your daily points add up from Monday to Sunday, and the lower total time breaks a tie. Find it on the home screen, right under Play, with your place this week. This first week counts from Tuesday, Oct 13."],
+        ["new", "Tap anyone on the weekly board to see their week, day by day. No spoilers: until you've played today, today's scores don't count, and anyone who's finished just shows Completed."],
+        ["new", "When a week ends, the top three earn gold, silver and bronze trophies, and you can share your week from your row."],
+        ["imp", "The home screen's buttons are all the same size."],
+        ["fix", "Tapping Keep Climbing quickly no longer plays the summit chime over your next Climb."],
+      ] },
     { v: "0.15.1", date: "2026-10-15", title: "Reveal word & Keyboard Integration",
       notes: [
         ["new", "Reveal word replaces Forfeit Climb. Stuck on a step? Tap it and the word unscrambles into place, then press Enter to keep climbing. A revealed word is worth no points, and it's marked on the leaderboard."],
