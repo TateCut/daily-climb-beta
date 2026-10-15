@@ -1752,8 +1752,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .wk-range b { font-weight: 700; font-size: 0.9rem; }
   .wk-range small { display: block; font-size: 0.72rem; color: var(--rd-muted); font-weight: 600; }
   .wk-final { display: inline-block; margin-left: 6px; background: var(--rd-ink); color: var(--rd-bg); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 999px; vertical-align: 2px; }
-  #wk-you { text-align: center; font-family: var(--slab); font-weight: 700; font-size: 1.35rem; }
-  #wk-you:empty { display: none; }
   #wk-list .lb-rank, #wk-head .h-rank { min-width: 2.2rem; text-align: center; }
   #wk-list .lb-row > .lb-name, #wk-head .h-name { flex: 1; min-width: 0; text-align: left; }
   #wk-list .lb-days, #wk-head .h-days { min-width: 2.8rem; text-align: center; }
@@ -1765,7 +1763,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .lb-days i.wait { border: 1.5px solid var(--rd-muted); }
   .wk-trophy { margin-left: 5px; }
   .wk-detail { padding: 8px 4px 12px; border-bottom: 1px solid var(--rd-line); display: flex; flex-direction: column; gap: 4px; text-align: left; }
-  .wk-tot { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--slab); font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
+  .wk-tot { display: flex; justify-content: flex-end; align-items: baseline; font-family: var(--slab); font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
   .wk-tot b { font-family: var(--franklin); font-size: 1.2rem; } .wk-tot b span { color: var(--rd-muted); font-weight: 600; font-size: 0.9rem; }
   .wk-day { display: grid; grid-template-columns: 2.8rem 1fr 3.6rem 3.2rem 2.6rem; align-items: center; column-gap: 6px; font-size: 0.86rem; padding: 4px 0; }
   .wk-day .d { font-weight: 800; } .wk-day .d small { display: block; font-weight: 600; color: var(--rd-muted); font-size: 0.66rem; }
@@ -2668,10 +2666,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       <div class="lb-week" id="daily-board-week" hidden>
         <div class="wk-step">
           <button class="wk-arrow" id="wk-prev" type="button" aria-label="Previous week">&lsaquo;</button>
-          <div class="wk-range"><b id="wk-range"></b><span class="wk-final" id="wk-final" hidden>FINAL</span><small id="wk-when"></small></div>
+          <div class="wk-range"><b id="wk-range"></b><span class="wk-final" id="wk-final" hidden>FINAL</span></div>
           <button class="wk-arrow" id="wk-next" type="button" aria-label="Next week">&rsaquo;</button>
         </div>
-        <div class="lbsum-you" id="wk-you"></div>
         <div class="lb-head" id="wk-head"><span class="h-rank">Rank</span><span class="h-name">Player</span><span class="h-days">Days</span><span class="h-score">Points</span><span class="h-time">Time</span></div>
         <div class="lb-list" id="wk-list"></div>
       </div>
@@ -3251,7 +3248,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T12:05:43-07:00","n":4,"notes":[{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"},{"note":"Synced with live v0.15.1","v":"0.15.2-beta.0"}],"v":"0.15.2-beta.4"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-15T12:29:26-07:00","n":5,"notes":[{"note":"Weekly board says less","v":"0.15.2-beta.5"},{"note":"This week from Home, before you play (no spoilers)","v":"0.15.2-beta.4"},{"note":"Weekly leaderboard: Today | This week","v":"0.15.2-beta.3"},{"note":"Synced with live (share counting, stats)","v":"0.15.2-beta.2"},{"note":"Result shares are counted for the stats page","v":"0.15.2-beta.1"}],"v":"0.15.2-beta.5"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -9069,11 +9066,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const days = [0, 1, 2, 3, 4, 5, 6].map((i) => shiftDayKey(start, i));
     const thisWeek = start === thisMonday;
     $("#wk-range").textContent = shortDay(days[0]) + " – " + shortDay(days[6]);
-    $("#wk-when").textContent = thisWeek ? "This week" : start === shiftDayKey(thisMonday, -7) ? "Last week" : "";
     $("#wk-next").disabled = thisWeek;
     const final = !thisWeek && weekIsFinal(days[6]);
     $("#wk-final").hidden = !final;
-    $("#wk-you").textContent = "";
     $("#wk-head").hidden = true;
     const list = $("#wk-list");
     list.innerHTML = "<p class='note'>Loading…</p>";
@@ -9086,7 +9081,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (hide) {
       const ti0 = upTo.indexOf(today);
       if (ti0 >= 0) { (boards[ti0] || []).forEach((e) => { if (e.uid) playedToday.set(e.uid, e.name || ""); }); boards[ti0] = []; }
-      if (upTo.length > 1) $("#wk-when").textContent = "This week · through " + shortDay(shiftDayKey(today, -1), { weekday: "long" });
     }
     const by = new Map();
     upTo.forEach((k, di) => {
@@ -9105,8 +9099,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     playedToday.forEach((name, uid) => { if (!by.has(uid)) by.set(uid, { uid: uid, name: name, pts: 0, ms: 0, days: [] }); });
     const rows = [...by.values()].sort((a, b) => (b.pts - a.pts) || (a.ms - b.ms));
     const myUid = window.MatchDB && window.MatchDB.uid;
-    const mine = rows.findIndex((r) => r.uid === myUid);
-    $("#wk-you").textContent = mine < 0 ? "" : (thisWeek && !final ? "You're " : "You finished ") + ordinal(mine + 1) + (thisWeek ? " this week" : "");
     list.innerHTML = "";
     $("#wk-head").hidden = !rows.length;
     if (!rows.length) { list.innerHTML = "<p class='note'>No one's played this week yet.</p>"; return; }
@@ -9152,7 +9144,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const tot = document.createElement("div");
     tot.className = "wk-tot";
     tot.innerHTML = "<span></span><b></b>";
-    tot.firstChild.textContent = days.indexOf(today) >= 0 ? "This week" : "That week";
     tot.lastChild.append(String(r.pts));
     const of = document.createElement("span"); of.textContent = "/" + max; tot.lastChild.appendChild(of);
     d.appendChild(tot);
