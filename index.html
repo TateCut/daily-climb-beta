@@ -3346,7 +3346,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T12:15:27-07:00","n":5,"notes":[{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"}],"v":"0.16.1-beta.5"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T12:20:38-07:00","n":6,"notes":[{"note":"Summit pill without the flag","v":"0.16.1-beta.6"},{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"}],"v":"0.16.1-beta.6"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -10808,13 +10808,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return b;
   }
   // A player's name on the leaderboard, as a pill in their card's style. Tap: their card. No uid: a sample (Style tab).
-  const PILL_FLAG = '<svg viewBox="0 0 9 13" aria-hidden="true"><line x1="1" y1="1" x2="1" y2="12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M1.5 1h7l-1.8 2.4 1.8 2.4h-7Z" fill="#f6c90e" stroke="currentColor" stroke-width=".8"/></svg>';
   function namePill(uid, name, frame, label) {
     const F = PCARD_FRAMES.find((x) => x.id === frame) || PCARD_FRAMES[0];
     const b = document.createElement(uid ? "button" : "span");
     if (uid) b.type = "button";
     b.className = "lb-np np-" + F.id;
-    b.innerHTML = (F.id === "summit" ? PILL_FLAG : "") + '<span class="npt"></span>';
+    b.innerHTML = '<span class="npt"></span>';
     b.querySelector(".npt").textContent = label != null ? label : shownName(name || "Player");
     if (uid) {
       b.setAttribute("aria-label", shownName(name || "Player") + "\u2019s card");
