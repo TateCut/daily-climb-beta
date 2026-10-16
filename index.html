@@ -161,6 +161,7 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   }
   h1 .brand-k { color: var(--accent); }
   .lede { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+  .friend-hi { margin: 0 0 -4px; font: 700 1.45rem/1.2 var(--slab); text-wrap: balance; }
   .home-tagline { font-size: 1.05rem; line-height: 1.4; text-wrap: balance; }
   /* A hair tighter than the shared 16px section gap — the home screen has one
      more row than most (hero card + shelf row + homelinks + invite + the
@@ -2366,6 +2367,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
          Falls back to a plain name if profiles aren't available. -->
     <section id="screen-name" hidden>
       <div class="uname-pick" id="uname-pick">
+        <p class="friend-hi" id="name-friend" hidden></p>
         <p class="lede" id="name-lede">Pick a username. It's how friends see you on the leaderboard, and how you get your profile back.</p>
         <div class="ufield">
           <label for="name-input">Username</label>
@@ -3319,7 +3321,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T16:35:05-07:00","n":18,"notes":[{"note":"Faster first load","v":"0.16.1-beta.18"},{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"},{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"}],"v":"0.16.1-beta.18"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T16:41:52-07:00","n":19,"notes":[{"note":"A friend's link says hi","v":"0.16.1-beta.19"},{"note":"Faster first load","v":"0.16.1-beta.18"},{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"},{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"}],"v":"0.16.1-beta.19"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -6627,8 +6629,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#name-input").placeholder = claimable ? "e.g. summit_sam" : "Your name";
     $("#name-input").value = storedName || "";
     const firstRun = claimable && !storedName && !myUsername;
+    const friend = firstRun && !pendingMatchCode ? friendWhoShared() : "";
+    $("#name-friend").textContent = friend ? friend + " just finished today's puzzle." : "";
+    $("#name-friend").hidden = !friend;
     $("#name-lede").textContent = pendingMatchCode
       ? "You've been invited to a game! Pick a name the others will see."
+      : friend
+        ? "Your turn. Pick a username to start climbing."
       : firstRun
         ? "A new word puzzle every day. Pick a username to start climbing."
         : claimable
@@ -11601,6 +11608,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   // Where this player first came from (first visit on this device only; later visits don't overwrite it).
   const SRC_KEY = "dc.src";
+  // Arrived from a friend's shared result: their name, if it's a daily within a day of today here (dc.friend, this visit).
+  const FRIEND_KEY = "dc.friend";
+  function friendWhoShared() {
+    try {
+      const fr = JSON.parse(sessionStorage.getItem(FRIEND_KEY) || "null");
+      if (!fr || !fr.n || !fr.d) return "";
+      const near = [-1, 0, 1].some((k) => dayBase(shiftDayKey(dailyKeyOf(), k)) === fr.d);
+      return near && USERNAME_RE.test(fr.n) && !nameIsBlocked(fr.n) ? fr.n : "";
+    } catch (e) { return ""; }
+  }
   function captureSource() {
     try {
       if (localStorage.getItem(SRC_KEY)) return;
@@ -13258,7 +13275,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (q.has("s")) {
         const sid = (q.get("s") || "").slice(0, 16);
         setTimeout(() => trackEv("share_visit", { s: sid }), 1500);
-        q.delete("s");
+        const fn = (q.get("n") || "").slice(0, 16), fd = (q.get("d") || "").slice(0, 10);
+        if (fn && /^\d{4}-\d{2}-\d{2}$/.test(fd)) { try { sessionStorage.setItem(FRIEND_KEY, JSON.stringify({ n: fn, d: fd })); } catch (e) {} }
+        q.delete("s"); q.delete("n"); q.delete("d");
         history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
       }
       if (q.has("dev")) {
