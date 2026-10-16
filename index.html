@@ -2223,6 +2223,26 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .pc-frames i { width: 36px; height: 44px; border-radius: 7px; border: 2px solid #121212; }
   .pc-frames small { font-weight: 600; font-size: 0.64rem; color: var(--rd-muted); }
   .pc-share { margin: 4px 16px 14px; height: 48px; border-radius: 999px; flex: none; }
+  /* the player card, as page content (profile, customize sheet, a player's card from the leaderboard) */
+  .pcd { --fr: #121212; --bg: #fbe7cc; --top: #f4d3a6; --ink: #121212; --mut: #5a4a3c; --tile: #fff; --acc: #c25e08; --wm: #121212;
+    width: 100%; max-width: 320px; border: 3px solid var(--fr); border-radius: 20px; background: var(--bg); color: var(--ink); overflow: hidden; display: flex; flex-direction: column; text-align: left; flex: none; }
+  .pcd-tp { background: var(--top); border-bottom: 3px solid var(--fr); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 0; font-family: var(--slab); font-weight: 700; font-size: 0.95rem; color: var(--wm); }
+  .pcd-tp svg { width: 30px; height: auto; } .pcd-tp i { font-style: normal; color: var(--acc); }
+  .pcd-bd { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; }
+  .pcd-nm { font-family: var(--slab); font-weight: 700; font-size: 1.6rem; line-height: 1.05; overflow-wrap: anywhere; }
+  .pcd-ti { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; color: var(--acc); margin-top: -3px; text-transform: uppercase; }
+  .pcd-st { display: grid; grid-template-columns: 22px auto 1fr; align-items: center; gap: 6px; background: var(--tile); border: 2px solid var(--fr); border-radius: 11px; padding: 6px 9px; }
+  .pcd-st b { font-weight: 800; font-size: 0.95rem; font-variant-numeric: tabular-nums; } .pcd-st span:last-child { text-align: right; color: var(--mut); font-size: 0.7rem; font-weight: 600; }
+  #pf-cardbox { display: flex; justify-content: center; }
+  .pf-cardbtn { align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 18px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink); font: 700 0.84rem var(--franklin); cursor: pointer; }
+  .pf-cardtop { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  .pf-cardtop .pf-since { text-align: center; }
+  #pcard-live { display: flex; justify-content: center; width: min(78vw, 300px); }
+  #pcard-live[hidden], #pcard-img[hidden] { display: none; }
+  .lb-cardlink { display: block; margin-top: 8px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: 800 0.82rem var(--franklin); cursor: pointer; text-align: left; }
+  .pcv-body { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 6px 16px 18px; }
+  .pcv-body .pcd { max-width: 340px; }
+  .pcv-close { height: 44px; min-width: 140px; border-radius: 999px; border: 1.5px solid var(--rd-ink); background: none; color: var(--rd-ink); font: 700 0.95rem var(--franklin); cursor: pointer; }
   /* the share sheet: your link card, Share (the link), and "Send as picture" */
   .sh-one { display: flex; flex-direction: column; gap: 14px; padding: 6px 16px 20px; }
   .sh-card1 { border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); aspect-ratio: 1200 / 630; background: #f4d3a6; }
@@ -2583,9 +2603,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <section id="screen-profile" hidden>
       <div class="scr-head"><button class="backpill" id="btn-profile-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl">Profile</h2><span></span></div>
       <div class="pf-scroll" id="profile-scroll">
-        <div class="pf-who">
-          <div class="pf-av" id="pf-av"></div>
-          <div><h2 id="pf-name"></h2><p class="pf-since" id="pf-since"></p></div>
+        <div class="pf-cardtop">
+          <div id="pf-cardbox"></div>
+          <button class="pf-cardbtn" id="btn-pf-card" type="button">&#9999;&#65039; Customize card</button>
+          <p class="pf-since" id="pf-since"></p>
+          <span id="pf-av" hidden></span><span id="pf-name" hidden></span>
         </div>
         <div class="pf-card">
           <h3 class="pf-h">Streak</h3>
@@ -3242,10 +3264,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
   <div class="pc-sheet" id="pcard" role="dialog" aria-modal="true" aria-label="Your card" hidden>
     <div class="pc-panel">
       <div class="pc-bar"><button class="pc-x" id="btn-pcard-x" type="button" aria-label="Close">&times;</button><b>Your card</b><span></span></div>
-      <div class="pc-prev"><img id="pcard-img" alt="Your Daily Climb card"></div>
+      <div class="pc-prev"><img id="pcard-img" alt="Your Daily Climb card"><div id="pcard-live" hidden></div></div>
       <div class="pc-tabs" id="pcard-tabs"><button type="button" data-tab="stats" class="on">Stats</button><button type="button" data-tab="title">Title</button><button type="button" data-tab="frame">Style</button></div>
       <div class="pc-opts" id="pcard-opts"></div>
       <button class="primary pc-share" id="btn-pcard-share" type="button">Share card</button>
+      <button class="primary pc-share" id="btn-pcard-done" type="button" hidden>Done</button>
+    </div>
+  </div>
+  <div class="pc-sheet" id="pcview" role="dialog" aria-modal="true" aria-label="Player card" hidden>
+    <div class="pc-panel">
+      <div class="pcv-body"><div id="pcview-card"></div><button class="pcv-close" id="btn-pcview-x" type="button">Close</button></div>
     </div>
   </div>
   <div class="tr-pop" id="trophy-pop" role="dialog" aria-modal="true" aria-labelledby="tr-pop-name" hidden>
@@ -3293,7 +3321,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-15T16:03:05-07:00","n":1,"notes":[{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.1"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T11:24:03-07:00","n":2,"notes":[{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.2"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3440,6 +3468,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
     },
     sendFeedback: async function (text, meta) { db.feedback = db.feedback || []; db.feedback.push(Object.assign({ uid: UID, text: text, at: Date.now() }, meta)); save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
+    saveCard: async function (card) { player().card = card; save(); },
+    // the pretend players' cards: made up, the same every time
+    getCard: async function (id) {
+      if (id === UID) return { card: (db.player && db.player.card) || null, name: (db.player && db.player.name) || null };
+      var i = +String(id).replace("fake-", ""); if (isNaN(i)) return null;
+      var r = seeded("card|" + i), FR = ["night", "gold", "sand", "bronze", "silver", "summit", "sand", "night"], TI = ["Speed Climber", "Early Bird", "Flawless", "Night Owl", null, "Purist"];
+      var ST = [["\u{1F525}", function () { return (2 + Math.floor(r() * 30)) + " days"; }, "current streak"], ["\u{1F3D4}\uFE0F", function () { return String(1 + Math.floor(r() * 20)); }, "perfect days"],
+        ["\u{1F947}", function () { return String(Math.floor(r() * 9)); }, "daily wins"], ["\u{1F680}", function () { return "2:" + String(10 + Math.floor(r() * 49)); }, "fastest perfect day"],
+        ["\u{1F4C5}", function () { return String(5 + Math.floor(r() * 40)); }, "dailies climbed"], ["\u{1F3C5}", function () { return String(1 + Math.floor(r() * 15)); }, "podium finishes"]];
+      var pick = ST.slice().sort(function () { return r() - 0.5; }).slice(0, 3);
+      return { card: { frame: FR[i % FR.length], title: TI[i % TI.length], stats: pick.map(function (s) { return [s[0], s[1](), s[2]]; }) }, name: NAMES[i] || null };
+    },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
     createMatch: async function () { throw new Error("Not in the beta"); },
     getMatch: async function () { return null; },
@@ -4002,6 +4042,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
       } catch (e) {}
     },
     // players/{uid}.shares = { native, copy, lastAt }: the Invite screen's Share / Copy (the stats page)
+    // players/{uid}.card: your player card as others see it ({frame, title, stats}).
+    async saveCard(card) {
+      if (!uid) return;
+      try { await setDoc(doc(db, "players", uid), { card: card }, { merge: true }); } catch (e) {}
+    },
+    async getCard(id) {
+      try { const snap = await getDoc(doc(db, "players", id)); if (!snap.exists()) return null; const d = snap.data(); return { card: d.card || null, name: d.username || d.name || null }; } catch (e) { return null; }
+    },
     async markShare(how) {
       if (!uid) return;
       try {
@@ -9204,6 +9252,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   // Home's Weekly Leaderboard pill: your place this week underneath (through yesterday until you've played today).
   let homeWeekAt = 0, homeWeekKey = "";
+  let weekPlaceNow = 0;   // your place this week (0 = not on it), for the player card
   async function updateHomeWeekPlace() {
     const el = $("#home-week-place");
     if (!el || !dbReady() || !window.MatchDB) return;
@@ -9227,7 +9276,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const me = window.MatchDB.uid;
       if (!pts.has(me)) { el.hidden = true; return; }
       const order = [...pts.keys()].sort((a, b) => (pts.get(b) - pts.get(a)) || (ms.get(a) - ms.get(b)));
-      el.textContent = "You're " + ordinal(order.indexOf(me) + 1);
+      weekPlaceNow = order.indexOf(me) + 1;
+      el.textContent = "You're " + ordinal(weekPlaceNow);
       el.hidden = false;
     } catch (e) {}
   }
@@ -9371,6 +9421,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       } else line.querySelector(".p").textContent = "–";
       d.appendChild(line);
     });
+    if (r.uid) d.appendChild(cardLink(r.uid, r.name));
     row.after(d);
   }
   $("#daily-board-scope").addEventListener("click", (e) => { const b = e.target.closest("button[data-scope]"); if (b && b.dataset.scope !== boardScope) { setBoardScope(b.dataset.scope); if (b.dataset.scope === "week") countFeature("week"); } });
@@ -9855,6 +9906,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#btn-home-share").hidden = !(playedToday && newFormat(themedDay(today)));
     $("#btn-home-week").hidden = !dbReady();
     setTimeout(updateHomeWeekPlace, 0);
+    setTimeout(() => { try { if (myDailyLastDay) publishMyCard(myCardNow().card); } catch (e) {} }, 2500);
     meta.textContent = capFirst(dailyResetText()) + ".";
     $("#daily-compact-meta").textContent = "Completed — see today's standings";
     $("#next-daily").hidden = $("#next-daily-gap").hidden = !playedToday;
@@ -10607,8 +10659,128 @@ $1{ display: flex; gap: 8px; width: 100%; }
     x.textAlign = "center"; x.fillStyle = F.mut; x.font = "700 34px " + SN; x.fillText("thedailyclimb.com", W / 2, H - 62);
     return cv;
   }
+  // ===== Player cards on profiles =====
+  const CARD_LOGO = '<svg viewBox="0 -10 132 100" aria-hidden="true"><g stroke="#121212" stroke-width="5" stroke-linejoin="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g></svg>';
+  // card: { frame, title, stats: [[icon, value, label], ...] }
+  function cardEl(card, name) {
+    const F = PCARD_FRAMES.find((x) => x.id === (card && card.frame)) || PCARD_FRAMES[0];
+    const el = document.createElement("div");
+    el.className = "pcd";
+    const top = Array.isArray(F.top) ? "linear-gradient(90deg," + F.top.join(",") + ")" : F.top;
+    [["--fr", F.fr], ["--bg", F.bg], ["--top", top], ["--ink", F.ink], ["--mut", F.mut], ["--tile", F.tile], ["--acc", F.acc], ["--wm", F.id === "night" ? "#f8f8f8" : "#121212"]].forEach(([k, v]) => el.style.setProperty(k, v));
+    el.innerHTML = '<div class="pcd-tp">' + CARD_LOGO + '<span>Daily <i>Climb</i></span></div><div class="pcd-bd"><div class="pcd-nm"></div><div class="pcd-ti"></div></div>';
+    el.querySelector(".pcd-nm").textContent = shownName(name || "Climber");
+    const ti = el.querySelector(".pcd-ti");
+    if (card && card.title) ti.textContent = card.title; else ti.remove();
+    const bd = el.querySelector(".pcd-bd");
+    ((card && card.stats) || []).slice(0, 3).forEach((st) => {
+      const row = document.createElement("div"); row.className = "pcd-st";
+      [0, 1, 2].forEach((k) => { const x = document.createElement(k === 1 ? "b" : "span"); x.textContent = String(st[k] == null ? "" : st[k]).slice(0, 40); row.appendChild(x); });
+      bd.appendChild(row);
+    });
+    return el;
+  }
+  // What your card can say on your profile: the same stats as the share card, minus anything about one day.
+  function profileCardModel() {
+    const tr = evaluateTrophies(), entries = tr.entries, h = tr.have;
+    const fmt = entries.filter((e) => e.base >= FORMAT_DAY);
+    const fastest = fmt.filter((e) => isPerfect(e) && e.ms > 0).map((e) => e.ms);
+    const recent = fmt.filter((e) => e.base >= dayBase(shiftDayKey(dailyKeyOf(), -29)) && e.ms > 0);
+    const first = entries.length ? entries[0].base.split("-").map(Number) : null;
+    const stat = {
+      streak: [streakAlive() + (streakAlive() === 1 ? " day" : " days")],
+      longest: [h.streak + (h.streak === 1 ? " day" : " days")],
+      played: [String(h.days)],
+      best: fastest.length ? [fmtDuration(Math.min.apply(null, fastest))] : null,
+      avg: recent.length ? [fmtDuration(recent.reduce((a, e) => a + e.ms, 0) / recent.length)] : null,
+      week: weekPlaceNow ? [ordinal(weekPlaceNow)] : null,
+      month: null,
+      wins: [String(h.wins)], podium: [String(h.podium)], pdays: [String(h.summit)],
+      rate: h.days ? [Math.round(100 * h.summit / h.days) + "%"] : null,
+      forks: [String(entries.reduce((a, e) => a + (e.fk || 0), 0))],
+      trophies: [String(Object.keys(tr.earned).length)],
+      adv: [myBeatenSeeds.length + " / " + (CLIMBS.length || 746)],
+      since: first ? [new Date(first[0], first[1] - 1, 15).toLocaleDateString(undefined, { month: "short", year: "numeric" })] : null,
+    };
+    const titles = Object.keys(tr.earned).sort((a, b) => String(tr.earned[b]).localeCompare(String(tr.earned[a]))).map((id) => trophyInfo(id).name).filter(Boolean);
+    return { stat: stat, titles: titles, perfectDays: h.summit, name: myUsername || storedName || playerName || "Climber" };
+  }
+  // Your prefs, checked against what you've unlocked.
+  function cleanCardPrefs(p, m) {
+    p.on = p.on.filter((id) => m.stat[id]);
+    if (p.on.length < 3) ["streak", "pdays", "played", "longest", "wins", "podium"].forEach((id) => { if (p.on.length < 3 && m.stat[id] && p.on.indexOf(id) < 0) p.on.push(id); });
+    p.on = p.on.slice(0, 3);
+    if (p.title && m.titles.indexOf(p.title) < 0) p.title = null;
+    const F = PCARD_FRAMES.find((x) => x.id === p.frame);
+    if (!F || m.perfectDays < F.need) p.frame = "sand";
+    return p;
+  }
+  function cardFrom(p, m) {
+    const META = {}; PCARD_STATS.forEach((g) => g[1].forEach((st) => { META[st[0]] = st; }));
+    return { frame: p.frame, title: p.title || null, stats: p.on.filter((id) => m.stat[id] && META[id]).map((id) => [META[id][1], m.stat[id][0], META[id][2]]) };
+  }
+  const CARD_PUB_KEY = "dc.card.pub";
+  // Keep players/{uid}.card in step with your card (only writes when something changed).
+  function publishMyCard(card) {
+    if (!dbReady() || !window.MatchDB || !window.MatchDB.hasAuth || !window.MatchDB.saveCard) return;
+    const js = JSON.stringify(card);
+    let last = null; try { last = localStorage.getItem(CARD_PUB_KEY); } catch (e) {}
+    if (last === js) return;
+    try { localStorage.setItem(CARD_PUB_KEY, js); } catch (e) {}
+    window.MatchDB.saveCard(card).catch(() => {});
+  }
+  function myCardNow() { const m = profileCardModel(), p = cleanCardPrefs(pcardPrefs(), m); return { card: cardFrom(p, m), name: m.name }; }
+  function renderProfileCard() {
+    const box = $("#pf-cardbox"); if (!box) return;
+    const c = myCardNow();
+    box.replaceChildren(cardEl(c.card, c.name));
+    publishMyCard(c.card);
+  }
+  async function openCardCustomize() {
+    pcardMode = "profile";
+    pcardPrefsNow = pcardPrefs();
+    pcardModelNow = profileCardModel();
+    cleanCardPrefs(pcardPrefsNow, pcardModelNow);
+    pcardPrefsNow.tab = "stats";
+    $("#pcard .pc-bar b").textContent = "Your card";
+    $("#pcard-img").hidden = true; $("#pcard-live").hidden = false;
+    $("#btn-pcard-share").hidden = true; $("#btn-pcard-done").hidden = false;
+    $("#pcard").hidden = false;
+    pcardOptions();
+    await pcardRender();
+    countFeature("card");
+  }
+  // Someone's card, from the leaderboard.
+  const cardCache = new Map();
+  let cardViewTok = 0;
+  async function openPlayerCard(uid, name) {
+    const tok = ++cardViewTok, box = $("#pcview-card");
+    $("#pcview").hidden = false;
+    if (uid === (window.MatchDB && window.MatchDB.uid)) { const c = myCardNow(); box.replaceChildren(cardEl(c.card, c.name)); return; }
+    box.replaceChildren(cardEl({ frame: "sand", title: null, stats: [] }, name));
+    let got = cardCache.get(uid);
+    if (!got && window.MatchDB && window.MatchDB.getCard) { got = await window.MatchDB.getCard(uid); if (got) cardCache.set(uid, got); }
+    if (tok !== cardViewTok) return;
+    if (got && got.card) box.replaceChildren(cardEl(got.card, name || got.name));
+    countFeature("cardView");
+  }
+  function closePlayerCard() { cardViewTok++; $("#pcview").hidden = true; }
+  // "See Wren's card ›", at the end of a leaderboard row's details.
+  function cardLink(uid, name) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "lb-cardlink";
+    b.textContent = uid === (window.MatchDB && window.MatchDB.uid) ? "See your card \u203A" : "See " + shownName(name || "their") + "\u2019s card \u203A";
+    b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
+    return b;
+  }
+  let pcardMode = "share";
   let pcardPrefsNow = null, pcardModelNow = null, pcardCanvas = null, pcardDrawTok = 0;
   async function pcardRender() {
+    if (pcardMode === "profile") {
+      const c = cardFrom(pcardPrefsNow, pcardModelNow);
+      $("#pcard-live").replaceChildren(cardEl(c, pcardModelNow.name));
+      return;
+    }
     const tok = ++pcardDrawTok;
     const cv = await drawPcard(pcardModelNow, pcardPrefsNow);
     if (tok !== pcardDrawTok) return;
@@ -10626,6 +10798,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const h = document.createElement("div"); h.className = "pc-grp"; h.textContent = g; box.appendChild(h);
         const row = document.createElement("div"); row.className = "pc-chips";
         list.forEach(([id, e, lab]) => {
+          if (pcardMode === "profile" && id === "month") return;
           const i = p.on.indexOf(id), has = !!m.stat[id];
           row.appendChild(chip(e + " " + lab, i >= 0, !has || (i < 0 && p.on.length >= 3), () => {
             if (i >= 0) p.on.splice(i, 1); else if (p.on.length < 3) p.on.push(id);
@@ -10657,6 +10830,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   async function openPcard() {
     if (!pcardCtx) return;
+    pcardMode = "share";
+    $("#pcard .pc-bar b").textContent = "Your card";
+    $("#pcard-img").hidden = false; $("#pcard-live").hidden = true;
+    $("#btn-pcard-share").hidden = false; $("#btn-pcard-done").hidden = true;
     pcardPrefsNow = pcardPrefs();
     pcardModelNow = await pcardModel();
     const p = pcardPrefsNow, m = pcardModelNow;
@@ -10671,7 +10848,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     await pcardRender();
     trackEv("share_card_open", {});
   }
-  function closePcard() { $("#pcard").hidden = true; }
+  function closePcard() { $("#pcard").hidden = true; if (pcardMode === "profile" && !screens.profile.hidden) renderProfileCard(); }
   async function sharePcard() {
     if (!pcardCanvas) return;
     const btn = $("#btn-pcard-share");
@@ -10806,6 +10983,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     rounds.className = "rounds";
     renderRoundsBlock(rounds, e.roundWords || [], theme, (e.roundWords || []).map((_, i) => entrantReveals(e, i)));
     d.appendChild(rounds);
+    if (e.uid) d.appendChild(cardLink(e.uid, e.name));
     row.after(d);
   }
 
@@ -11128,6 +11306,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-home-share").addEventListener("click", homeShare);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#share-sheet").hidden) closeShareSheet(); });
   $("#btn-pcard-x").addEventListener("click", closePcard);
+  $("#btn-pcard-done").addEventListener("click", closePcard);
+  $("#btn-pf-card").addEventListener("click", openCardCustomize);
+  $("#btn-pcview-x").addEventListener("click", closePlayerCard);
+  $("#pcview").addEventListener("click", (e) => { if (e.target.id === "pcview") closePlayerCard(); });
   $("#pcard").addEventListener("click", (e) => { if (e.target === $("#pcard")) closePcard(); });
   $("#btn-pcard-share").addEventListener("click", sharePcard);
   $("#pcard-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b && pcardPrefsNow) { pcardPrefsNow.tab = b.dataset.tab; pcardOptions(); } });
@@ -12656,6 +12838,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const name = myUsername || storedName || "Climber";
     $("#pf-av").textContent = [...name][0].toUpperCase();
     $("#pf-name").textContent = name;
+    renderProfileCard();
     const earnedIds = Object.keys(ev.earned).filter((id) => trophyInfo(id));
     const since = entries.length ? (() => { const p = entries[0].base.split("-").map(Number); return new Date(p[0], p[1] - 1, 1).toLocaleDateString(undefined, { month: "short", year: "numeric" }); })() : null;
     $("#pf-since").textContent = (since ? "Climbing since " + since + " · " : "") +
