@@ -3319,7 +3319,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T15:30:49-07:00","n":14,"notes":[{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"},{"note":"Shorter theme-word tip","v":"0.16.1-beta.12"},{"note":"Play first, sign up later","v":"0.16.1-beta.11"},{"note":"Sources, funnel, privacy, previews","v":"0.16.1-beta.10"}],"v":"0.16.1-beta.14"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T15:50:33-07:00","n":15,"notes":[{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"},{"note":"Shorter theme-word tip","v":"0.16.1-beta.12"},{"note":"Play first, sign up later","v":"0.16.1-beta.11"}],"v":"0.16.1-beta.15"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3466,6 +3466,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     },
     sendFeedback: async function (text, meta) { db.feedback = db.feedback || []; db.feedback.push(Object.assign({ uid: UID, text: text, at: Date.now() }, meta)); save(); },
     saveSource: async function (src) { player().src = src; save(); },
+    markNameOnly: async function (on, day) { var p = player(); if (on) { p.nameOnly = true; p.nameAt = day; } else { delete p.nameOnly; delete p.nameAt; } save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
     createMatch: async function () { throw new Error("Not in the beta"); },
@@ -4035,6 +4036,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
       } catch (e) {}
     },
     // players/{uid}.shares = { native, copy, lastAt }: the Invite screen's Share / Copy (the stats page)
+    // players/{uid}.nameOnly: a name with no secret emoji yet (released by the nightly job after 7 days without playing).
+    async markNameOnly(on, day) {
+      if (!uid) return;
+      try { await setDoc(doc(db, "players", uid), on ? { nameOnly: true, nameAt: day } : { nameOnly: deleteField(), nameAt: deleteField() }, { merge: true }); } catch (e) {}
+    },
     async markShare(how) {
       if (!uid) return;
       try {
@@ -6623,6 +6629,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (result !== "claimed") return;
       noteSwitchAsked();   // the lock-in sheet after the daily asks for emoji instead of the one-time offer on Home
       try { localStorage.setItem(LOCK_ASK_KEY, "1"); } catch (e) {}
+      if (window.MatchDB.markNameOnly) window.MatchDB.markNameOnly(true, dayBase(dailyKeyOf()));
       goHome();
       dailyPlayClick();
       return;
@@ -6692,7 +6699,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   function drawEmojiStep() {
     const f = emojiFlow, again = !!f.first;
-    $("#em-tag").hidden = f.mode !== "switch" || again || f.from === "board";
+    $("#em-tag").hidden = f.mode !== "switch" || again || f.from === "board" || f.from === "install";
     $("#em-title").textContent = again ? "Tap them once more" : f.mode === "change" ? "Pick 3 new secret emoji" : "Pick 3 secret emoji";
     $("#em-lede").textContent = again ? "Just to be sure, tap the same 3 again. Any order." : "";
     $("#em-lede").hidden = !again;   // the first pick needs no explaining
@@ -6705,7 +6712,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function leaveEmojiFlow() {
     const f = emojiFlow;
     if (f.mode === "create") { if (f.from === "claim") goHome(); else showNameScreen(); return; }
-    if (f.from === "profile") showProfile(); else goHome();
+    if (f.from === "profile") showProfile();
+    else if (f.from === "install") { goHome(); if (knownEmoji()) setTimeout(openInstall, 400); }   // emoji saved: on to the install steps
+    else goHome();
   }
   $("#em-back").addEventListener("click", () => {
     if (emojiFlow.first) { emojiFlow.first = null; emPicker.clear(); drawEmojiStep(); return; }
@@ -6743,6 +6752,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     }
     rememberEmoji(myUsername, picked);
     noteSwitchAsked();
+    if (window.MatchDB.markNameOnly) window.MatchDB.markNameOnly(false);   // locked in: never released
+    try { localStorage.removeItem(LOCK_ASK_KEY); } catch (e) {}
     trackEv(f.mode === "switch" ? "emoji_switched" : "emoji_changed");
     btn.disabled = false; btn.textContent = idle;
     emojiDone("Saved!", picked);
@@ -6827,8 +6838,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#signin-name").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); signInGo(); } });
   $("#signin-code").addEventListener("click", () => showRestoreScreen($("#signin-name").value.trim()));
   $("#signin-back").addEventListener("click", showNameScreen);
-  $("#btn-ls-go").addEventListener("click", () => { $("#locksheet").hidden = true; trackEv("lock_prompt_go"); showEmojiPick({ mode: "switch", from: "board" }); });
-  $("#btn-ls-later").addEventListener("click", () => { $("#locksheet").hidden = true; trackEv("lock_prompt_later"); try { localStorage.setItem(LOCK_LATER_KEY, dailyKeyOf()); } catch (e) {} setTimeout(maybeOfferReminder, 600); });
+  $("#btn-ls-go").addEventListener("click", () => { $("#locksheet").hidden = true; trackEv("lock_prompt_go", { from: lockFrom }); showEmojiPick({ mode: "switch", from: lockFrom }); });
+  $("#btn-ls-later").addEventListener("click", () => {
+    $("#locksheet").hidden = true; trackEv("lock_prompt_later", { from: lockFrom });
+    if (lockFrom === "install") return;
+    try { localStorage.setItem(LOCK_LATER_KEY, dailyKeyOf()); } catch (e) {}
+    setTimeout(maybeOfferReminder, 600);
+  });
   $("#locksheet").addEventListener("click", (e) => { if (e.target.id === "locksheet") $("#btn-ls-later").click(); });
 
   function afterNameSaved() {
@@ -11461,10 +11477,21 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if ((tries || 0) < 40) setTimeout(() => maybeAskLock((tries || 0) + 1), 1000);
       return;
     }
-    $("#ls-text").textContent = "Pick 3 secret emoji so you can play on other phones and the Home Screen app, and nobody else can use \u201c" + myUsername + "\u201d.";
-    $("#locksheet").hidden = false;
-    trackEv("lock_prompt_view");
+    openLockSheet("board");
   }
+  let lockFrom = "board";
+  function openLockSheet(from) {
+    lockFrom = from;
+    $("#ls-title").textContent = from === "install" ? "Lock in your name first 🔒" : "Lock in your name 🔒";
+    $("#ls-text").textContent = from === "install"
+      ? "The Home Screen app signs you in with your username and 3 secret emoji. Pick yours first."
+      : "Pick 3 secret emoji so you can play on other phones and the Home Screen app, and nobody else can use \u201c" + myUsername + "\u201d.";
+    $("#btn-ls-later").textContent = from === "install" ? "Not now" : "Later";
+    $("#locksheet").hidden = false;
+    trackEv("lock_prompt_view", { from: from });
+  }
+  // A name-first profile without emoji: the Home Screen app couldn't sign in, so install waits for the emoji.
+  const installNeedsLock = () => { try { return !!myUsername && !knownEmoji() && localStorage.getItem(LOCK_ASK_KEY) === "1"; } catch (e) { return false; } };
   function trackSoon(name, params, tries) {
     tries = tries || 0;
     if (window.MatchDB && window.MatchDB.analyticsOn) { trackEv(name, params); return; }
@@ -11625,6 +11652,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#ih-code").textContent = code;
   }
   function openInstall() {
+    if (installNeedsLock()) { openLockSheet("install"); return; }
     const kind = IN_APP ? "in_app" : IS_IOS ? "ios" : deferredInstall ? "prompt" : IS_MAC_SAFARI ? "mac_safari" :
       IS_SAMSUNG ? "samsung_steps" : IS_FIREFOX_ANDROID ? "firefox_steps" : "android_steps";
     trackEv("install_tap", { kind: kind });
@@ -13200,6 +13228,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
         }
         // Keep the cached name if the server read failed (offline) — don't blow
         // away a valid identity and bounce the player to the name screen.
+        // The nightly job released this name (never locked in, 7 days without playing): forget it here, pick a new one.
+        if (player && player.released && !player.username && (myUsername || storedName)) {
+          myUsername = null; storedName = ""; playerName = "";
+          try { localStorage.removeItem(SECRET_KEY); localStorage.removeItem(LOCK_ASK_KEY); } catch (e) {}
+          cacheProfile();
+          trackEv("name_released_seen");
+          leaveLoading(showNameScreen);
+          return;
+        }
         if (player && player.name) storedName = player.name;
         if (player && player.username) { myUsername = player.username; storedName = player.username; }
         if (player) myPlayer = player;
