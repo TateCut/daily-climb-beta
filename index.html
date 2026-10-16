@@ -2223,51 +2223,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .pc-frames i { width: 36px; height: 44px; border-radius: 7px; border: 2px solid #121212; }
   .pc-frames small { font-weight: 600; font-size: 0.64rem; color: var(--rd-muted); }
   .pc-share { margin: 4px 16px 14px; height: 48px; border-radius: 999px; flex: none; }
-  /* the player card, as page content (profile, customize sheet, a player's card from the leaderboard) */
-  .pcd { --fr: #121212; --bg: #fbe7cc; --top: #f4d3a6; --ink: #121212; --mut: #5a4a3c; --tile: #fff; --acc: #c25e08; --wm: #121212;
-    width: 100%; max-width: 320px; border: 3px solid var(--fr); border-radius: 20px; background: var(--bg); color: var(--ink); overflow: hidden; display: flex; flex-direction: column; text-align: left; flex: none; }
-  .pcd-tp { background: var(--top); border-bottom: 3px solid var(--fr); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 0; font-family: var(--slab); font-weight: 700; font-size: 0.95rem; color: var(--wm); }
-  .pcd-tp svg { width: 30px; height: auto; } .pcd-tp i { font-style: normal; color: var(--acc); }
-  .pcd-bd { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; }
-  .pcd-nm { font-family: var(--slab); font-weight: 700; font-size: 1.6rem; line-height: 1.05; overflow-wrap: anywhere; }
-  .pcd-ti { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; color: var(--acc); margin-top: -3px; text-transform: uppercase; }
-  .pcd-st { display: grid; grid-template-columns: 22px auto 1fr; align-items: center; gap: 6px; background: var(--tile); border: 2px solid var(--fr); border-radius: 11px; padding: 6px 9px; }
-  .pcd-st b { font-weight: 800; font-size: 0.95rem; font-variant-numeric: tabular-nums; } .pcd-st span:last-child { text-align: right; color: var(--mut); font-size: 0.7rem; font-weight: 600; }
-  #pf-cardbox { display: flex; justify-content: center; }
-  .pf-cardbtn { align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 18px; border-radius: 999px; border: 1.5px solid var(--hs-ink); background: none; color: var(--hs-ink); font: 700 0.84rem var(--franklin); cursor: pointer; }
-  .pf-cardtop { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-  .pf-cardtop .pf-since { text-align: center; }
-  #pcard-live { display: flex; justify-content: center; width: min(78vw, 300px); }
-  #pcard .pc-panel { max-height: calc(100vh - env(safe-area-inset-top, 0px) - 12px); max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 12px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  #pcard .pc-bar { position: sticky; top: 0; z-index: 2; background: var(--rd-sheet); border-radius: 20px 20px 0 0; }
-  #pcard .pc-opts { flex: none; min-height: 0; overflow: visible; }
-  #pcard .pc-share { position: sticky; bottom: 10px; z-index: 2; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
-  #pcard-live[hidden], #pcard-img[hidden] { display: none; }
-  .lb-np { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; min-width: 0; padding: 3px 10px; border-radius: 999px; border: 2px solid #121212;
-    background: #f4d3a6; color: #121212; font: 700 0.86rem var(--franklin); line-height: 1.25; cursor: pointer; text-align: left; }
-  span.lb-np { cursor: default; }
-  .lb-np .npt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-np svg { width: 10px; height: 13px; flex: none; }
-  .lb-np.np-night { background: #2b211a; border-color: #f0a04b; color: #f8f8f8; }
-  .lb-np.np-bronze { background: linear-gradient(135deg, #f0c8a0, #c58450 55%, #e9b98d); border-color: #9a5a2c; }
-  .lb-np.np-silver { background: linear-gradient(135deg, #f4f6f9, #b7bfca 55%, #e6eaf0); border-color: #6d7480; }
-  .lb-np.np-gold { background: linear-gradient(135deg, #fff3a8, #f6c90e 50%, #e2a800); border-color: #b88a00; }
-  .lb-np.np-summit { background: linear-gradient(90deg, #f6c90e, #e8871e, #c25e08); border-color: #121212; }
-  .lb-np.nmt { flex: 0 1 auto !important; overflow: visible; }
-  .pc-frames .lb-np { font-size: 0.74rem; padding: 2px 8px; }
-  .pc-np-prev { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; background: var(--rd-tint); margin-bottom: 4px; }
-  .pc-np-prev b { font-weight: 800; }
-  .lb-name.has-badge { display: flex; align-items: center; gap: 7px; min-width: 0; }
-  .lb-name.has-badge > .nmt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #daily-board-list .lb-name.has-share > .nmt { flex: 1; }
-  #wk-list .lb-row > .lb-name > .nmt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #wk-list .lb-row > .lb-name > .lb-np { margin-right: 4px; }
-  .pcd-st.pcd-new { animation: pcd-glow 0.7s ease-in-out 2; }
-  @keyframes pcd-glow { 50% { box-shadow: 0 0 0 4px #f6c90e; } }
-  .lb-cardlink { display: block; margin-top: 8px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: 800 0.82rem var(--franklin); cursor: pointer; text-align: left; }
-  .pcv-body { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 6px 16px 18px; }
-  .pcv-body .pcd { max-width: 340px; }
-  .pcv-close { height: 44px; min-width: 140px; border-radius: 999px; border: 1.5px solid var(--rd-ink); background: none; color: var(--rd-ink); font: 700 0.95rem var(--franklin); cursor: pointer; }
   /* the share sheet: your link card, Share (the link), and "Send as picture" */
   .sh-one { display: flex; flex-direction: column; gap: 14px; padding: 6px 16px 20px; }
   .sh-card1 { border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16); aspect-ratio: 1200 / 630; background: #f4d3a6; }
@@ -2628,11 +2583,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     <section id="screen-profile" hidden>
       <div class="scr-head"><button class="backpill" id="btn-profile-home" type="button"><span class="bp-ch" aria-hidden="true">&lsaquo;</span>Home</button><h2 class="scr-ttl">Profile</h2><span></span></div>
       <div class="pf-scroll" id="profile-scroll">
-        <div class="pf-cardtop">
-          <div id="pf-cardbox"></div>
-          <button class="pf-cardbtn" id="btn-pf-card" type="button">&#9999;&#65039; Customize card</button>
-          <p class="pf-since" id="pf-since"></p>
-          <span id="pf-av" hidden></span><span id="pf-name" hidden></span>
+        <div class="pf-who">
+          <div class="pf-av" id="pf-av"></div>
+          <div><h2 id="pf-name"></h2><p class="pf-since" id="pf-since"></p></div>
         </div>
         <div class="pf-card">
           <h3 class="pf-h">Streak</h3>
@@ -3289,16 +3242,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   <div class="pc-sheet" id="pcard" role="dialog" aria-modal="true" aria-label="Your card" hidden>
     <div class="pc-panel">
       <div class="pc-bar"><button class="pc-x" id="btn-pcard-x" type="button" aria-label="Close">&times;</button><b>Your card</b><span></span></div>
-      <div class="pc-prev"><img id="pcard-img" alt="Your Daily Climb card"><div id="pcard-live" hidden></div></div>
+      <div class="pc-prev"><img id="pcard-img" alt="Your Daily Climb card"></div>
       <div class="pc-tabs" id="pcard-tabs"><button type="button" data-tab="stats" class="on">Stats</button><button type="button" data-tab="title">Title</button><button type="button" data-tab="frame">Style</button></div>
       <div class="pc-opts" id="pcard-opts"></div>
       <button class="primary pc-share" id="btn-pcard-share" type="button">Share card</button>
-      <button class="primary pc-share" id="btn-pcard-done" type="button" hidden>Done</button>
-    </div>
-  </div>
-  <div class="pc-sheet" id="pcview" role="dialog" aria-modal="true" aria-label="Player card" hidden>
-    <div class="pc-panel">
-      <div class="pcv-body"><div id="pcview-card"></div><button class="pcv-close" id="btn-pcview-x" type="button">Close</button></div>
     </div>
   </div>
   <div class="tr-pop" id="trophy-pop" role="dialog" aria-modal="true" aria-labelledby="tr-pop-name" hidden>
@@ -3346,7 +3293,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T12:20:38-07:00","n":6,"notes":[{"note":"Summit pill without the flag","v":"0.16.1-beta.6"},{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"}],"v":"0.16.1-beta.6"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T13:44:30-07:00","n":7,"notes":[{"note":"Player cards shelved","v":"0.16.1-beta.7"},{"note":"Summit pill without the flag","v":"0.16.1-beta.6"},{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"}],"v":"0.16.1-beta.7"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3401,7 +3348,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (db.noFakes) return [];
     var r = seeded(String(day)), info = dayInfo(day), now = Date.now();
     return NAMES.map(function (n, i) {
-      var e = { cf: ["night", "gold", "sand", "bronze", "silver", "summit", "sand", "night"][i % 8], uid: "fake-" + i, name: n, total: 0, strikes: Math.floor(r() * 3), solveMs: Math.floor(90000 + r() * 900000),
+      var e = { uid: "fake-" + i, name: n, total: 0, strikes: Math.floor(r() * 3), solveMs: Math.floor(90000 + r() * 900000),
         hintUsed: r() < 0.5, roundWords: [], finishedAt: now - Math.floor(r() * 36e6) };
       if (info.ladders) {
         e.roundWords = info.ladders.map(function (ladder) {
@@ -3493,18 +3440,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     },
     sendFeedback: async function (text, meta) { db.feedback = db.feedback || []; db.feedback.push(Object.assign({ uid: UID, text: text, at: Date.now() }, meta)); save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
-    saveCard: async function (card) { player().card = card; save(); },
-    // the pretend players' cards: made up, the same every time
-    getCard: async function (id) {
-      if (id === UID) return { card: (db.player && db.player.card) || null, name: (db.player && db.player.name) || null };
-      var i = +String(id).replace("fake-", ""); if (isNaN(i)) return null;
-      var r = seeded("card|" + i), FR = ["night", "gold", "sand", "bronze", "silver", "summit", "sand", "night"], TI = ["Speed Climber", "Early Bird", "Flawless", "Night Owl", null, "Purist"];
-      var ST = [["\u{1F525}", function () { return (2 + Math.floor(r() * 30)) + " days"; }, "current streak"], ["\u{1F3D4}\uFE0F", function () { return String(1 + Math.floor(r() * 20)); }, "perfect days"],
-        ["\u{1F947}", function () { return String(Math.floor(r() * 9)); }, "daily wins"], ["\u{1F680}", function () { return "2:" + String(10 + Math.floor(r() * 49)); }, "fastest perfect day"],
-        ["\u{1F4C5}", function () { return String(5 + Math.floor(r() * 40)); }, "dailies climbed"], ["\u{1F3C5}", function () { return String(1 + Math.floor(r() * 15)); }, "podium finishes"]];
-      var pick = ST.slice().sort(function () { return r() - 0.5; }).slice(0, 3);
-      return { card: { frame: FR[i % FR.length], title: TI[i % TI.length], stats: pick.map(function (s) { return [s[0], s[1](), s[2]]; }) }, name: NAMES[i] || null };
-    },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
     createMatch: async function () { throw new Error("Not in the beta"); },
     getMatch: async function () { return null; },
@@ -3525,7 +3460,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     submitDaily: async function (day, r) {
       db.dailies[day] = Object.assign({ uid: UID, name: r.name || "Player", total: r.total || 0, strikes: r.strikes || 0, solveMs: r.solveMs || 0,
         hintUsed: !!r.hintUsed, roundWords: r.roundWords || [], finishedAt: Date.now() },
-        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {}, r.cf ? { cf: r.cf } : {});
+        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {});
       save();
     },
     getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
@@ -4067,14 +4002,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
       } catch (e) {}
     },
     // players/{uid}.shares = { native, copy, lastAt }: the Invite screen's Share / Copy (the stats page)
-    // players/{uid}.card: your player card as others see it ({frame, title, stats}).
-    async saveCard(card) {
-      if (!uid) return;
-      try { await setDoc(doc(db, "players", uid), { card: card }, { merge: true }); } catch (e) {}
-    },
-    async getCard(id) {
-      try { const snap = await getDoc(doc(db, "players", id)); if (!snap.exists()) return null; const d = snap.data(); return { card: d.card || null, name: d.username || d.name || null }; } catch (e) { return null; }
-    },
     async markShare(how) {
       if (!uid) return;
       try {
@@ -4271,7 +4198,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
         ...(r.twv ? { twv: r.twv } : {}),   // theme word list version (the nightly job's Oct 14 fix reads it)
         ...(Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}),   // each Climb's time (the share picture)
         ...(Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {}),   // Reveal word: ["<climb>:<word>"], worth no points
-        ...(typeof r.cf === "string" && r.cf.length <= 12 ? { cf: r.cf } : {}),   // player card style (the leaderboard badge)
       });
     },
     // dailies/{day}/progress/{uid} — where a player has got to in today's daily, updated as they
@@ -7318,12 +7244,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // words, the no-hint badge, their words) is in the row's tap-to-expand.
     const nm = document.createElement("div");
     nm.className = "lb-name";
-    if (e.uid) {
-      nm.classList.add("has-badge");
-      const t = namePill(e.uid, e.name, badgeFrame(e.uid, e.cf), shownName(e.name) + (isMe ? " (you)" : ""));
-      t.classList.add("nmt");
-      nm.append(t);
-    } else nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
+    nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
     const sc = document.createElement("div");
     sc.className = "lb-score";
     sc.textContent = newRules(boardTheme) ? entrantPoints(e) : (e.total || 0);
@@ -8921,7 +8842,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
           ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
           ...(newFormat(dailyTheme) ? { climbMs: Array.from({ length: 3 }, (_, i) => Math.round(climbMs[i] || 0)) } : {}),
           ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
-          cf: pcardPrefs().frame,   // your card's style, for your badge on the leaderboard
         });
         await window.MatchDB.bumpStreak(day, prevDay);
         ok = true;
@@ -9040,13 +8960,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const myName = list.querySelector('.lb-row.me .lb-name');
         if (myName && !myName.querySelector(".lb-share")) {
           const label = document.createElement("span");
-          label.className = "nmt";
-          label.textContent = (myName.querySelector(".nmt") || myName).textContent;
+          label.textContent = myName.textContent;
           const pill = document.createElement("button");
           pill.type = "button"; pill.className = "lb-share";
           pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>' + "Share";
           pill.addEventListener("click", (ev) => { ev.stopPropagation(); openShareSheet(); });   // not the row's tap
-          myName.replaceChildren(myName.querySelector(".lb-np") || label, pill);
+          myName.replaceChildren(label, pill);
           myName.classList.add("has-share");
         }
       }
@@ -9285,7 +9204,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   // Home's Weekly Leaderboard pill: your place this week underneath (through yesterday until you've played today).
   let homeWeekAt = 0, homeWeekKey = "";
-  let weekPlaceNow = 0;   // your place this week (0 = not on it), for the player card
   async function updateHomeWeekPlace() {
     const el = $("#home-week-place");
     if (!el || !dbReady() || !window.MatchDB) return;
@@ -9309,8 +9227,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       const me = window.MatchDB.uid;
       if (!pts.has(me)) { el.hidden = true; return; }
       const order = [...pts.keys()].sort((a, b) => (pts.get(b) - pts.get(a)) || (ms.get(a) - ms.get(b)));
-      weekPlaceNow = order.indexOf(me) + 1;
-      el.textContent = "You're " + ordinal(weekPlaceNow);
+      el.textContent = "You're " + ordinal(order.indexOf(me) + 1);
       el.hidden = false;
     } catch (e) {}
   }
@@ -9363,7 +9280,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
         if (!e.uid) return;
         const p = by.get(e.uid) || { uid: e.uid, name: e.name, pts: 0, ms: 0, days: [] };
         if (e.name) p.name = e.name;
-        if (e.cf) p.cf = e.cf;
         const pts = scoreForDay(k, e);
         p.pts += pts; p.ms += e.solveMs || 0;
         p.days[di] = { pts: pts, ms: e.solveMs || 0, place: idx + 1, e: e };
@@ -9384,9 +9300,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       row.innerHTML = '<div class="lb-rank"></div><div class="lb-name"></div><div class="lb-days"></div><div class="lb-score"></div><div class="lb-time"></div>';
       row.querySelector(".lb-rank").textContent = i + 1;
       const nm = row.querySelector(".lb-name");
-      let label;
-      if (r.uid) { label = namePill(r.uid, r.name, badgeFrame(r.uid, r.cf), shownName(r.name) + (r.uid === myUid ? " (you)" : "")); label.classList.add("nmt"); }
-      else { label = document.createElement("span"); label.className = "nmt"; label.textContent = shownName(r.name); }
+      const label = document.createElement("span");
+      label.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
       nm.appendChild(label);
       if (final && i < 3) { const tr = document.createElement("span"); tr.className = "wk-trophy t" + (i + 1); tr.textContent = "🏆"; tr.setAttribute("aria-label", ["Gold", "Silver", "Bronze"][i] + " trophy"); nm.appendChild(tr); }
       if (final && r.uid === myUid && played) {
@@ -9394,7 +9309,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         pill.type = "button"; pill.className = "lb-share";
         pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>';
         pill.setAttribute("aria-label", "Share your week");
-        setPillText(label, shownName(r.name));
+        label.textContent = shownName(r.name);
         const place = i + 1;
         pill.addEventListener("click", (ev) => { ev.stopPropagation(); openWeekShare(r, days, place, rows); });   // not the row's tap
         nm.appendChild(pill);
@@ -9940,7 +9855,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#btn-home-share").hidden = !(playedToday && newFormat(themedDay(today)));
     $("#btn-home-week").hidden = !dbReady();
     setTimeout(updateHomeWeekPlace, 0);
-    setTimeout(() => { try { if (myDailyLastDay) publishMyCard(myCardNow().card); } catch (e) {} }, 2500);
     meta.textContent = capFirst(dailyResetText()) + ".";
     $("#daily-compact-meta").textContent = "Completed — see today's standings";
     $("#next-daily").hidden = $("#next-daily-gap").hidden = !playedToday;
@@ -10693,148 +10607,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     x.textAlign = "center"; x.fillStyle = F.mut; x.font = "700 34px " + SN; x.fillText("thedailyclimb.com", W / 2, H - 62);
     return cv;
   }
-  // ===== Player cards on profiles =====
-  const CARD_LOGO = '<svg viewBox="0 -10 132 100" aria-hidden="true"><g stroke="#121212" stroke-width="5" stroke-linejoin="round"><path d="M4 84 L26 50 L50 84 Z" fill="#f6b46a"/><path d="M74 84 L102 36 L128 84 Z" fill="#f6b46a"/><path d="M28 84 L64 14 L102 84 Z" fill="#e8871e"/><path d="M64 14 L64 -6" fill="none"/><path d="M64 -6 L82 -1 L64 5 Z" fill="#f6c90e"/></g></svg>';
-  // card: { frame, title, stats: [[icon, value, label], ...] }
-  function cardEl(card, name) {
-    const F = PCARD_FRAMES.find((x) => x.id === (card && card.frame)) || PCARD_FRAMES[0];
-    const el = document.createElement("div");
-    el.className = "pcd";
-    const top = Array.isArray(F.top) ? "linear-gradient(90deg," + F.top.join(",") + ")" : F.top;
-    [["--fr", F.fr], ["--bg", F.bg], ["--top", top], ["--ink", F.ink], ["--mut", F.mut], ["--tile", F.tile], ["--acc", F.acc], ["--wm", F.id === "night" ? "#f8f8f8" : "#121212"]].forEach(([k, v]) => el.style.setProperty(k, v));
-    el.innerHTML = '<div class="pcd-tp">' + CARD_LOGO + '<span>Daily <i>Climb</i></span></div><div class="pcd-bd"><div class="pcd-nm"></div><div class="pcd-ti"></div></div>';
-    el.querySelector(".pcd-nm").textContent = shownName(name || "Climber");
-    const ti = el.querySelector(".pcd-ti");
-    if (card && card.title) ti.textContent = card.title; else ti.remove();
-    const bd = el.querySelector(".pcd-bd");
-    ((card && card.stats) || []).slice(0, 3).forEach((st) => {
-      const row = document.createElement("div"); row.className = "pcd-st";
-      [0, 1, 2].forEach((k) => { const x = document.createElement(k === 1 ? "b" : "span"); x.textContent = String(st[k] == null ? "" : st[k]).slice(0, 40); row.appendChild(x); });
-      bd.appendChild(row);
-    });
-    return el;
-  }
-  // What your card can say on your profile: the same stats as the share card, minus anything about one day.
-  function profileCardModel() {
-    const tr = evaluateTrophies(), entries = tr.entries, h = tr.have;
-    const fmt = entries.filter((e) => e.base >= FORMAT_DAY);
-    const fastest = fmt.filter((e) => isPerfect(e) && e.ms > 0).map((e) => e.ms);
-    const recent = fmt.filter((e) => e.base >= dayBase(shiftDayKey(dailyKeyOf(), -29)) && e.ms > 0);
-    const first = entries.length ? entries[0].base.split("-").map(Number) : null;
-    const stat = {
-      streak: [streakAlive() + (streakAlive() === 1 ? " day" : " days")],
-      longest: [h.streak + (h.streak === 1 ? " day" : " days")],
-      played: [String(h.days)],
-      best: fastest.length ? [fmtDuration(Math.min.apply(null, fastest))] : null,
-      avg: recent.length ? [fmtDuration(recent.reduce((a, e) => a + e.ms, 0) / recent.length)] : null,
-      week: weekPlaceNow ? [ordinal(weekPlaceNow)] : null,
-      month: null,
-      wins: [String(h.wins)], podium: [String(h.podium)], pdays: [String(h.summit)],
-      rate: h.days ? [Math.round(100 * h.summit / h.days) + "%"] : null,
-      forks: [String(entries.reduce((a, e) => a + (e.fk || 0), 0))],
-      trophies: [String(Object.keys(tr.earned).length)],
-      adv: [myBeatenSeeds.length + " / " + (CLIMBS.length || 746)],
-      since: first ? [new Date(first[0], first[1] - 1, 15).toLocaleDateString(undefined, { month: "short", year: "numeric" })] : null,
-    };
-    const titles = Object.keys(tr.earned).sort((a, b) => String(tr.earned[b]).localeCompare(String(tr.earned[a]))).map((id) => trophyInfo(id).name).filter(Boolean);
-    return { stat: stat, titles: titles, perfectDays: h.summit, name: myUsername || storedName || playerName || "Climber" };
-  }
-  // Your prefs, checked against what you've unlocked.
-  function cleanCardPrefs(p, m) {
-    p.on = p.on.filter((id) => m.stat[id]);
-    if (p.on.length < 3) ["streak", "pdays", "played", "longest", "wins", "podium"].forEach((id) => { if (p.on.length < 3 && m.stat[id] && p.on.indexOf(id) < 0) p.on.push(id); });
-    p.on = p.on.slice(0, 3);
-    if (p.title && m.titles.indexOf(p.title) < 0) p.title = null;
-    const F = PCARD_FRAMES.find((x) => x.id === p.frame);
-    if (!F || m.perfectDays < F.need) p.frame = "sand";
-    return p;
-  }
-  function cardFrom(p, m) {
-    const META = {}; PCARD_STATS.forEach((g) => g[1].forEach((st) => { META[st[0]] = st; }));
-    return { frame: p.frame, title: p.title || null, stats: p.on.filter((id) => m.stat[id] && META[id]).map((id) => [META[id][1], m.stat[id][0], META[id][2]]) };
-  }
-  const CARD_PUB_KEY = "dc.card.pub";
-  // Keep players/{uid}.card in step with your card (only writes when something changed).
-  function publishMyCard(card) {
-    if (!dbReady() || !window.MatchDB || !window.MatchDB.hasAuth || !window.MatchDB.saveCard) return;
-    const js = JSON.stringify(card);
-    let last = null; try { last = localStorage.getItem(CARD_PUB_KEY); } catch (e) {}
-    if (last === js) return;
-    try { localStorage.setItem(CARD_PUB_KEY, js); } catch (e) {}
-    window.MatchDB.saveCard(card).catch(() => {});
-  }
-  function myCardNow() { const m = profileCardModel(), p = cleanCardPrefs(pcardPrefs(), m); return { card: cardFrom(p, m), name: m.name }; }
-  function renderProfileCard() {
-    const box = $("#pf-cardbox"); if (!box) return;
-    const c = myCardNow();
-    box.replaceChildren(cardEl(c.card, c.name));
-    publishMyCard(c.card);
-  }
-  async function openCardCustomize() {
-    pcardMode = "profile";
-    pcardPrefsNow = pcardPrefs();
-    pcardModelNow = profileCardModel();
-    cleanCardPrefs(pcardPrefsNow, pcardModelNow);
-    pcardPrefsNow.tab = "stats";
-    $("#pcard .pc-bar b").textContent = "Your card";
-    $("#pcard-img").hidden = true; $("#pcard-live").hidden = false;
-    $("#btn-pcard-share").hidden = true; $("#btn-pcard-done").hidden = false;
-    $("#pcard").hidden = false;
-    pcardOptions();
-    await pcardRender();
-    countFeature("card");
-  }
-  // Someone's card, from the leaderboard.
-  const cardCache = new Map();
-  let cardViewTok = 0;
-  async function openPlayerCard(uid, name) {
-    const tok = ++cardViewTok, box = $("#pcview-card");
-    $("#pcview").hidden = false;
-    if (uid === (window.MatchDB && window.MatchDB.uid)) { const c = myCardNow(); box.replaceChildren(cardEl(c.card, c.name)); return; }
-    box.replaceChildren(cardEl({ frame: "sand", title: null, stats: [] }, name));
-    let got = cardCache.get(uid);
-    if (!got && window.MatchDB && window.MatchDB.getCard) { got = await window.MatchDB.getCard(uid); if (got) cardCache.set(uid, got); }
-    if (tok !== cardViewTok) return;
-    if (got && got.card) box.replaceChildren(cardEl(got.card, name || got.name));
-    countFeature("cardView");
-  }
-  function closePlayerCard() { cardViewTok++; $("#pcview").hidden = true; }
-  // "See Wren's card ›", at the end of a leaderboard row's details.
-  function cardLink(uid, name) {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "lb-cardlink";
-    b.textContent = uid === (window.MatchDB && window.MatchDB.uid) ? "See your card \u203A" : "See " + shownName(name || "their") + "\u2019s card \u203A";
-    b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
-    return b;
-  }
-  // A player's name on the leaderboard, as a pill in their card's style. Tap: their card. No uid: a sample (Style tab).
-  function namePill(uid, name, frame, label) {
-    const F = PCARD_FRAMES.find((x) => x.id === frame) || PCARD_FRAMES[0];
-    const b = document.createElement(uid ? "button" : "span");
-    if (uid) b.type = "button";
-    b.className = "lb-np np-" + F.id;
-    b.innerHTML = '<span class="npt"></span>';
-    b.querySelector(".npt").textContent = label != null ? label : shownName(name || "Player");
-    if (uid) {
-      b.setAttribute("aria-label", shownName(name || "Player") + "\u2019s card");
-      b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
-    }
-    return b;
-  }
-  const setPillText = (el, t) => { (el.querySelector(".npt") || el).textContent = t; };
-  const badgeFrame = (uid, cf) => (uid && uid === (window.MatchDB && window.MatchDB.uid) ? pcardPrefs().frame : cf);
-  let pcardJustAdded = null;
-  let pcardMode = "share";
   let pcardPrefsNow = null, pcardModelNow = null, pcardCanvas = null, pcardDrawTok = 0;
   async function pcardRender() {
-    if (pcardMode === "profile") {
-      const c = cardFrom(pcardPrefsNow, pcardModelNow);
-      $("#pcard-live").replaceChildren(cardEl(c, pcardModelNow.name));
-      const at = pcardJustAdded ? pcardPrefsNow.on.filter((id) => pcardModelNow.stat[id]).indexOf(pcardJustAdded) : -1;
-      pcardJustAdded = null;
-      if (at >= 0) { const rowEl = $("#pcard-live").querySelectorAll(".pcd-st")[at]; if (rowEl) rowEl.classList.add("pcd-new"); }
-      return;
-    }
     const tok = ++pcardDrawTok;
     const cv = await drawPcard(pcardModelNow, pcardPrefsNow);
     if (tok !== pcardDrawTok) return;
@@ -10852,10 +10626,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const h = document.createElement("div"); h.className = "pc-grp"; h.textContent = g; box.appendChild(h);
         const row = document.createElement("div"); row.className = "pc-chips";
         list.forEach(([id, e, lab]) => {
-          if (pcardMode === "profile" && id === "month") return;
           const i = p.on.indexOf(id), has = !!m.stat[id];
-          row.appendChild(chip(e + " " + lab, i >= 0, !has, () => {
-            if (i >= 0) p.on.splice(i, 1); else { if (p.on.length >= 3) p.on.shift(); p.on.push(id); pcardJustAdded = id; }
+          row.appendChild(chip(e + " " + lab, i >= 0, !has || (i < 0 && p.on.length >= 3), () => {
+            if (i >= 0) p.on.splice(i, 1); else if (p.on.length < 3) p.on.push(id);
             savePcardPrefs(p); pcardOptions(); pcardRender();
           }));
         });
@@ -10868,19 +10641,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!m.titles.length) { const n = document.createElement("p"); n.className = "pc-count"; n.textContent = "Earn trophies to unlock titles"; box.appendChild(n); }
       box.appendChild(row);
     } else {
-      if (pcardMode === "profile") {
-        const pv = document.createElement("div"); pv.className = "pc-np-prev";
-        const rk = document.createElement("b"); rk.textContent = weekPlaceNow || "1";
-        pv.append(rk, namePill(null, m.name, p.frame));
-        const cap = document.createElement("div"); cap.className = "pc-grp"; cap.textContent = "On the leaderboard";
-        box.append(cap, pv);
-      }
       const grid = document.createElement("div"); grid.className = "pc-frames";
       PCARD_FRAMES.forEach((F) => {
         const b = document.createElement("button"); b.type = "button"; b.className = p.frame === F.id ? "on" : "";
         const locked = m.perfectDays < F.need;
         b.disabled = locked;
-        b.append(namePill(null, F.name, F.id, (locked ? "\u{1F512} " : "") + F.name));
+        const sw = document.createElement("i"); sw.style.background = Array.isArray(F.top) ? "linear-gradient(135deg," + F.top.join(",") + ")" : F.top;
+        b.append(sw, (locked ? "\u{1F512} " : "") + F.name);
         if (locked) { const s = document.createElement("small"); s.textContent = F.need + " perfect days"; b.appendChild(s); }
         b.addEventListener("click", () => { p.frame = F.id; savePcardPrefs(p); pcardOptions(); pcardRender(); });
         grid.appendChild(b);
@@ -10890,10 +10657,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   async function openPcard() {
     if (!pcardCtx) return;
-    pcardMode = "share";
-    $("#pcard .pc-bar b").textContent = "Your card";
-    $("#pcard-img").hidden = false; $("#pcard-live").hidden = true;
-    $("#btn-pcard-share").hidden = false; $("#btn-pcard-done").hidden = true;
     pcardPrefsNow = pcardPrefs();
     pcardModelNow = await pcardModel();
     const p = pcardPrefsNow, m = pcardModelNow;
@@ -10908,7 +10671,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     await pcardRender();
     trackEv("share_card_open", {});
   }
-  function closePcard() { $("#pcard").hidden = true; if (pcardMode === "profile" && !screens.profile.hidden) renderProfileCard(); }
+  function closePcard() { $("#pcard").hidden = true; }
   async function sharePcard() {
     if (!pcardCanvas) return;
     const btn = $("#btn-pcard-share");
@@ -11365,11 +11128,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#btn-home-share").addEventListener("click", homeShare);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#share-sheet").hidden) closeShareSheet(); });
   $("#btn-pcard-x").addEventListener("click", closePcard);
-  $("#btn-pcard-done").addEventListener("click", closePcard);
-  $("#pcard").addEventListener("click", (e) => { if (e.target.id === "pcard") closePcard(); });
-  $("#btn-pf-card").addEventListener("click", openCardCustomize);
-  $("#btn-pcview-x").addEventListener("click", closePlayerCard);
-  $("#pcview").addEventListener("click", (e) => { if (e.target.id === "pcview") closePlayerCard(); });
   $("#pcard").addEventListener("click", (e) => { if (e.target === $("#pcard")) closePcard(); });
   $("#btn-pcard-share").addEventListener("click", sharePcard);
   $("#pcard-tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b && pcardPrefsNow) { pcardPrefsNow.tab = b.dataset.tab; pcardOptions(); } });
@@ -12898,7 +12656,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const name = myUsername || storedName || "Climber";
     $("#pf-av").textContent = [...name][0].toUpperCase();
     $("#pf-name").textContent = name;
-    renderProfileCard();
     const earnedIds = Object.keys(ev.earned).filter((id) => trophyInfo(id));
     const since = entries.length ? (() => { const p = entries[0].base.split("-").map(Number); return new Date(p[0], p[1] - 1, 1).toLocaleDateString(undefined, { month: "short", year: "numeric" }); })() : null;
     $("#pf-since").textContent = (since ? "Climbing since " + since + " · " : "") +
