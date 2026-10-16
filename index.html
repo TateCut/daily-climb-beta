@@ -792,6 +792,12 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   #fb-text { font-size: max(16px, 1rem); }   /* 16px+ so iPhone doesn't zoom in on focus */
   .hm-legal { display: block; padding: 10px 16px 12px; font-size: 0.78rem; font-weight: 600; color: var(--hs-muted, #6b5a48); text-decoration: underline; text-underline-offset: 2px; }
   .wl-legal { display: block; margin-top: 18px; text-align: center; font-size: 0.78rem; font-weight: 600; color: var(--hs-muted, #6b5a48); text-decoration: underline; text-underline-offset: 2px; }
+  .hs-signin { margin-top: 8px; margin-bottom: -4px; border: 0; background: none; color: var(--hs-muted, #6b5a48); font: 700 0.84rem var(--franklin); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 8px; }
+  .hs-signin[hidden] { display: none; }
+  .ss-body { display: flex; flex-direction: column; gap: 12px; padding: 22px 20px 24px; text-align: center; }
+  .ss-body h3 { margin: 0; font: 700 1.5rem var(--slab); }
+  .ss-body p { margin: 0; color: var(--rd-muted); font-size: 0.95rem; line-height: 1.45; }
+  .ss-body .primary { height: 48px; border-radius: 999px; }
   .nameinput {
     width: 100%;
     font: inherit;
@@ -1617,6 +1623,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .hts-bul { margin: 0; padding-left: 1.25em; display: flex; flex-direction: column; gap: 7px; font-size: 0.98rem; line-height: 1.4; }
   .hts .clb { color: var(--rd-climb); font-weight: 700; }
   .hts-gold { background: var(--rd-gold); color: var(--rd-gold-ink); padding: 0 4px; border-radius: 4px; }
+  #howto-card.compact .hts-dots, #howto-card.compact #btn-howto-back { visibility: hidden; }
   .hts-dots { display: flex; justify-content: center; gap: 12px; margin: 18px 0 14px; }
   .hts-dots i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--rd-muted); }
   .hts-dots i.on { background: var(--rd-ink); border-color: var(--rd-ink); }
@@ -2369,6 +2376,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         </div>
         <button class="primary" id="name-save" type="button">Next</button>
         <button class="linkbtn" id="btn-have-profile" type="button">I already play</button>
+        <button class="linkbtn" id="btn-name-later" type="button" hidden>Not now</button>
       </div>
       <div class="uname-done" id="uname-done" hidden>
         <h2 class="uname-done-title" id="uname-done-title"></h2>
@@ -2513,6 +2521,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="primary" id="btn-daily-play" type="button">Play</button>
         <p class="note" id="daily-meta" hidden></p>
       </div>
+      <button class="hs-signin" id="btn-home-signin" type="button" hidden>I already play</button>
       <button class="shelfrow hs-adv" id="btn-home-week" type="button" hidden>
         <span class="shelfrow-txt">
           <b>Weekly Leaderboard</b>
@@ -3242,6 +3251,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
     </div>
   </div>
   <!-- Trophy unlocked! (queued; shown on home / board / profile screens) -->
+  <div class="pc-sheet" id="savesheet" role="dialog" aria-modal="true" aria-labelledby="ss-title" hidden>
+    <div class="pc-panel"><div class="ss-body">
+      <h3 id="ss-title">Save your streak 🔥</h3>
+      <p>Pick a username to join the leaderboard and keep today's result.</p>
+      <button class="primary" id="btn-ss-go" type="button">Pick a username</button>
+      <button class="linkbtn" id="btn-ss-later" type="button">Not now</button>
+    </div></div>
+  </div>
   <div class="pc-sheet" id="share-sheet" role="dialog" aria-modal="true" aria-label="Share your Climb" hidden>
     <div class="pc-panel">
       <div class="pc-bar"><button class="pc-x" id="btn-share-x" type="button" aria-label="Close">&times;</button><b>Share your <span class="clb">Climb</span></b><span></span></div>
@@ -3306,7 +3323,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T14:32:12-07:00","n":10,"notes":[{"note":"Sources, funnel, privacy, previews","v":"0.16.1-beta.10"},{"note":"Pinch-zoom off","v":"0.16.1-beta.9"},{"note":"Launch quick fixes","v":"0.16.1-beta.8"},{"note":"Player cards shelved","v":"0.16.1-beta.7"},{"note":"Summit pill without the flag","v":"0.16.1-beta.6"}],"v":"0.16.1-beta.10"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T15:00:53-07:00","n":11,"notes":[{"note":"Play first, sign up later","v":"0.16.1-beta.11"},{"note":"Sources, funnel, privacy, previews","v":"0.16.1-beta.10"},{"note":"Pinch-zoom off","v":"0.16.1-beta.9"},{"note":"Launch quick fixes","v":"0.16.1-beta.8"},{"note":"Player cards shelved","v":"0.16.1-beta.7"}],"v":"0.16.1-beta.11"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -6574,6 +6591,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#uname-pick").hidden = false;
     $("#uname-done").hidden = true;
     $("#btn-have-profile").hidden = !claimable || !!myUsername;
+    $("#btn-name-later").hidden = !isGuest();
     $("#name-input").maxLength = claimable ? 16 : 24;
     $("#name-input").placeholder = claimable ? "e.g. summit_sam" : "Your name";
     $("#name-input").value = storedName || "";
@@ -6799,7 +6817,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#signin-go").addEventListener("click", signInGo);
   $("#signin-name").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); signInGo(); } });
   $("#signin-code").addEventListener("click", () => showRestoreScreen($("#signin-name").value.trim()));
-  $("#signin-back").addEventListener("click", showNameScreen);
+  $("#signin-back").addEventListener("click", () => (isGuest() ? goHome() : showNameScreen()));
+  $("#btn-home-signin").addEventListener("click", () => { trackEv("signin_start", { from: "home" }); showSignIn(); });
+  $("#btn-ss-go").addEventListener("click", () => { $("#savesheet").hidden = true; trackEv("save_prompt_go"); trackEv("signup_start", { from: "save" }); showNameScreen(); });
+  $("#btn-ss-later").addEventListener("click", () => { $("#savesheet").hidden = true; trackEv("save_prompt_later"); try { localStorage.setItem(SAVE_LATER_KEY, dailyKeyOf()); } catch (e) {} });
+  $("#savesheet").addEventListener("click", (e) => { if (e.target.id === "savesheet") $("#btn-ss-later").click(); });
+  $("#btn-name-later").addEventListener("click", goHome);
 
   function afterNameSaved() {
     afterNameSet();   // How to play shows the first time they tap Play
@@ -7175,7 +7198,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     pendingMatchCode = null;
     history.replaceState(null, "", location.pathname);
 
-    if (dbReady() && window.MatchDB.hasAuth && storedName) {
+    if (dbReady() && window.MatchDB.hasAuth && (storedName || isGuest())) {
       prefillNames(storedName);
       document.querySelectorAll(".tomenu").forEach((el) => { el.hidden = false; });
       renderResumeButton();
@@ -7279,7 +7302,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // words, the no-hint badge, their words) is in the row's tap-to-expand.
     const nm = document.createElement("div");
     nm.className = "lb-name";
-    nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
+    nm.textContent = e.guest ? "You" : shownName(e.name) + (isMe ? " (you)" : "");
     const sc = document.createElement("div");
     sc.className = "lb-score";
     sc.textContent = newRules(boardTheme) ? entrantPoints(e) : (e.total || 0);
@@ -8529,6 +8552,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let howtoStep = 0, howtoTok = null;
   function openHowto(inGame) {
     howtoInGame = !!inGame;
+    howtoCompact = !!inGame && !tutorialSeen;
     fillHowtoKey();
     showHowtoStep(0);
     if (inGame) {
@@ -8556,13 +8580,21 @@ $1{ display: flex; gap: 8px; width: 100%; }
       key.append(word, p);
     });
   }
+  // A brand-new player's first How to Play is one page (the rest is in the menu, and the game itself teaches it).
+  let howtoCompact = false;
   function showHowtoStep(i) {
     howtoStep = Math.max(0, Math.min(2, i));
+    $("#howto-card").classList.toggle("compact", howtoCompact);
+    const third = document.querySelector('#howto-card .hts-slide[data-i="0"] .hts-bul li:last-child');
+    if (third) {
+      if (!third.dataset.full) third.dataset.full = third.innerHTML;
+      third.innerHTML = howtoCompact ? "Theme words are worth 2 points." : third.dataset.full;
+    }
     document.querySelectorAll("#howto-card .hts-slide").forEach((el) => { el.hidden = +el.dataset.i !== howtoStep; });
     document.querySelectorAll("#howto-card .hts-dots i").forEach((d, k) => d.classList.toggle("on", k === howtoStep));
     $("#btn-howto-back").disabled = howtoStep === 0;
     const go = $("#btn-howto-go");
-    go.textContent = howtoStep < 2 ? "Next" : howtoInGame ? "Play" : "Got it";
+    go.textContent = howtoCompact ? "Play" : howtoStep < 2 ? "Next" : howtoInGame ? "Play" : "Got it";
     go.classList.toggle("last", howtoStep === 2);
     if (!$("#howto-card").hidden) runHowtoScene();
   }
@@ -8777,7 +8809,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   $("#btn-wn-done").addEventListener("click", () => closeWhatsNew("done"));
   window.DC_showWhatsNew = (kind) => { if (screens.home.hidden) goHome(); setTimeout(() => openWhatsNew(kind), 300); };   // beta: see it again ("week" for the weekly one)
-  $("#btn-howto-go").addEventListener("click", () => { if (howtoStep < 2) showHowtoStep(howtoStep + 1); else closeHowto(); });
+  $("#btn-howto-go").addEventListener("click", () => { if (howtoStep < 2 && !howtoCompact) showHowtoStep(howtoStep + 1); else closeHowto(); });
   $("#btn-howto-back").addEventListener("click", () => showHowtoStep(howtoStep - 1));
   $("#btn-howto-x").addEventListener("click", closeHowto);
   $("#howto-card").addEventListener("click", (e) => { if (e.target.id === "howto-card") closeHowto(); });
@@ -8874,6 +8906,20 @@ $1{ display: flex; gap: 8px; width: 100%; }
     setTodayResult(Object.assign({ t: totalRungs, s: sessionStrikes, ms: solveMs, h: helped, at: Date.now() },
       dailyTheme ? { m: dailyMax(), th: themeBonusSoFar(), tf: themeFound.slice(),
         tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played), fk: newFormat(dailyTheme) ? forksTaken() : null } : {}));
+    if (isGuest()) {   // play first, save after: keep the result on the phone until they pick a username
+      holdGuestResult(day, {
+        total: totalRungs, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords.map((w) => (w || []).slice()),
+        hintUsed: helped, ...(reveals.length ? { reveals: reveals } : {}),
+        ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
+        ...(newFormat(dailyTheme) ? { climbMs: Array.from({ length: 3 }, (_, i) => Math.round(climbMs[i] || 0)) } : {}),
+        ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
+      }, firstEver);
+      trackEv("daily_finish", { rungs: totalRungs, strikes: sessionStrikes, guest: 1 });
+      saveDailyProgress({ finished: true });
+      const held = Promise.resolve();
+      dailyPost = { day: day, p: held };
+      return held;
+    }
     const p = (async () => {
       trackEv("daily_finish", { rungs: totalRungs, strikes: sessionStrikes });
       saveDailyProgress({ finished: true });
@@ -8935,6 +8981,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     opts = opts || {};
     const myUid = window.MatchDB && window.MatchDB.uid;
     const dayT = themedDay(dayKey);
+    const ge = guestEntry(dayKey);
+    if (ge && !entrants.some((e) => e.uid === ge.uid)) entrants = entrants.concat([ge]);
     const done = entrants.map((e) => rescoreEntrant(e, dayT)).sort(cmpForDay(dayKey));
     $("#daily-board-head .h-score").textContent = newRulesOn(dayBase(dayKey)) ? "Points" : "Words";
     const list = $("#daily-board-list");
@@ -9645,6 +9693,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // if you finished on another device.
     if (dayKey === dailyKeyOf() && !isDev() && myDailyLastDay !== dailyKeyOf() && !opts.justFinished && !opts.finished) { dailyPlayClick(); return; }
     teardownDailyWatch();
+    if (dayKey === dailyKeyOf() && isGuest()) setTimeout(maybeAskSave, 1500);
     boardFocus = null;
     routesData = null; boardRouteClimb = 0;
     climbingBoard = { day: dayKey, list: null, at: 0 };
@@ -9877,6 +9926,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
   function renderDailyCard() {
     homeDayShown = dailyKeyOf();
+    heldDayCounts();
+    const guest = isGuest();
+    $("#btn-home-signin").hidden = !guest;
+    $("#btn-avatar").hidden = guest;
+    if (!guest && getPending()) setTimeout(postPendingResult, 0);
     updateAvatar();
     renderAdventureProgress();
     const btn = $("#btn-daily-play");
@@ -9919,6 +9973,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const today = dailyKeyOf();
     // Dev replay: skip the "already played" guards, always a fresh run.
     if (isDev()) { startDailySession(); return; }
+    heldDayCounts();
     if (myDailyLastDay === today) { showDailyBoard(today, { live: true }); return; }
     if (resumeState && resumeState.mode === "daily" && resumeState.dailyDay === today) { resumeGame(); return; }
     dailyPlayBusy = true;
@@ -11408,6 +11463,61 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let deferredInstall = null;   // Chrome's saved beforeinstallprompt event
   let installOpenedFrom = null; // element to return focus to when the sheet closes
   // Analytics loads a moment after the page: events sent right at start-up wait for it (up to about 15s).
+  // ===== Play first, save after =====
+  // A guest: no name yet on a game with usernames on. They play today's daily; the result waits on the phone until
+  // they pick a username (or sign in), then it's posted.
+  const isGuest = () => !storedName && !myUsername && canClaimUsername();
+  const PENDING_KEY = "dc.pending", SAVE_LATER_KEY = "dc.saveLater";
+  function getPending() { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "null"); } catch (e) { return null; } }
+  function holdGuestResult(day, payload, firstEver) {
+    try { localStorage.setItem(PENDING_KEY, JSON.stringify({ day: day, payload: payload, firstEver: !!firstEver, at: Date.now() })); } catch (e) {}
+    myDailyLastDay = day;
+    cacheProfile();
+    clearResume();
+    trackEv("guest_finish");
+  }
+  // The guest's own row on today's board (they aren't on the server yet).
+  function guestEntry(dayKey) {
+    const p = getPending(), uid = window.MatchDB && window.MatchDB.uid;
+    if (!p || p.day !== dayKey || !isGuest()) return null;
+    return Object.assign({}, p.payload, { uid: uid || "guest", name: "You", guest: true, finishedAt: p.at });
+  }
+  function heldDayCounts() {
+    const p = getPending();
+    if (p && p.day === dailyKeyOf() && myDailyLastDay !== p.day) myDailyLastDay = p.day;
+  }
+  function maybeAskSave(tries) {
+    if (!isGuest() || !$("#savesheet").hidden || screens.dailyboard.hidden) return;
+    if (!$("#trophy-pop").hidden || !$("#share-sheet").hidden || anySheetOpen()) {   // after the trophy pop-up, not on top of it
+      if ((tries || 0) < 40) setTimeout(() => maybeAskSave((tries || 0) + 1), 1000);
+      return;
+    }
+    const p = getPending(), today = dailyKeyOf();
+    if (!p || p.day !== today) return;
+    try { if (localStorage.getItem(SAVE_LATER_KEY) === today) return; } catch (e) {}
+    $("#savesheet").hidden = false;
+    trackEv("save_prompt_view");
+  }
+  let pendingPosting = false;
+  async function postPendingResult() {
+    const p = getPending();
+    if (!p || pendingPosting || isGuest() || !dbReady() || !window.MatchDB || !window.MatchDB.hasAuth) return;
+    // A day's board closes once it's over everywhere (the next day, midday UTC): an older result can't join it.
+    if (dayBase(p.day) < dayBase(shiftDayKey(dailyKeyOf(), -1))) { try { localStorage.removeItem(PENDING_KEY); } catch (e) {} return; }
+    pendingPosting = true;
+    try {
+      await window.MatchDB.submitDaily(p.day, Object.assign({}, p.payload, { name: myUsername || storedName || "Player" }));
+      await window.MatchDB.bumpStreak(p.day, shiftDayKey(p.day, -1));
+      if (p.firstEver) creditReferral();
+      saveSourceOnce();
+      try { localStorage.removeItem(PENDING_KEY); } catch (e) {}
+      const pl = await window.MatchDB.getPlayer();
+      if (pl) { myDailyStreak = pl.dailyStreak || 0; myDailyLastDay = pl.dailyLastDay || myDailyLastDay; myPlayer = pl; }
+      cacheProfile();
+      trackEv("guest_saved");
+      if (!screens.home.hidden) renderDailyCard();
+    } catch (e) {} finally { pendingPosting = false; }
+  }
   function trackSoon(name, params, tries) {
     tries = tries || 0;
     if (window.MatchDB && window.MatchDB.analyticsOn) { trackEv(name, params); return; }
@@ -13123,7 +13233,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       loadingSince = Date.now();
       // Safety net: never sit on the loader forever if auth never resolves.
       setTimeout(() => {
-        if (!screens.loading.hidden) show(storedName ? "home" : "landing");
+        if (!screens.loading.hidden) { if (storedName || canClaimUsername()) goHome(); else show("landing"); }
       }, 7000);
     } else {
       show("landing");
@@ -13150,7 +13260,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         if (MOVED) { showMoved(); return; }
         if (!storedName) {
           if (!screens.loading.hidden || !screens.landing.hidden || !screens.vsjoin.hidden) {
-            leaveLoading(showWelcome); // genuine first run — but don't yank someone mid-flow
+            leaveLoading(canClaimUsername() ? goHome : showWelcome); // genuine first run: straight to Home to play (sign up later)
           }
           return;
         }
