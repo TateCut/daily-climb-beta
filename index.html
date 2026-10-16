@@ -7,7 +7,8 @@
 // The Home Screen app gets full-screen sizing (see html.standalone in the styles).
 try { if (navigator.standalone || matchMedia("(display-mode: standalone)").matches) document.documentElement.classList.add("standalone"); } catch (e) {}
 </script>
-<title>Daily Climb</title>
+<title>Daily Climb · A new word puzzle every day</title>
+<link rel="canonical" href="https://thedailyclimb.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Zilla+Slab:wght@400;500;700&display=swap">
@@ -16,11 +17,17 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 <meta name="description" content="A daily word ladder: Climb one word at a time. On-theme words score extra. Three Climbs a day.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Daily Climb">
-<meta property="og:title" content="Daily Climb">
+<meta property="og:title" content="Daily Climb · A new word puzzle every day">
 <meta property="og:description" content="Climb one word at a time. On-theme words score extra. Three Climbs a day.">
 <meta property="og:url" content="https://thedailyclimb.com/">
-<meta property="og:image" content="https://thedailyclimb.com/icon-512.png">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://thedailyclimb.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Daily Climb: a word ladder climbing from RIDE to VERDICT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Daily Climb · A new word puzzle every day">
+<meta name="twitter:description" content="Climb one word at a time. On-theme words score extra. Three Climbs a day.">
+<meta name="twitter:image" content="https://thedailyclimb.com/og-image.png">
 <script>
   // Light mode unless the player picked dark (the moon on the home screen). Set before paint.
   try { if (localStorage.getItem("dc.theme") !== "dark") document.documentElement.classList.add("light"); }
@@ -783,6 +790,8 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
 
   html { touch-action: manipulation; }   /* no double-tap zoom on the tiles */
   #fb-text { font-size: max(16px, 1rem); }   /* 16px+ so iPhone doesn't zoom in on focus */
+  .hm-legal { display: block; padding: 10px 16px 12px; font-size: 0.78rem; font-weight: 600; color: var(--hs-muted, #6b5a48); text-decoration: underline; text-underline-offset: 2px; }
+  .wl-legal { display: block; margin-top: 18px; text-align: center; font-size: 0.78rem; font-weight: 600; color: var(--hs-muted, #6b5a48); text-decoration: underline; text-underline-offset: 2px; }
   .nameinput {
     width: 100%;
     font: inherit;
@@ -2376,6 +2385,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <button class="wl-choice lead" id="btn-wl-new" type="button"><span class="wl-ic" aria-hidden="true">✨</span><span class="wl-txt"><b>I'm new here</b><small>Pick a username and start climbing</small></span><span class="wl-chev" aria-hidden="true">›</span></button>
         <button class="wl-choice" id="btn-wl-signin" type="button"><span class="wl-ic" aria-hidden="true">👋</span><span class="wl-txt"><b>I already play</b><small>Sign in with your name and emoji</small></span><span class="wl-chev" aria-hidden="true">›</span></button>
       </div>
+      <a class="wl-legal" href="privacy.html">Privacy &amp; terms</a>
     </section>
 
     <!-- SECRET EMOJI — any 3, any order: a new profile's sign-in, switching
@@ -2412,7 +2422,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         <div class="em-grid" id="si-grid"></div>
         <p class="ustatus" id="signin-note" aria-live="polite"></p>
         <button class="primary" id="signin-go" type="button">Sign in</button>
-        <p class="note restore-help">Forgot your emoji? They're in your Profile on any device where you're signed in. Or email your username to<br><span class="uemail">tate.cutcliffe@gmail.com</span></p>
+        <p class="note restore-help">Forgot your emoji? They're in your Profile on any device where you're signed in. Or email your username to<br><span class="uemail">support@thedailyclimb.com</span></p>
         <button class="linkbtn" id="signin-code" type="button">Have an old recovery code?</button>
         <button class="linkbtn" id="signin-back" type="button">&lsaquo; I'm new here</button>
       </div>
@@ -2453,7 +2463,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           </ol>
         </div>
         <button class="primary" id="restore-go" type="button">Restore my profile</button>
-        <p class="note restore-help">Can't find it anywhere? Email your username to<br><span class="uemail">tate.cutcliffe@gmail.com</span></p>
+        <p class="note restore-help">Can't find it anywhere? Email your username to<br><span class="uemail">support@thedailyclimb.com</span></p>
         <button class="linkbtn" id="restore-back" type="button">&lsaquo; Back</button>
       </div>
       <div class="uname-done" id="restore-done" hidden>
@@ -2483,6 +2493,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           <button type="button" role="menuitemcheckbox" data-act="reminder" aria-checked="false" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 11V7.3a4 4 0 0 1 8 0V11l1.3 1.5H2.7z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6.6 14h2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Daily reminder<span class="hm-sw" aria-hidden="true"></span></button>
           <button type="button" role="menuitemcheckbox" data-act="dark" aria-checked="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Dark mode<span class="hm-sw" aria-hidden="true"></span></button>
           <button type="button" role="menuitemcheckbox" data-act="sound" aria-checked="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6h2.5l3.5-3v10L5 10H2.5Z" fill="currentColor"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Sound<span class="hm-sw" aria-hidden="true"></span></button>
+          <a class="hm-legal" href="privacy.html">Privacy &amp; terms</a>
         </div>
         <button class="icon-btn" id="btn-calendar" type="button" aria-label="Theme calendar" hidden><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6h11M4.5 1v3M9.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
         <div class="hs-top-r">
@@ -3142,7 +3153,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     </div>
     <div class="claim-done" id="claim-done" hidden>
       <h3 id="claim-done-title"></h3>
-      <p class="install-sub">Your streak is safe. Lost the app? Email your username to <span class="uemail">tate.cutcliffe@gmail.com</span> for your recovery code.</p>
+      <p class="install-sub">Your streak is safe. Lost the app? Email your username to <span class="uemail">support@thedailyclimb.com</span> for your recovery code.</p>
       <div class="install-actions"><button class="primary" id="btn-claim-done" type="button">Back to <span class="clb">Climbing</span></button></div>
     </div>
   </div>
@@ -3295,7 +3306,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T14:22:54-07:00","n":9,"notes":[{"note":"Pinch-zoom off","v":"0.16.1-beta.9"},{"note":"Launch quick fixes","v":"0.16.1-beta.8"},{"note":"Player cards shelved","v":"0.16.1-beta.7"},{"note":"Summit pill without the flag","v":"0.16.1-beta.6"},{"note":"Names as pills","v":"0.16.1-beta.5"}],"v":"0.16.1-beta.9"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T14:32:12-07:00","n":10,"notes":[{"note":"Sources, funnel, privacy, previews","v":"0.16.1-beta.10"},{"note":"Pinch-zoom off","v":"0.16.1-beta.9"},{"note":"Launch quick fixes","v":"0.16.1-beta.8"},{"note":"Player cards shelved","v":"0.16.1-beta.7"},{"note":"Summit pill without the flag","v":"0.16.1-beta.6"}],"v":"0.16.1-beta.10"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3441,6 +3452,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       save();
     },
     sendFeedback: async function (text, meta) { db.feedback = db.feedback || []; db.feedback.push(Object.assign({ uid: UID, text: text, at: Date.now() }, meta)); save(); },
+    saveSource: async function (src) { player().src = src; save(); },
     markShare: async function (how) { var p = player(); p.shares = p.shares || {}; p.shares[how] = (p.shares[how] || 0) + 1; save(); },
     markAdventureBeaten: async function (i) { var p = player(); p.adventureBeaten = p.adventureBeaten || []; if (p.adventureBeaten.indexOf(i) < 0) p.adventureBeaten.push(i); save(); },
     createMatch: async function () { throw new Error("Not in the beta"); },
@@ -3766,6 +3778,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     track(name, params) {
       if (!analytics) return;
       try { logEvent(analytics, name, params || {}); } catch (e) {}
+    },
+    get analyticsOn() { return !!analytics; },
+    // players/{uid}.src: where this player first came from (set once, at their first finish).
+    async saveSource(src) {
+      if (!uid || !src) return;
+      try { await setDoc(doc(db, "players", uid), { src: src }, { merge: true }); } catch (e) {}
     },
 
     // Calls cb(uid) once signed in; if auth isn't available, never fires.
@@ -6525,6 +6543,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         done(); return "fallback";
       }
       note.className = "ustatus bad";
+      if (e && e.code === "taken") trackEv("signup_name_taken");
       note.textContent = e && e.code === "taken"
         ? "✗ Someone has that name now. Go back and try another."
         : "Couldn't save that. Check your connection and try again.";
@@ -6579,15 +6598,17 @@ $1{ display: flex; gap: 8px; width: 100%; }
       afterNameSaved();
       return;
     }
+    trackEv("signup_name");
     showEmojiPick({ mode: "create", name: val, from: "name" });
   }
   // ---- The front door: a device that isn't signed in ----
   function showWelcome() {
     if (!canClaimUsername()) { showNameScreen(); return; } // profiles off: the plain-name flow
     show("welcome");
+    trackSoon("welcome_view");
   }
-  $("#btn-wl-new").addEventListener("click", showNameScreen);
-  $("#btn-wl-signin").addEventListener("click", () => showSignIn());
+  $("#btn-wl-new").addEventListener("click", () => { trackEv("signup_start"); showNameScreen(); });
+  $("#btn-wl-signin").addEventListener("click", () => { trackEv("signin_start"); showSignIn(); });
 
   // A tap-to-choose grid of the secret emoji: any 3 (tap again, or tap a slot, to drop one).
   function emojiPicker(grid, slots, onChange) {
@@ -6667,8 +6688,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
   $("#em-next").addEventListener("click", async () => {
     const f = emojiFlow, picked = emPicker.get(), note = $("#em-note"), btn = $("#em-next");
     if (picked.length < EMOJI_PICK || (f.mode === "create" && !f.name)) return;
-    if (!f.first) { f.first = picked; emPicker.clear(); drawEmojiStep(); return; }
+    if (!f.first) { f.first = picked; emPicker.clear(); drawEmojiStep(); if (f.mode === "create") trackEv("signup_emoji"); return; }
     if (!sameEmoji(picked, f.first)) {
+      if (f.mode === "create") trackEv("signup_emoji_mismatch");
       emPicker.shake(); emPicker.clear();
       note.className = "ustatus bad"; note.textContent = "Those don't match. Try again, or pick different emoji.";
       return;
@@ -6958,8 +6980,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   function movedMessage(text) {
     const m = $("#moved-msg");
     m.replaceChildren();
-    text.split(/(tate\.cutcliffe@gmail\.com)/).forEach((part) => {
-      if (part === "tate.cutcliffe@gmail.com") { const b = document.createElement("b"); b.textContent = part; m.appendChild(b); }
+    text.split(/(support@thedailyclimb.com)/).forEach((part) => {
+      if (part === "support@thedailyclimb.com") { const b = document.createElement("b"); b.textContent = part; m.appendChild(b); }
       else m.append(part);
     });
     m.hidden = false;
@@ -6975,7 +6997,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     trackEv("move_link_created");
     location.href = NEW_HOME + "#move=" + token;
   }
-  const MOVE_FALLBACK = "We couldn't move it automatically. On thedailyclimb.com, tap “I already have a profile” and enter your username and recovery code. Need your code? Email tate.cutcliffe@gmail.com.";
+  const MOVE_FALLBACK = "We couldn't move it automatically. On thedailyclimb.com, tap “I already have a profile” and enter your username and recovery code. Need your code? Email support@thedailyclimb.com.";
   // Players with a username: a fresh secret travels in the move link.
   async function movedBring() {
     const btn = $("#btn-moved-bring");
@@ -7009,7 +7031,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     try { await moveWithSecret(lastClaimCode.plain); }
     catch (e) {
       trackEv("move_link_failed", { reason: (e && e.code) || "unknown" });
-      movedMessage("Your username is saved, but the move didn't go through. On thedailyclimb.com, tap “I already have a profile”. Need your code? Email tate.cutcliffe@gmail.com.");
+      movedMessage("Your username is saved, but the move didn't go through. On thedailyclimb.com, tap “I already have a profile”. Need your code? Email support@thedailyclimb.com.");
     }
   }
   $("#btn-moved-bring").addEventListener("click", movedBring);
@@ -8580,6 +8602,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     $("#howto-card").hidden = true;
     if (howtoTok) howtoTok.dead = true;
     const firstTime = !tutorialSeen;
+    if (firstTime) trackEv("howto_done", { page: (typeof howtoStep === "number" ? howtoStep + 1 : 0) });
     tutorialSeen = true;
     if (firstTime) skipIntrosForNewPlayer();
     if (window.MatchDB && window.MatchDB.markTutorialSeen) window.MatchDB.markTutorialSeen();
@@ -8868,6 +8891,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         await window.MatchDB.bumpStreak(day, prevDay);
         ok = true;
         if (firstEver) creditReferral();
+        saveSourceOnce();
         const pl = await window.MatchDB.getPlayer();
         if (pl) { myDailyStreak = pl.dailyStreak || 0; myDailyLastDay = pl.dailyLastDay || null; myPlayer = pl; }
         cacheProfile();
@@ -11383,6 +11407,43 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const INSTALL_NUDGE_KEY = "three21.installNudged";
   let deferredInstall = null;   // Chrome's saved beforeinstallprompt event
   let installOpenedFrom = null; // element to return focus to when the sheet closes
+  // Analytics loads a moment after the page: events sent right at start-up wait for it (up to about 15s).
+  function trackSoon(name, params, tries) {
+    tries = tries || 0;
+    if (window.MatchDB && window.MatchDB.analyticsOn) { trackEv(name, params); return; }
+    if (tries < 15) setTimeout(() => trackSoon(name, params, tries + 1), 1000);
+  }
+  // Where this player first came from (first visit on this device only; later visits don't overwrite it).
+  const SRC_KEY = "dc.src";
+  function captureSource() {
+    try {
+      if (localStorage.getItem(SRC_KEY)) return;
+      const q = new URLSearchParams(location.search), clip = (v) => (v ? String(v).slice(0, 60) : "");
+      let ref = "";
+      try { const h = document.referrer ? new URL(document.referrer).hostname : ""; if (h && h !== location.hostname) ref = h.replace(/^www\./, ""); } catch (e) {}
+      const utm = clip(q.get("utm_source")), gclid = q.has("gclid"), fbclid = q.has("fbclid");
+      const source = utm || (gclid ? "google" : "") || (fbclid ? "facebook" : "") || (q.has("s") ? "share" : "") || (q.has("r") ? "invite" : "") || ref || "direct";
+      const medium = clip(q.get("utm_medium")) || (gclid ? "cpc" : "") || (fbclid ? "social" : "") || (q.has("s") ? "share" : "") || (q.has("r") ? "invite" : "") || (ref ? "referral" : "none");
+      const src = { source: source, medium: medium, day: dayBase(dailyKeyOf()) };
+      ["campaign", "content", "term"].forEach((k) => { const v = clip(q.get("utm_" + k)); if (v) src[k] = v; });
+      if (ref) src.ref = ref.slice(0, 60);
+      if (gclid) src.ad = "google"; else if (fbclid) src.ad = "meta";
+      localStorage.setItem(SRC_KEY, JSON.stringify(src));
+      trackSoon("campaign_details", { source: src.source, medium: src.medium, campaign: src.campaign || "(none)", content: src.content, term: src.term });
+      trackSoon("first_source", { source: src.source, medium: src.medium, campaign: src.campaign || "(none)" });
+    } catch (e) {}
+  }
+  // At the first finish: the source goes onto the player record (for the stats page).
+  function saveSourceOnce() {
+    try {
+      const src = JSON.parse(localStorage.getItem(SRC_KEY) || "null");
+      if (src && !src.saved && window.MatchDB && window.MatchDB.saveSource) {
+        const { saved, ...clean } = src;
+        window.MatchDB.saveSource(clean);
+        src.saved = 1; localStorage.setItem(SRC_KEY, JSON.stringify(src));
+      }
+    } catch (e) {}
+  }
   function trackEv(name, params) { try { if (window.MatchDB && window.MatchDB.track) window.MatchDB.track(name, params); } catch (e) {} }
   function isStandalone() {
     try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; }
@@ -12648,7 +12709,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       ? "This browser needs your secret emoji (or recovery code) one more time to stay signed in as " + myUsername + ". Your progress comes with you."
       : emo ? "On another phone, browser or the Home Screen app, tap \u201cI already play\u201d, then enter " + myUsername + " and these emoji."
       : code ? "On another device, tap \u201cI already play\u201d, then \u201cHave an old recovery code?\u201d, and enter " + myUsername + " with this code. Or switch to secret emoji, which are easier to remember."
-      : "On another device, tap \u201cI already play\u201d. Forgot how you sign in? Email tate.cutcliffe@gmail.com.";
+      : "On another device, tap \u201cI already play\u201d. Forgot how you sign in? Email support@thedailyclimb.com.";
     const b = $("#pf-code");
     b.dataset.code = code || "";
     b.textContent = maskSecret(code);
@@ -13002,6 +13063,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
 
     // Dev replay switch: ?dev=1 turns on unlimited Game-of-the-Day replays for
     // this device (persisted), ?dev=0 turns it back off. Users never see it.
+    captureSource();
     try {
       const q = new URLSearchParams(location.search);
       // From a shared link (share.thedailyclimb.com sends people here with ?s=<id>): count it, then tidy the address.
