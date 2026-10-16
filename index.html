@@ -2243,6 +2243,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #pcard .pc-opts { flex: none; min-height: 0; overflow: visible; }
   #pcard .pc-share { position: sticky; bottom: 10px; z-index: 2; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
   #pcard-live[hidden], #pcard-img[hidden] { display: none; }
+  .lb-badge { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--fr, #121212); background: var(--top, #f4d3a6); color: var(--wm, #121212);
+    display: inline-grid; place-items: center; font: 800 0.66rem var(--franklin); padding: 0; cursor: pointer; line-height: 1; }
+  .lb-name.has-badge { display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .lb-name.has-badge > .nmt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #daily-board-list .lb-name.has-share > .nmt { flex: 1; }
+  #wk-list .lb-row > .lb-name > .nmt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #wk-list .lb-row > .lb-name > .lb-badge { overflow: visible; margin-right: 6px; }
+  .pcd-st.pcd-new { animation: pcd-glow 0.7s ease-in-out 2; }
+  @keyframes pcd-glow { 50% { box-shadow: 0 0 0 4px #f6c90e; } }
   .lb-cardlink { display: block; margin-top: 8px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: 800 0.82rem var(--franklin); cursor: pointer; text-align: left; }
   .pcv-body { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 6px 16px 18px; }
   .pcv-body .pcd { max-width: 340px; }
@@ -3325,7 +3334,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T11:43:08-07:00","n":3,"notes":[{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.3"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T11:50:59-07:00","n":4,"notes":[{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.4"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3380,7 +3389,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (db.noFakes) return [];
     var r = seeded(String(day)), info = dayInfo(day), now = Date.now();
     return NAMES.map(function (n, i) {
-      var e = { uid: "fake-" + i, name: n, total: 0, strikes: Math.floor(r() * 3), solveMs: Math.floor(90000 + r() * 900000),
+      var e = { cf: ["night", "gold", "sand", "bronze", "silver", "summit", "sand", "night"][i % 8], uid: "fake-" + i, name: n, total: 0, strikes: Math.floor(r() * 3), solveMs: Math.floor(90000 + r() * 900000),
         hintUsed: r() < 0.5, roundWords: [], finishedAt: now - Math.floor(r() * 36e6) };
       if (info.ladders) {
         e.roundWords = info.ladders.map(function (ladder) {
@@ -3504,7 +3513,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     submitDaily: async function (day, r) {
       db.dailies[day] = Object.assign({ uid: UID, name: r.name || "Player", total: r.total || 0, strikes: r.strikes || 0, solveMs: r.solveMs || 0,
         hintUsed: !!r.hintUsed, roundWords: r.roundWords || [], finishedAt: Date.now() },
-        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {});
+        r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {}, r.cf ? { cf: r.cf } : {});
       save();
     },
     getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
@@ -4250,6 +4259,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         ...(r.twv ? { twv: r.twv } : {}),   // theme word list version (the nightly job's Oct 14 fix reads it)
         ...(Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}),   // each Climb's time (the share picture)
         ...(Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {}),   // Reveal word: ["<climb>:<word>"], worth no points
+        ...(typeof r.cf === "string" && r.cf.length <= 12 ? { cf: r.cf } : {}),   // player card style (the leaderboard badge)
       });
     },
     // dailies/{day}/progress/{uid} — where a player has got to in today's daily, updated as they
@@ -7296,7 +7306,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // words, the no-hint badge, their words) is in the row's tap-to-expand.
     const nm = document.createElement("div");
     nm.className = "lb-name";
-    nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
+    if (e.uid) {
+      nm.classList.add("has-badge");
+      const t = document.createElement("span"); t.className = "nmt"; t.textContent = shownName(e.name) + (isMe ? " (you)" : "");
+      nm.append(cardBadge(e.uid, e.name, badgeFrame(e.uid, e.cf)), t);
+    } else nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
     const sc = document.createElement("div");
     sc.className = "lb-score";
     sc.textContent = newRules(boardTheme) ? entrantPoints(e) : (e.total || 0);
@@ -8894,6 +8908,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
           ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
           ...(newFormat(dailyTheme) ? { climbMs: Array.from({ length: 3 }, (_, i) => Math.round(climbMs[i] || 0)) } : {}),
           ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
+          cf: pcardPrefs().frame,   // your card's style, for your badge on the leaderboard
         });
         await window.MatchDB.bumpStreak(day, prevDay);
         ok = true;
@@ -9012,12 +9027,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const myName = list.querySelector('.lb-row.me .lb-name');
         if (myName && !myName.querySelector(".lb-share")) {
           const label = document.createElement("span");
-          label.textContent = myName.textContent;
+          label.className = "nmt";
+          label.textContent = (myName.querySelector(".nmt") || myName).textContent;
+          const myBadge = myName.querySelector(".lb-badge");
           const pill = document.createElement("button");
           pill.type = "button"; pill.className = "lb-share";
           pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>' + "Share";
           pill.addEventListener("click", (ev) => { ev.stopPropagation(); openShareSheet(); });   // not the row's tap
-          myName.replaceChildren(label, pill);
+          myName.replaceChildren(...(myBadge ? [myBadge] : []), label, pill);
           myName.classList.add("has-share");
         }
       }
@@ -9334,6 +9351,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         if (!e.uid) return;
         const p = by.get(e.uid) || { uid: e.uid, name: e.name, pts: 0, ms: 0, days: [] };
         if (e.name) p.name = e.name;
+        if (e.cf) p.cf = e.cf;
         const pts = scoreForDay(k, e);
         p.pts += pts; p.ms += e.solveMs || 0;
         p.days[di] = { pts: pts, ms: e.solveMs || 0, place: idx + 1, e: e };
@@ -9355,7 +9373,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       row.querySelector(".lb-rank").textContent = i + 1;
       const nm = row.querySelector(".lb-name");
       const label = document.createElement("span");
+      label.className = "nmt";
       label.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
+      if (r.uid) nm.appendChild(cardBadge(r.uid, r.name, badgeFrame(r.uid, r.cf)));
       nm.appendChild(label);
       if (final && i < 3) { const tr = document.createElement("span"); tr.className = "wk-trophy t" + (i + 1); tr.textContent = "🏆"; tr.setAttribute("aria-label", ["Gold", "Silver", "Bronze"][i] + " trophy"); nm.appendChild(tr); }
       if (final && r.uid === myUid && played) {
@@ -9425,7 +9445,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
       } else line.querySelector(".p").textContent = "–";
       d.appendChild(line);
     });
-    if (r.uid) d.appendChild(cardLink(r.uid, r.name));
     row.after(d);
   }
   $("#daily-board-scope").addEventListener("click", (e) => { const b = e.target.closest("button[data-scope]"); if (b && b.dataset.scope !== boardScope) { setBoardScope(b.dataset.scope); if (b.dataset.scope === "week") countFeature("week"); } });
@@ -10777,12 +10796,30 @@ $1{ display: flex; gap: 8px; width: 100%; }
     b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
     return b;
   }
+  // A player's badge on the leaderboard: their initial in their card's style. Tap: their card.
+  function cardBadge(uid, name, frame) {
+    const F = PCARD_FRAMES.find((x) => x.id === frame) || PCARD_FRAMES[0];
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "lb-badge";
+    b.style.setProperty("--fr", F.fr);
+    b.style.setProperty("--top", Array.isArray(F.top) ? "linear-gradient(135deg," + F.top.join(",") + ")" : F.top);
+    b.style.setProperty("--wm", F.id === "night" ? "#f8f8f8" : "#121212");
+    b.textContent = ([...shownName(name || "?")][0] || "?").toUpperCase();
+    b.setAttribute("aria-label", shownName(name || "Player") + "\u2019s card");
+    b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
+    return b;
+  }
+  const badgeFrame = (uid, cf) => (uid && uid === (window.MatchDB && window.MatchDB.uid) ? pcardPrefs().frame : cf);
+  let pcardJustAdded = null;
   let pcardMode = "share";
   let pcardPrefsNow = null, pcardModelNow = null, pcardCanvas = null, pcardDrawTok = 0;
   async function pcardRender() {
     if (pcardMode === "profile") {
       const c = cardFrom(pcardPrefsNow, pcardModelNow);
       $("#pcard-live").replaceChildren(cardEl(c, pcardModelNow.name));
+      const at = pcardJustAdded ? pcardPrefsNow.on.filter((id) => pcardModelNow.stat[id]).indexOf(pcardJustAdded) : -1;
+      pcardJustAdded = null;
+      if (at >= 0) { const rowEl = $("#pcard-live").querySelectorAll(".pcd-st")[at]; if (rowEl) rowEl.classList.add("pcd-new"); }
       return;
     }
     const tok = ++pcardDrawTok;
@@ -10804,8 +10841,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
         list.forEach(([id, e, lab]) => {
           if (pcardMode === "profile" && id === "month") return;
           const i = p.on.indexOf(id), has = !!m.stat[id];
-          row.appendChild(chip(e + " " + lab, i >= 0, !has || (i < 0 && p.on.length >= 3), () => {
-            if (i >= 0) p.on.splice(i, 1); else if (p.on.length < 3) p.on.push(id);
+          row.appendChild(chip(e + " " + lab, i >= 0, !has, () => {
+            if (i >= 0) p.on.splice(i, 1); else { if (p.on.length >= 3) p.on.shift(); p.on.push(id); pcardJustAdded = id; }
             savePcardPrefs(p); pcardOptions(); pcardRender();
           }));
         });
@@ -10987,7 +11024,6 @@ $1{ display: flex; gap: 8px; width: 100%; }
     rounds.className = "rounds";
     renderRoundsBlock(rounds, e.roundWords || [], theme, (e.roundWords || []).map((_, i) => entrantReveals(e, i)));
     d.appendChild(rounds);
-    if (e.uid) d.appendChild(cardLink(e.uid, e.name));
     row.after(d);
   }
 
