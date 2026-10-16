@@ -3319,7 +3319,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T16:32:32-07:00","n":17,"notes":[{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"},{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"}],"v":"0.16.1-beta.17"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T16:35:05-07:00","n":18,"notes":[{"note":"Faster first load","v":"0.16.1-beta.18"},{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"},{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"}],"v":"0.16.1-beta.18"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3347,6 +3347,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!Array.isArray(fr)) fr = String(fr).split(/\s+/);
       fr.forEach(function (w) { fakeEveryday[w] = 1; });
       raw.forEach(function (w) { if (w.length < 4) return; var k = w.split("").sort().join(""); (fakeAna[k] = fakeAna[k] || []).push(w); });
+      if (!raw.length) { var early = fakeAna; fakeAna = null; var a0 = early[word.split("").sort().join("")] || [word]; return a0; }
     }
     var all = fakeAna[word.split("").sort().join("")] || [word];
     var common = all.filter(function (w) { return fakeEveryday[w]; });
@@ -4320,13 +4321,13 @@ $1{ display: flex; gap: 8px; width: 100%; }
   };
 </script>
 <script src="freq.js"></script>
-<script src="words.js"></script>
+<script src="words.js" async onerror="window.THREE21_WORDS_FAILED = true"></script>
 <script src="climbs.js"></script>
 <script src="daily-calendar.js"></script>
 <script src="theme-words.js"></script>
 <script>
 (function () {
-  const RAW = window.THREE21_WORDS || [];
+  let RAW = window.THREE21_WORDS || [];   // words.js loads in the background; set again once it's here
   const FREQ_RAW = window.THREE21_FREQ || [];
   const CLIMBS = window.THREE21_CLIMBS || []; // { c:[6 words 3..8], a:[5 added letters] }
   const $ = (s) => document.querySelector(s);
@@ -4669,8 +4670,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let tutorialSeen = false; // players/{uid}.tutorialSeen, or the localStorage fallback
   let pendingMatchCode = null;
 
-  let WORD_SET = null;
-  let ANA = null;          // sorted-letters key -> array of words with those letters
+  let WORD_SET = new Set();   // empty until the word list arrives (buildIndex)
+  let ANA = new Map();       // sorted-letters key -> array of words with those letters
   let FREQ = null;         // word -> frequency rank (lower = more common)
   let WORDS3 = [];
 
@@ -13376,7 +13377,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
         .catch(() => {});
     }
 
-    setTimeout(() => {
+    const whenWords = () => {
+      RAW = window.THREE21_WORDS || [];
+      if (!RAW.length && !window.THREE21_WORDS_FAILED) { setTimeout(whenWords, 50); return; }
       if (!RAW.length) {
         $("#load-note").textContent = "Could not load the dictionary file.";
         return;
@@ -13386,7 +13389,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
       $("#btn-start").disabled = false;
       $("#btn-start").textContent = "Start";
       $("#load-note").textContent = WORD_SET.size.toLocaleString() + " words ready.";
-    }, 50);
+    };
+    setTimeout(whenWords, 50);
   });
 })();
 </script>
