@@ -3319,7 +3319,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T15:50:33-07:00","n":15,"notes":[{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"},{"note":"Shorter theme-word tip","v":"0.16.1-beta.12"},{"note":"Play first, sign up later","v":"0.16.1-beta.11"}],"v":"0.16.1-beta.15"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T16:07:58-07:00","n":16,"notes":[{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"},{"note":"Shorter theme-word tip","v":"0.16.1-beta.12"}],"v":"0.16.1-beta.16"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -6383,10 +6383,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
   }
   // How a player's name shows to everyone else.
   const shownName = (n, fallback) => (n && nameIsBlocked(n) ? "Climber" : (n || fallback || "?"));
+  // Names nobody can claim. The same list is in the Firestore rules (daily-climb-beta-tools/firestore.rules).
+  const RESERVED_NAMES = ["admin", "administrator", "official", "support", "help", "moderator", "mod", "staff", "team",
+    "system", "root", "owner", "dev", "developer", "tate", "climber", "player", "anonymous", "null", "undefined", "beta",
+    "dailyclimb", "daily.climb", "thedailyclimb", "the.daily.climb"];
+  function nameReserved(v) {
+    const k = String(v).trim().toLowerCase().replace(/ +/g, ".");
+    return RESERVED_NAMES.includes(k) || /^(the[._]?)?(daily[._]?climb|admin|official|support|moderator|staff)([._0-9].*)?$/.test(k);
+  }
   // A new username: the format first, then the filter.
   function usernameProblem(v) {
     if (!USERNAME_RE.test(v)) return USERNAME_BAD;
-    if (nameIsBlocked(v)) return "That name isn't allowed. Try another.";
+    if (nameIsBlocked(v) || nameReserved(v)) return "That name isn't allowed. Try another.";
     return "";
   }
   // Recovery codes: WORD-WORD-1234 from 128 plain words (~27 bits); guessing
