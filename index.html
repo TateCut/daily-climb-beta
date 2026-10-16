@@ -2243,13 +2243,25 @@ $1{ display: flex; gap: 8px; width: 100%; }
   #pcard .pc-opts { flex: none; min-height: 0; overflow: visible; }
   #pcard .pc-share { position: sticky; bottom: 10px; z-index: 2; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
   #pcard-live[hidden], #pcard-img[hidden] { display: none; }
-  .lb-badge { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--fr, #121212); background: var(--top, #f4d3a6); color: var(--wm, #121212);
-    display: inline-grid; place-items: center; font: 800 0.66rem var(--franklin); padding: 0; cursor: pointer; line-height: 1; }
+  .lb-np { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; min-width: 0; padding: 3px 10px; border-radius: 999px; border: 2px solid #121212;
+    background: #f4d3a6; color: #121212; font: 700 0.86rem var(--franklin); line-height: 1.25; cursor: pointer; text-align: left; }
+  span.lb-np { cursor: default; }
+  .lb-np .npt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-np svg { width: 10px; height: 13px; flex: none; }
+  .lb-np.np-night { background: #2b211a; border-color: #f0a04b; color: #f8f8f8; }
+  .lb-np.np-bronze { background: linear-gradient(135deg, #f0c8a0, #c58450 55%, #e9b98d); border-color: #9a5a2c; }
+  .lb-np.np-silver { background: linear-gradient(135deg, #f4f6f9, #b7bfca 55%, #e6eaf0); border-color: #6d7480; }
+  .lb-np.np-gold { background: linear-gradient(135deg, #fff3a8, #f6c90e 50%, #e2a800); border-color: #b88a00; }
+  .lb-np.np-summit { background: linear-gradient(90deg, #f6c90e, #e8871e, #c25e08); border-color: #121212; }
+  .lb-np.nmt { flex: 0 1 auto !important; overflow: visible; }
+  .pc-frames .lb-np { font-size: 0.74rem; padding: 2px 8px; }
+  .pc-np-prev { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; background: var(--rd-tint); margin-bottom: 4px; }
+  .pc-np-prev b { font-weight: 800; }
   .lb-name.has-badge { display: flex; align-items: center; gap: 7px; min-width: 0; }
   .lb-name.has-badge > .nmt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #daily-board-list .lb-name.has-share > .nmt { flex: 1; }
   #wk-list .lb-row > .lb-name > .nmt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #wk-list .lb-row > .lb-name > .lb-badge { overflow: visible; margin-right: 6px; }
+  #wk-list .lb-row > .lb-name > .lb-np { margin-right: 4px; }
   .pcd-st.pcd-new { animation: pcd-glow 0.7s ease-in-out 2; }
   @keyframes pcd-glow { 50% { box-shadow: 0 0 0 4px #f6c90e; } }
   .lb-cardlink { display: block; margin-top: 8px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: 800 0.82rem var(--franklin); cursor: pointer; text-align: left; }
@@ -3334,7 +3346,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T11:50:59-07:00","n":4,"notes":[{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.4"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T12:15:27-07:00","n":5,"notes":[{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"}],"v":"0.16.1-beta.5"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -7308,8 +7320,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
     nm.className = "lb-name";
     if (e.uid) {
       nm.classList.add("has-badge");
-      const t = document.createElement("span"); t.className = "nmt"; t.textContent = shownName(e.name) + (isMe ? " (you)" : "");
-      nm.append(cardBadge(e.uid, e.name, badgeFrame(e.uid, e.cf)), t);
+      const t = namePill(e.uid, e.name, badgeFrame(e.uid, e.cf), shownName(e.name) + (isMe ? " (you)" : ""));
+      t.classList.add("nmt");
+      nm.append(t);
     } else nm.textContent = shownName(e.name) + (isMe ? " (you)" : "");
     const sc = document.createElement("div");
     sc.className = "lb-score";
@@ -9029,12 +9042,11 @@ $1{ display: flex; gap: 8px; width: 100%; }
           const label = document.createElement("span");
           label.className = "nmt";
           label.textContent = (myName.querySelector(".nmt") || myName).textContent;
-          const myBadge = myName.querySelector(".lb-badge");
           const pill = document.createElement("button");
           pill.type = "button"; pill.className = "lb-share";
           pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>' + "Share";
           pill.addEventListener("click", (ev) => { ev.stopPropagation(); openShareSheet(); });   // not the row's tap
-          myName.replaceChildren(...(myBadge ? [myBadge] : []), label, pill);
+          myName.replaceChildren(myName.querySelector(".lb-np") || label, pill);
           myName.classList.add("has-share");
         }
       }
@@ -9372,10 +9384,9 @@ $1{ display: flex; gap: 8px; width: 100%; }
       row.innerHTML = '<div class="lb-rank"></div><div class="lb-name"></div><div class="lb-days"></div><div class="lb-score"></div><div class="lb-time"></div>';
       row.querySelector(".lb-rank").textContent = i + 1;
       const nm = row.querySelector(".lb-name");
-      const label = document.createElement("span");
-      label.className = "nmt";
-      label.textContent = shownName(r.name) + (r.uid === myUid ? " (you)" : "");
-      if (r.uid) nm.appendChild(cardBadge(r.uid, r.name, badgeFrame(r.uid, r.cf)));
+      let label;
+      if (r.uid) { label = namePill(r.uid, r.name, badgeFrame(r.uid, r.cf), shownName(r.name) + (r.uid === myUid ? " (you)" : "")); label.classList.add("nmt"); }
+      else { label = document.createElement("span"); label.className = "nmt"; label.textContent = shownName(r.name); }
       nm.appendChild(label);
       if (final && i < 3) { const tr = document.createElement("span"); tr.className = "wk-trophy t" + (i + 1); tr.textContent = "🏆"; tr.setAttribute("aria-label", ["Gold", "Silver", "Bronze"][i] + " trophy"); nm.appendChild(tr); }
       if (final && r.uid === myUid && played) {
@@ -9383,7 +9394,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         pill.type = "button"; pill.className = "lb-share";
         pill.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/></svg>';
         pill.setAttribute("aria-label", "Share your week");
-        label.textContent = shownName(r.name);
+        setPillText(label, shownName(r.name));
         const place = i + 1;
         pill.addEventListener("click", (ev) => { ev.stopPropagation(); openWeekShare(r, days, place, rows); });   // not the row's tap
         nm.appendChild(pill);
@@ -10796,19 +10807,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
     b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
     return b;
   }
-  // A player's badge on the leaderboard: their initial in their card's style. Tap: their card.
-  function cardBadge(uid, name, frame) {
+  // A player's name on the leaderboard, as a pill in their card's style. Tap: their card. No uid: a sample (Style tab).
+  const PILL_FLAG = '<svg viewBox="0 0 9 13" aria-hidden="true"><line x1="1" y1="1" x2="1" y2="12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M1.5 1h7l-1.8 2.4 1.8 2.4h-7Z" fill="#f6c90e" stroke="currentColor" stroke-width=".8"/></svg>';
+  function namePill(uid, name, frame, label) {
     const F = PCARD_FRAMES.find((x) => x.id === frame) || PCARD_FRAMES[0];
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "lb-badge";
-    b.style.setProperty("--fr", F.fr);
-    b.style.setProperty("--top", Array.isArray(F.top) ? "linear-gradient(135deg," + F.top.join(",") + ")" : F.top);
-    b.style.setProperty("--wm", F.id === "night" ? "#f8f8f8" : "#121212");
-    b.textContent = ([...shownName(name || "?")][0] || "?").toUpperCase();
-    b.setAttribute("aria-label", shownName(name || "Player") + "\u2019s card");
-    b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
+    const b = document.createElement(uid ? "button" : "span");
+    if (uid) b.type = "button";
+    b.className = "lb-np np-" + F.id;
+    b.innerHTML = (F.id === "summit" ? PILL_FLAG : "") + '<span class="npt"></span>';
+    b.querySelector(".npt").textContent = label != null ? label : shownName(name || "Player");
+    if (uid) {
+      b.setAttribute("aria-label", shownName(name || "Player") + "\u2019s card");
+      b.addEventListener("click", (ev) => { ev.stopPropagation(); openPlayerCard(uid, name); });
+    }
     return b;
   }
+  const setPillText = (el, t) => { (el.querySelector(".npt") || el).textContent = t; };
   const badgeFrame = (uid, cf) => (uid && uid === (window.MatchDB && window.MatchDB.uid) ? pcardPrefs().frame : cf);
   let pcardJustAdded = null;
   let pcardMode = "share";
@@ -10855,13 +10869,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
       if (!m.titles.length) { const n = document.createElement("p"); n.className = "pc-count"; n.textContent = "Earn trophies to unlock titles"; box.appendChild(n); }
       box.appendChild(row);
     } else {
+      if (pcardMode === "profile") {
+        const pv = document.createElement("div"); pv.className = "pc-np-prev";
+        const rk = document.createElement("b"); rk.textContent = weekPlaceNow || "1";
+        pv.append(rk, namePill(null, m.name, p.frame));
+        const cap = document.createElement("div"); cap.className = "pc-grp"; cap.textContent = "On the leaderboard";
+        box.append(cap, pv);
+      }
       const grid = document.createElement("div"); grid.className = "pc-frames";
       PCARD_FRAMES.forEach((F) => {
         const b = document.createElement("button"); b.type = "button"; b.className = p.frame === F.id ? "on" : "";
         const locked = m.perfectDays < F.need;
         b.disabled = locked;
-        const sw = document.createElement("i"); sw.style.background = Array.isArray(F.top) ? "linear-gradient(135deg," + F.top.join(",") + ")" : F.top;
-        b.append(sw, (locked ? "\u{1F512} " : "") + F.name);
+        b.append(namePill(null, F.name, F.id, (locked ? "\u{1F512} " : "") + F.name));
         if (locked) { const s = document.createElement("small"); s.textContent = F.need + " perfect days"; b.appendChild(s); }
         b.addEventListener("click", () => { p.frame = F.id; savePcardPrefs(p); pcardOptions(); pcardRender(); });
         grid.appendChild(b);
