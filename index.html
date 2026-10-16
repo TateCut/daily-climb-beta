@@ -2238,6 +2238,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   .pf-cardtop { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
   .pf-cardtop .pf-since { text-align: center; }
   #pcard-live { display: flex; justify-content: center; width: min(78vw, 300px); }
+  #pcard .pc-panel { max-height: calc(100vh - env(safe-area-inset-top, 0px) - 12px); max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 12px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  #pcard .pc-bar { position: sticky; top: 0; z-index: 2; background: var(--rd-sheet); border-radius: 20px 20px 0 0; }
+  #pcard .pc-opts { flex: none; min-height: 0; overflow: visible; }
+  #pcard .pc-share { position: sticky; bottom: 10px; z-index: 2; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
   #pcard-live[hidden], #pcard-img[hidden] { display: none; }
   .lb-cardlink { display: block; margin-top: 8px; padding: 0; border: 0; background: none; color: var(--rd-climb); font: 800 0.82rem var(--franklin); cursor: pointer; text-align: left; }
   .pcv-body { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 6px 16px 18px; }
@@ -3321,7 +3325,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T11:24:03-07:00","n":2,"notes":[{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.2"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T11:43:08-07:00","n":3,"notes":[{"note":"Customize card scrolls","v":"0.16.1-beta.3"},{"note":"Player cards on profiles","v":"0.16.1-beta.2"},{"note":"Intro film stats","v":"0.16.1-beta.1"},{"note":"Synced with live v0.16.0","v":"0.16.1-beta.0"}],"v":"0.16.1-beta.3"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -11307,6 +11311,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#share-sheet").hidden) closeShareSheet(); });
   $("#btn-pcard-x").addEventListener("click", closePcard);
   $("#btn-pcard-done").addEventListener("click", closePcard);
+  $("#pcard").addEventListener("click", (e) => { if (e.target.id === "pcard") closePcard(); });
   $("#btn-pf-card").addEventListener("click", openCardCustomize);
   $("#btn-pcview-x").addEventListener("click", closePlayerCard);
   $("#pcview").addEventListener("click", (e) => { if (e.target.id === "pcview") closePlayerCard(); });
