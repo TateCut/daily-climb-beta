@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 // The Home Screen app gets full-screen sizing (see html.standalone in the styles).
 try { if (navigator.standalone || matchMedia("(display-mode: standalone)").matches) document.documentElement.classList.add("standalone"); } catch (e) {}
@@ -781,10 +781,12 @@ try { if (navigator.standalone || matchMedia("(display-mode: standalone)").match
   #daily-board-list .lb-row.me.spot { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   @media (prefers-reduced-motion: reduce) { .board-mtn .bflag { transition: none; } }
 
+  html { touch-action: manipulation; }   /* pinch-zoom allowed; no double-tap zoom on the tiles */
+  #fb-text { font-size: max(16px, 1rem); }   /* 16px+ so iPhone doesn't zoom in on focus */
   .nameinput {
     width: 100%;
     font: inherit;
-    font-size: 1rem;
+    font-size: max(16px, 1rem);
     padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: 9px;
@@ -3293,7 +3295,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T13:44:30-07:00","n":7,"notes":[{"note":"Player cards shelved","v":"0.16.1-beta.7"},{"note":"Summit pill without the flag","v":"0.16.1-beta.6"},{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"},{"note":"Customize card scrolls","v":"0.16.1-beta.3"}],"v":"0.16.1-beta.7"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T14:18:12-07:00","n":8,"notes":[{"note":"Launch quick fixes","v":"0.16.1-beta.8"},{"note":"Player cards shelved","v":"0.16.1-beta.7"},{"note":"Summit pill without the flag","v":"0.16.1-beta.6"},{"note":"Names as pills","v":"0.16.1-beta.5"},{"note":"Card badges + easier stat picking","v":"0.16.1-beta.4"}],"v":"0.16.1-beta.8"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -4249,6 +4251,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
         const snap = await getDoc(doc(db, "players", uid));
         const p = snap.exists() ? snap.data() : {};
         if (p.dailyLastDay === day) return; // already counted
+        if (p.dailyLastDay && dayBase(day) < dayBase(p.dailyLastDay)) return; // an earlier day (travelling west): don't wind the streak back
         const streak = (p.dailyLastDay === prevDay) ? (p.dailyStreak || 0) + 1 : 1;
         await setDoc(doc(db, "players", uid), {
           dailyStreak: streak, dailyLastDay: day,
@@ -4531,7 +4534,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   })();
   function devDay() {
     // Dev mode, or the beta (which plays a chosen day for real, results and all).
-    try { return localStorage.getItem("three21.dev") === "1" || window.DC_BETA ? sessionStorage.getItem(DEV_DAY_KEY) : null; } catch (e) { return null; }
+    try { return isDev() || window.DC_BETA ? sessionStorage.getItem(DEV_DAY_KEY) : null; } catch (e) { return null; }
   }
   function dailyKeyOf(d) { return (d ? dayKeyOf(d) : (devDay() || dayKeyOf())) + DAILY_SALT; }
   function dayBase(key) { const m = /^\d{4}-\d{2}-\d{2}/.exec(key || ""); return m ? m[0] : (key || ""); }
@@ -4562,7 +4565,16 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Keep the home screen's countdown current while it's open.
   setInterval(() => {
     if (!screens.home.hidden && !$("#next-daily").hidden) $("#next-daily-t").textContent = nextDailyIn();
+    homeFollowDay();
   }, 30000);
+  // Left open past midnight (or brought back the next morning): Home redraws for the new day.
+  let homeDayShown = null;
+  function homeFollowDay() {
+    try { if (!document.hidden && !screens.home.hidden && homeDayShown && homeDayShown !== dailyKeyOf()) renderDailyCard(); } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", homeFollowDay);
+  window.addEventListener("focus", homeFollowDay);
+  window.addEventListener("pageshow", homeFollowDay);
   function dailyResetText() {
     const h = Math.round(msUntilLocalMidnight() / 3600000);
     return h <= 1 ? "new puzzle within the hour" : "new puzzle in " + h + "h";
@@ -5307,6 +5319,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // back, slide the current word's start forward by however long it was hidden.
   let hiddenAt = 0;
   document.addEventListener("visibilitychange", () => {
+    if (document.hidden && progTimer) { clearTimeout(progTimer); progTimer = 0; progAt = 0; saveDailyProgress(); }
     if (document.hidden) {
       pauseDailyTimer();
       hiddenAt = Date.now();
@@ -7928,7 +7941,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     // (Not in dev replay — those runs already skip the real board/streak, same idea.)
     if (completed && mode === "daily" && !isDev() && dailyClimbIndices) {
       markSeedBeatenLocally(dailyClimbIndices[round - 1]);
-      window.MatchDB.track("daily_round_complete", { round: round });
+      trackEv("daily_round_complete", { round: round });
     }
 
     // Secret trophy: cleared this climb with 2 of 3 strikes used.
@@ -8070,8 +8083,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Lives on the live play screen (called from beginClimbRound + climbAccept),
   // not the between-rounds recap — the climb moves as you solve.
   // Where you've got to in today's daily, saved as you go (dailies/{day}/progress/{uid}).
+  // At most one save every 20s while playing; starts, Climb ends and finishes save at once, and so does hiding the app.
+  let progAt = 0, progTimer = 0;
   function saveDailyProgress(extra) {
     if (mode !== "daily" || isDev() || !dailyDay || !window.MatchDB || !window.MatchDB.saveDailyProgress) return;
+    if (!extra && Date.now() - progAt < 20000) {
+      if (!progTimer) progTimer = setTimeout(() => { progTimer = 0; saveDailyProgress(); }, 20000 - (Date.now() - progAt));
+      return;
+    }
+    clearTimeout(progTimer); progTimer = 0; progAt = Date.now();
     const words = [];
     for (let i = 0; i < round - 1; i++) words.push((roundWords[i] || []).slice());
     words.push(currentRoundWords.slice());
@@ -8354,8 +8374,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // Dev-only: when on, the Game of the Day can be replayed any number of times
   // and none of the replays write to Firestore (real board / streak untouched).
   // Toggled via ?dev=1 / ?dev=0, persisted in localStorage per device.
+  // Dev mode (replays, ?day=) works on the beta, and on the live game only for the admin account.
+  const DEV_ADMIN_UID = "tkVNJrXbh6feWOAPh6CQClUohJ53";
   function isDev() {
-    try { return localStorage.getItem("three21.dev") === "1"; } catch (e) { return false; }
+    try { return localStorage.getItem("three21.dev") === "1" && (!!window.DC_BETA || !!(window.MatchDB && window.MatchDB.uid === DEV_ADMIN_UID)); } catch (e) { return false; }
   }
 
   // ---- Today's theme card ----
@@ -8807,7 +8829,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
     dailyElapsedMs = 0;
     dailySessionActive = true;
     startDailyTimer();
-    if (!isDev()) window.MatchDB.track("daily_start", { day: dailyDay });
+    if (!isDev()) trackEv("daily_start", { day: dailyDay });
     climbPuzzle = dailyClimbs[0];
     beginClimbRound();
     saveDailyProgress({ started: true });
@@ -8830,7 +8852,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       dailyTheme ? { m: dailyMax(), th: themeBonusSoFar(), tf: themeFound.slice(),
         tp: dailyClimbs.map((_, i) => themeRevealFor(i, roundWords[i] || []).played), fk: newFormat(dailyTheme) ? forksTaken() : null } : {}));
     const p = (async () => {
-      window.MatchDB.track("daily_finish", { rungs: totalRungs, strikes: sessionStrikes });
+      trackEv("daily_finish", { rungs: totalRungs, strikes: sessionStrikes });
       saveDailyProgress({ finished: true });
       const prevDay = shiftDayKey(day, -1);
       let ok = false;
@@ -9181,8 +9203,8 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (weekCache[key]) return weekCache[key];
     let list = null;
     try { list = await window.MatchDB.getDailyBoard(key); } catch (e) {}
+    if (list && dayBase(key) < dayBase(shiftDayKey(dailyKeyOf(), -1))) weekCache[key] = list;   // a failed read isn't kept
     list = list || [];
-    if (dayBase(key) < dayBase(shiftDayKey(dailyKeyOf(), -1))) weekCache[key] = list;
     return list;
   }
   // From Home before today's daily is done: the weekly board alone (no Today | This week switch).
@@ -9830,6 +9852,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   });
 
   function renderDailyCard() {
+    homeDayShown = dailyKeyOf();
     updateAvatar();
     renderAdventureProgress();
     const btn = $("#btn-daily-play");
@@ -11360,7 +11383,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   const INSTALL_NUDGE_KEY = "three21.installNudged";
   let deferredInstall = null;   // Chrome's saved beforeinstallprompt event
   let installOpenedFrom = null; // element to return focus to when the sheet closes
-  const trackEv = (name, params) => { try { if (window.MatchDB) window.MatchDB.track(name, params); } catch (e) {} };
+  function trackEv(name, params) { try { if (window.MatchDB && window.MatchDB.track) window.MatchDB.track(name, params); } catch (e) {} }
   function isStandalone() {
     try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; }
     catch (e) { return false; }
@@ -13083,11 +13106,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if ("serviceWorker" in navigator) {
       // A new SW calls skipWaiting + clients.claim, which fires controllerchange
       // here — reload once so the freshly fetched page is the one on screen.
-      let swReloaded = false;
+      // A first visit has no controller yet: the worker taking over then is not an update, so no reload.
+      const hadController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (swReloaded) return;
-        swReloaded = true;
-        location.reload();
+        if (!hadController || updateWaiting) return;
+        updateWaiting = true;
+        applyUpdateWhenCalm();   // now, or on the next calm screen (never mid-Climb)
       });
       navigator.serviceWorker.register("sw.js")
         .then((reg) => { try { reg.update(); } catch (e) {} })
