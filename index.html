@@ -3319,7 +3319,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-16T16:07:58-07:00","n":16,"notes":[{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"},{"note":"Shorter theme-word tip","v":"0.16.1-beta.12"}],"v":"0.16.1-beta.16"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-16T16:32:32-07:00","n":17,"notes":[{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"},{"note":"Reserved usernames","v":"0.16.1-beta.16"},{"note":"Install needs emoji; unlocked names","v":"0.16.1-beta.15"},{"note":"Lock-in first, quieter emoji screen","v":"0.16.1-beta.14"},{"note":"Name first, emoji later","v":"0.16.1-beta.13"}],"v":"0.16.1-beta.17"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3486,12 +3486,19 @@ $1{ display: flex; gap: 8px; width: 100%; }
       db.progress[day] = d; save();
     },
     submitDaily: async function (day, r) {
+      if (db.failSubmit) throw new Error("no signal (pretend)");   // beta.db.failSubmit: test a result waiting to send
       db.dailies[day] = Object.assign({ uid: UID, name: r.name || "Player", total: r.total || 0, strikes: r.strikes || 0, solveMs: r.solveMs || 0,
         hintUsed: !!r.hintUsed, roundWords: r.roundWords || [], finishedAt: Date.now() },
         r.themeWords != null ? { themeWords: r.themeWords, max: r.max, theme: r.theme } : {}, r.forks != null ? { forks: r.forks } : {}, r.twv ? { twv: r.twv } : {}, Array.isArray(r.climbMs) ? { climbMs: r.climbMs } : {}, Array.isArray(r.reveals) && r.reveals.length ? { reveals: r.reveals } : {});
       save();
     },
     getDailyBoard: async function (day) { var m = mine(day); return fakeBoard(day).concat(m ? [m] : []); },
+    // like the nightly summary: no words, so the week share has to fetch your own
+    getDayBoard: async function (day) {
+      if (String(day).slice(0, 10) >= new Date(Date.now() - 864e5).toISOString().slice(0, 10)) return null;
+      var m = mine(day);
+      return fakeBoard(day).concat(m ? [m] : []).map(function (e) { return { uid: e.uid, name: e.name, total: e.total || 0, themeWords: e.themeWords || 0, strikes: e.strikes || 0, solveMs: e.solveMs || 0, finishedAt: e.finishedAt || 0 }; });
+    },
     // The nightly job's summary of recent results (share of most possible points, time), made up from the pretend players.
     getRecentResults: async function (keys) {
       var out = {};
@@ -3646,6 +3653,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   import {
     getAnalytics, logEvent,
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
 
   // Daily reminders: the web push certificate's PUBLIC key (Firebase console >
   // Project settings > Cloud Messaging > Web Push certificates). Safe to ship.
@@ -3666,6 +3674,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     let app = null;
     try {
       app = initializeApp(cfg);
+      // App Check: proves requests come from the real game (blocks scripts and bots). Off until appCheckKey is set.
+      if (cfg.appCheckKey && /(^|\.)thedailyclimb\.com$/.test(location.hostname) && !window.DC_BETA) {
+        try { initializeAppCheck(app, { provider: new ReCaptchaV3Provider(cfg.appCheckKey), isTokenAutoRefreshEnabled: true }); } catch (e) {}
+      }
       db = getFirestore(app);
       auth = getAuth(app);
       fbApp = app;
@@ -4263,6 +4275,14 @@ $1{ display: flex; gap: 8px; width: 100%; }
           at: x.updatedAt && x.updatedAt.toMillis ? x.updatedAt.toMillis() : Date.now() }; });
       } catch (e) { return null; }
     },
+    // dailies/{day}.board: a finalized day's results in one doc (the nightly boards.mjs), or null if it isn't there yet.
+    async getDayBoard(day) {
+      try {
+        const s = await getDoc(doc(db, "dailies", day));
+        const b = s.exists() ? s.data().board : null;
+        return Array.isArray(b) ? b.map((r) => ({ uid: r.u, name: r.n, total: r.t || 0, themeWords: r.w || 0, strikes: r.s || 0, solveMs: r.ms || 0, finishedAt: r.at || 0 })) : null;
+      } catch (e) { return null; }
+    },
     async getDailyBoard(day) {
       try {
         const es = await getDocs(collection(db, "dailies", day, "entrants"));
@@ -4287,14 +4307,15 @@ $1{ display: flex; gap: 8px; width: 100%; }
       try {
         const snap = await getDoc(doc(db, "players", uid));
         const p = snap.exists() ? snap.data() : {};
-        if (p.dailyLastDay === day) return; // already counted
-        if (p.dailyLastDay && dayBase(day) < dayBase(p.dailyLastDay)) return; // an earlier day (travelling west): don't wind the streak back
+        if (p.dailyLastDay === day) return true; // already counted
+        if (p.dailyLastDay && dayBase(day) < dayBase(p.dailyLastDay)) return true; // an earlier day (travelling west): don't wind the streak back
         const streak = (p.dailyLastDay === prevDay) ? (p.dailyStreak || 0) + 1 : 1;
         await setDoc(doc(db, "players", uid), {
           dailyStreak: streak, dailyLastDay: day,
           bestStreak: Math.max(p.bestStreak || 0, streak), // profile + streak trophies
         }, { merge: true });
-      } catch (e) {}
+        return true;
+      } catch (e) { return false; }
     },
   };
 </script>
@@ -4629,7 +4650,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   let dailyTheme = null;        // themedDay() for today's daily, or null on an unthemed day
   let themeFound = [];          // per climb: the theme word the player played, or null
   let dailyRivals = [];         // today's earlier finishers [{name, total}] — for the "You beat X" pop-up
-  let rivalsRound = null;       // which climb the rivals list was last fetched for (refetched once per climb)
+  let rivalsRound = null;       // the daily the rivals list was fetched for (once per run)
   let collectionSeed = null;  // index into CLIMBS currently being played from the Collection screen
   let myBeatenSeeds = [];     // players/{uid}.beatenSeeds — CLIMBS indices this player has cleared
   let matchCode = null;
@@ -7285,8 +7306,10 @@ $1{ display: flex; gap: 8px; width: 100%; }
     } catch (e) {}
   }
 
+  let liveBoard = null;   // today's board while it's listening: { day, paint, paused }
   function teardownDailyWatch() {
     if (unwatchDaily) { unwatchDaily(); unwatchDaily = null; }
+    liveBoard = null;
   }
   const capFirst = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
   function dateLabel(key) {
@@ -8191,13 +8214,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return priorTotal + currentRoundWords.length - rev;
   }
 
-  // Today's earlier finishers (for the "You beat X" pop-up), fetched once per climb so people who finish
-  // while you're playing show up from your next climb on. Read-only, so dev
-  // replay can use it too. Excludes you (a finished run can't be replayed
-  // outside dev mode anyway).
+  // Today's earlier finishers (for the "You beat X" pop-up), fetched once per run (every player's entry is a read,
+  // so not again at each Climb). Read-only, so dev replay can use it too. Excludes you (a finished run can't be
+  // replayed outside dev mode anyway).
   function loadDailyRivals() {
-    if (mode !== "daily" || rivalsRound === round || !dbReady()) return;
-    rivalsRound = round;
+    if (mode !== "daily" || rivalsRound === dailyDay || !dbReady()) return;
+    rivalsRound = dailyDay;
     const day = dailyDay;
     window.MatchDB.getDailyBoard(day).then((entrants) => {
       if (!entrants || mode !== "daily" || dailyDay !== day) return;
@@ -8940,30 +8962,69 @@ $1{ display: flex; gap: 8px; width: 100%; }
     const p = (async () => {
       trackEv("daily_finish", { rungs: totalRungs, strikes: sessionStrikes });
       saveDailyProgress({ finished: true });
-      const prevDay = shiftDayKey(day, -1);
-      let ok = false;
-      try {
-        await window.MatchDB.submitDaily(day, {
-          name: storedName || playerName || "Player",
-          total: totalRungs, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords,
-          hintUsed: helped, ...(reveals.length ? { reveals: reveals } : {}),
-          ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
-          ...(newFormat(dailyTheme) ? { climbMs: Array.from({ length: 3 }, (_, i) => Math.round(climbMs[i] || 0)) } : {}),
-          ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
-        });
-        await window.MatchDB.bumpStreak(day, prevDay);
-        ok = true;
-        if (firstEver) creditReferral();
-        saveSourceOnce();
-        const pl = await window.MatchDB.getPlayer();
-        if (pl) { myDailyStreak = pl.dailyStreak || 0; myDailyLastDay = pl.dailyLastDay || null; myPlayer = pl; }
-        cacheProfile();
-      } catch (e) {}
-      if (ok) clearResume();   // posted: nothing left to resume (if it failed, a resume tries again)
+      // Kept on the phone until it's sent (and the streak counted), so bad signal, Home or midnight can't lose it.
+      const pend = { day: day, prevDay: shiftDayKey(day, -1), firstEver: firstEver, r: {
+        name: storedName || playerName || "Player",
+        total: totalRungs, strikes: sessionStrikes, solveMs: solveMs, roundWords: roundWords,
+        hintUsed: helped, ...(reveals.length ? { reveals: reveals } : {}),
+        ...(dailyTheme ? { themeWords: themeBonusSoFar(), max: dailyMax(), theme: dailyTheme.id, twv: 2 } : {}),
+        ...(newFormat(dailyTheme) ? { climbMs: Array.from({ length: 3 }, (_, i) => Math.round(climbMs[i] || 0)) } : {}),
+        ...(newFormat(dailyTheme) ? { forks: forksTaken() } : {}),
+      } };
+      keepPending(pend);
+      const ok = await sendPendingResult(pend);
+      clearResume();   // the result is safe either way: sent, or waiting to send
+      if (!ok) trackEv("result_waiting", {});
     })();
     dailyPost = { day: day, p: p };
     return p;
   }
+
+  // ---- Finished dailies waiting to send (dc.pendingResults: { day: { day, prevDay, firstEver, r } }) ----
+  const PENDING_KEY = "dc.pendingResults";
+  const pendingAll = () => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "{}") || {}; } catch (e) { return {}; } };
+  function keepPending(pend) { try { const all = pendingAll(); all[pend.day] = pend; localStorage.setItem(PENDING_KEY, JSON.stringify(all)); } catch (e) {} }
+  function dropPending(day) {
+    try { const all = pendingAll(); delete all[day]; if (Object.keys(all).length) localStorage.setItem(PENDING_KEY, JSON.stringify(all)); else localStorage.removeItem(PENDING_KEY); } catch (e) {}
+  }
+  let pendingBusy = false;
+  async function sendPendingResult(pend) {
+    if (pendingBusy || !window.MatchDB || !window.MatchDB.submitDaily) return false;
+    pendingBusy = true;
+    try {
+      try { await window.MatchDB.submitDaily(pend.day, pend.r); }
+      catch (e) {   // already there (an earlier try did get through) counts as sent
+        let mine = null;
+        try { mine = await window.MatchDB.getDailyEntrant(pend.day); } catch (err) {}
+        if (!mine) return false;
+      }
+      if ((await window.MatchDB.bumpStreak(pend.day, pend.prevDay)) === false) return false;
+      dropPending(pend.day);
+      if (pend.firstEver) creditReferral();
+      saveSourceOnce();
+      try {
+        const pl = await window.MatchDB.getPlayer();
+        if (pl) { myDailyStreak = pl.dailyStreak || 0; myDailyLastDay = pl.dailyLastDay || null; myPlayer = pl; }
+        cacheProfile();
+      } catch (e) {}
+      return true;
+    } finally { pendingBusy = false; }
+  }
+  // Retried at start-up, when the app comes back and when the signal does. After a few days the database won't take it.
+  async function flushPendingResult() {
+    if (pendingBusy || !dbReady() || !window.MatchDB.uid) return;
+    const all = pendingAll(), days = Object.keys(all).sort();
+    for (const day of days) {
+      const pend = all[day];
+      if (!pend || !pend.r || dayBase(day) < dayBase(shiftDayKey(dailyKeyOf(), -3))) { dropPending(day); trackEv("result_dropped", {}); continue; }
+      if (dailyPost && dailyPost.day === day) { try { await dailyPost.p; } catch (e) {} if (!pendingAll()[day]) continue; }
+      if (!(await sendPendingResult(pend))) return;   // no signal yet: try again later, in order
+      trackEv("result_retried", {});
+    }
+  }
+  window.addEventListener("online", () => setTimeout(flushPendingResult, 1500));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) setTimeout(flushPendingResult, 1500); });
+  if (window.MatchDB && window.MatchDB.whenReady) window.MatchDB.whenReady(() => setTimeout(flushPendingResult, 4000));
 
   async function submitDailyResult(totalRungs) {
     defToken++;
@@ -9286,9 +9347,26 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (t && newRules(t)) return t.climbs.reduce((a, _, i) => a + climbMaxPoints(t, i), 0);
     return dayMaxFor(key);
   }
+  // Finished days' summaries, kept on the phone (they never change): { key: [entrants] }, the last few weeks only.
+  const BOARDS_KEY = "dc.boards";
+  function keptBoard(key) { try { return (JSON.parse(localStorage.getItem(BOARDS_KEY) || "{}") || {})[key] || null; } catch (e) { return null; } }
+  function keepBoard(key, list) {
+    if (list.length > 3000) return;   // too big to keep; read again next time
+    try {
+      const all = JSON.parse(localStorage.getItem(BOARDS_KEY) || "{}") || {}, cut = dayBase(shiftDayKey(dailyKeyOf(), -21));
+      Object.keys(all).forEach((k) => { if (dayBase(k) < cut) delete all[k]; });
+      all[key] = list;
+      localStorage.setItem(BOARDS_KEY, JSON.stringify(all));
+    } catch (e) {}
+  }
   async function weekBoard(key) {
     if (weekCache[key]) return weekCache[key];
-    let list = null;
+    const past = dayBase(key) < dayBase(dailyKeyOf());
+    let list = past ? keptBoard(key) : null;
+    if (list) return (weekCache[key] = list);
+    // a finalized day: its one-doc summary (from the nightly job); otherwise every entry, as before
+    if (past && window.MatchDB.getDayBoard) { try { list = await window.MatchDB.getDayBoard(key); } catch (e) {} }
+    if (list) { keepBoard(key, list); return (weekCache[key] = list); }
     try { list = await window.MatchDB.getDailyBoard(key); } catch (e) {}
     if (list && dayBase(key) < dayBase(shiftDayKey(dailyKeyOf(), -1))) weekCache[key] = list;   // a failed read isn't kept
     list = list || [];
@@ -9757,9 +9835,18 @@ $1{ display: flex; gap: 8px; width: 100%; }
       renderDailyBoard(entrants, dayKey, opts);
     };
     if (!dbReady()) { paint(null); return; }
-    if (isToday) unwatchDaily = window.MatchDB.watchDailyBoard(dayKey, paint);
+    if (isToday) { unwatchDaily = window.MatchDB.watchDailyBoard(dayKey, paint); liveBoard = { day: dayKey, paint: paint }; }
     else window.MatchDB.getDailyBoard(dayKey).then(paint);
   }
+  // Today's board listens for new finishers; while the app is hidden it doesn't (each change is a read), and when it
+  // comes back to the same board it listens again.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { if (unwatchDaily && liveBoard) { unwatchDaily(); unwatchDaily = null; liveBoard.paused = true; } return; }
+    if (liveBoard && liveBoard.paused && !unwatchDaily && !screens.dailyboard.hidden && liveBoard.day === dailyKeyOf() && dbReady()) {
+      liveBoard.paused = false;
+      unwatchDaily = window.MatchDB.watchDailyBoard(liveBoard.day, liveBoard.paint);
+    }
+  });
 
   // The single home Play button: label + one-line status for today's puzzle.
   function renderAdventureProgress() {
@@ -10498,6 +10585,12 @@ $1{ display: flex; gap: 8px; width: 100%; }
     return cv;
   }
   async function openWeekShare(r, days, place, rows) {
+    // the peaks' flags need your words; a day summary doesn't carry them, so fetch your own entries
+    await Promise.all(days.map(async (k, i) => {
+      const x = r.days[i];
+      if (!x || (x.e && x.e.roundWords) || !window.MatchDB.getDailyEntrant) return;
+      try { const e = await window.MatchDB.getDailyEntrant(k); if (e) x.e = e; } catch (err) {}
+    }));
     const id = ++shareOpenId, m = weekShareModel(r, days, place, rows), go = $("#btn-share-link");
     shareLink = null; sharePicFile = null;
     $("#share-sheet .pc-bar b").innerHTML = "Share your week";
