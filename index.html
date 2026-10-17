@@ -3325,7 +3325,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-17T08:28:28-07:00","n":20,"notes":[{"note":"reCAPTCHA badge hidden","v":"0.16.1-beta.20"},{"note":"A friend's link says hi","v":"0.16.1-beta.19"},{"note":"Faster first load","v":"0.16.1-beta.18"},{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"},{"note":"Reserved usernames","v":"0.16.1-beta.16"}],"v":"0.16.1-beta.20"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-17T08:34:16-07:00","n":21,"notes":[{"note":"App Check uses Fraud Defense","v":"0.16.1-beta.21"},{"note":"reCAPTCHA badge hidden","v":"0.16.1-beta.20"},{"note":"A friend's link says hi","v":"0.16.1-beta.19"},{"note":"Faster first load","v":"0.16.1-beta.18"},{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"}],"v":"0.16.1-beta.21"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -3660,7 +3660,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   import {
     getAnalytics, logEvent,
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
+  import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
 
   // Daily reminders: the web push certificate's PUBLIC key (Firebase console >
   // Project settings > Cloud Messaging > Web Push certificates). Safe to ship.
@@ -3683,7 +3683,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
       app = initializeApp(cfg);
       // App Check: proves requests come from the real game (blocks scripts and bots). Off until appCheckKey is set.
       if (cfg.appCheckKey && /(^|\.)thedailyclimb\.com$/.test(location.hostname) && !window.DC_BETA) {
-        try { initializeAppCheck(app, { provider: new ReCaptchaV3Provider(cfg.appCheckKey), isTokenAutoRefreshEnabled: true }); } catch (e) {}
+        try { initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(cfg.appCheckKey), isTokenAutoRefreshEnabled: true }); } catch (e) {}
       }
       db = getFirestore(app);
       auth = getAuth(app);

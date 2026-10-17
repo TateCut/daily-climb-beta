@@ -34,5 +34,5 @@ window.THREE21_FIREBASE_CONFIG = {
   messagingSenderId: "264476826239",
   appId: "1:264476826239:web:570e50b08aaf6b60d6fd4a",
   measurementId: "G-R11NF60DHM",
-  // appCheckKey: a reCAPTCHA v3 site key (public). Set it to turn on App Check (index.html, stats.html).
+  // appCheckKey: a reCAPTCHA Enterprise (Fraud Defense) site key (public). Set it to turn on App Check (index.html, stats.html).
 };
