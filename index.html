@@ -3325,7 +3325,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-17T08:34:16-07:00","n":21,"notes":[{"note":"App Check uses Fraud Defense","v":"0.16.1-beta.21"},{"note":"reCAPTCHA badge hidden","v":"0.16.1-beta.20"},{"note":"A friend's link says hi","v":"0.16.1-beta.19"},{"note":"Faster first load","v":"0.16.1-beta.18"},{"note":"Results that wait for signal, lighter leaderboards","v":"0.16.1-beta.17"}],"v":"0.16.1-beta.21"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-17T08:49:24-07:00","n":22,"notes":[{"note":"Clearer Home Screen steps on iPhone","v":"0.16.1-beta.22"},{"note":"App Check uses Fraud Defense","v":"0.16.1-beta.21"},{"note":"reCAPTCHA badge hidden","v":"0.16.1-beta.20"},{"note":"A friend's link says hi","v":"0.16.1-beta.19"},{"note":"Faster first load","v":"0.16.1-beta.18"}],"v":"0.16.1-beta.22"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -11719,26 +11719,22 @@ $1{ display: flex; gap: 8px; width: 100%; }
     if (IS_IOS && IOS_OTHER_BROWSER) {
       return { title: "Add Daily Climb to your Home Screen", sub: sub,
         steps: ["Tap " + glyph("share") + " <b>Share</b> in the address bar",
-          "Tap " + glyph("plus") + " <b>Add to Home Screen</b>", "Tap " + pill("Add")] };
+          "Tap " + glyph("plus") + " <b>Add to Home Screen</b>. Don't see it? Tap <b>More</b> first", "Tap " + pill("Add")] };
     }
     if (IS_IPAD) {
       return { title: "Add Daily Climb to your Home Screen", sub: sub,
         steps: ["Tap " + glyph("share") + " <b>Share</b> at the top right",
-          "Tap " + glyph("plus") + " <b>Add to Home Screen</b>", "Tap " + pill("Add")],
+          "Tap " + glyph("plus") + " <b>Add to Home Screen</b>. Don't see it? Tap <b>More</b> first", "Tap " + pill("Add")],
         arrow: { edge: "up", x: 91 } };
     }
     if (IS_IOS) {
       const v = iosMajor();
-      if (v >= 27) return { title: "Add Daily Climb to your Home Screen", sub: sub,
-        steps: ["Tap " + glyph("menu") + " Safari's menu button (bottom left)",
-          "Tap " + glyph("share") + " <b>Share</b>, then <b>More</b>",
-          "Tap " + glyph("plus") + " <b>Add to Home Screen</b>, then " + pill("Add")],
-        arrow: { edge: "down", x: 20 } };
-      if (v === 26) return { title: "Add Daily Climb to your Home Screen", sub: sub,
-        steps: ["Tap " + glyph("dots") + " next to the address bar",
-          "Tap " + glyph("share") + " <b>Share</b>, then " + glyph("plus") + " <b>Add to Home Screen</b>",
-          "Tap " + pill("Add")],
-        arrow: { edge: "down", x: 88 } };
+      // iOS 26+: Share is in Safari's bar or inside the ··· button (the player's layout setting), and Add to Home
+      // Screen sits behind More, so one list covers both.
+      if (v >= 26) return { title: "Add Daily Climb to your Home Screen", sub: sub,
+        steps: ["Tap " + glyph("share") + " <b>Share</b>. No Share button? Tap " + glyph("dots") + " first",
+          "Tap <b>More</b>, then " + glyph("plus") + " <b>Add to Home Screen</b>",
+          "Tap " + pill("Add")] };
       return { title: "Add Daily Climb to your Home Screen", sub: sub,
         steps: ["Tap " + glyph("share") + " <b>Share</b> in Safari's bottom bar",
           "Scroll down, tap " + glyph("plus") + " <b>Add to Home Screen</b>", "Tap " + pill("Add")],
