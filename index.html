@@ -3325,7 +3325,7 @@ $1{ display: flex; gap: 8px; width: 100%; }
   window.DC_BETA = true;
   // Which beta build this is: filled in on every beta push by daily-climb-beta-tools/push-beta.pl
   // ({ v: "0.11.0-beta.3", n: 3, at: ISO time, notes: [{ v, note }, ...] }). null on a local copy.
-  window.DC_BETA_BUILD = {"at":"2026-10-17T08:49:24-07:00","n":22,"notes":[{"note":"Clearer Home Screen steps on iPhone","v":"0.16.1-beta.22"},{"note":"App Check uses Fraud Defense","v":"0.16.1-beta.21"},{"note":"reCAPTCHA badge hidden","v":"0.16.1-beta.20"},{"note":"A friend's link says hi","v":"0.16.1-beta.19"},{"note":"Faster first load","v":"0.16.1-beta.18"}],"v":"0.16.1-beta.22"}; // BETA-BUILD-STAMP
+  window.DC_BETA_BUILD = {"at":"2026-10-17T08:58:08-07:00","n":0,"notes":[{"note":"Synced with live v0.17.0","v":"0.17.1-beta.0"}],"v":"0.17.1-beta.0"}; // BETA-BUILD-STAMP
   window.THREE21_FIREBASE_CONFIG = null; // no Firebase, no analytics
 
   var KEY = "beta.db", UID = "beta-you";
@@ -12387,6 +12387,17 @@ $1{ display: flex; gap: 8px; width: 100%; }
   // (sw.js caches other files cache-first, so a notes file could go stale).
   // Each release shows from its date on (the player's own day), so notes can ship ahead of the change they describe.
   const PATCH_NOTES = [
+    { v: "0.17.0", date: "2026-10-17", title: "Jump right in",
+      notes: [
+        ["new", "New players pick a username and start climbing right away. After your first daily, you'll be asked to lock in your name with 3 secret emoji, and you'll need them before adding Daily Climb to your Home Screen."],
+        ["new", "Tap a friend's shared result and Daily Climb greets you with their name. Whoever shared it gets credit when you finish your first daily."],
+        ["imp", "A finished daily is never lost to bad signal. It waits on your phone and sends as soon as you're back online, streak included."],
+        ["imp", "The game opens faster, and the leaderboards load faster."],
+        ["imp", "Fairer leaderboards: every result is checked against the day's puzzle overnight, and names like Admin or Official can't be claimed."],
+        ["imp", "A new Privacy & terms page and support address (support@thedailyclimb.com), and links to the game now show a proper preview picture."],
+        ["fix", "The home screen moves on to the new day if the app was left open overnight, and first visits no longer reload a few seconds in."],
+        ["fix", "Clearer steps for adding Daily Climb to your iPhone's Home Screen."],
+      ] },
     { v: "0.16.0", date: "2026-10-15", title: "Weekly Leaderboard",
       notes: [
         ["new", "The Weekly Leaderboard. Your daily points add up from Monday to Sunday, and the lower total time breaks a tie. Find it on the home screen, right under Play, with your place this week. This first week counts from Tuesday, Oct 13."],
